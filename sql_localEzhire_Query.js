@@ -1,15 +1,13 @@
 const mysql = require('mysql2');
 const { queryBookingKeyStats } = require('./query_booking_key_stats');
+const config = require('./utilities/config');
 
 // MySQL configuration
-const mysqlConfig = {
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'denverdenver',
-    database: 'ezhire_booking_data',
-    connectionLimit: 10, // adjust as needed
-};
+const mysqlConfig = config.localDbConfig;
+
+// console.log(config);
+// console.log(process.env);
+// console.log(mysqlConfig);
 
 // Create a MySQL connection pool
 const pool = mysql.createPool(mysqlConfig);

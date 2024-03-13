@@ -7,8 +7,8 @@ const { queryBookingData } = require('./query_BookingData');
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate');
 
-console.log(config);
-console.log(process.env);
+// console.log(config);
+// console.log(process.env);
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {

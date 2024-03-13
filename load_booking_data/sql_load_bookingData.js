@@ -4,8 +4,8 @@ const config = require('../utilities/config');
 const { schema_booking_table } = require('./schema_booking_table');
 const { generateLogFile } = require('../utilities/generateLogFile');
 
-console.log(config);
-console.log(process.env);
+// console.log(config);
+// console.log(process.env);
 
 async function loadData() {
   const pool = mysql.createPool(config.localDbConfig);

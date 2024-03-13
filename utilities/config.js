@@ -29,6 +29,7 @@ const forwardConfig = {
 
 const localDbConfig = {
     host: process.env.LOCAL_HOST,
+    port: 3306,
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_DB,
