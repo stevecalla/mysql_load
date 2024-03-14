@@ -7,8 +7,9 @@ CREATE TABLE booking_data (
   booking_datetime DATETIME,
   booking_year VARCHAR(4),
   booking_month VARCHAR(2),
-  booking_day_of_month VARCHAR(64),
-  booking_day_of_week VARCHAR(64),
+  booking_day_of_month VARCHAR(2),
+  booking_week_of_year VARCHAR(2)
+  booking_day_of_week VARCHAR(2),
   booking_day_of_week_v2 VARCHAR(64),
   booking_time_bucket VARCHAR(7),
 
@@ -17,7 +18,8 @@ CREATE TABLE booking_data (
   pickup_year VARCHAR(4),
   pickup_month VARCHAR(64),
   pickup_day_of_month VARCHAR(2),
-  pickup_day_of_week VARCHAR(64),
+  pickup_week_of_year VARCHAR(2),
+  pickup_day_of_week VARCHAR(2),
   pickup_day_of_week_v2 VARCHAR(64),
   pickup_time_bucket VARCHAR(7),
 
@@ -26,9 +28,10 @@ CREATE TABLE booking_data (
   return_year VARCHAR(4),
   return_month VARCHAR(64),
   return_day_of_month VARCHAR(2),
+  return_week_of_year VARCHAR(2),
   return_day_of_week VARCHAR(2),
   return_day_of_week_v2 VARCHAR(64),
-  return_time_bucket VARCHAR(64),
+  return_time_bucket VARCHAR(7),
 
   advance_category_day VARCHAR(64),
   advance_category_week VARCHAR(64),
