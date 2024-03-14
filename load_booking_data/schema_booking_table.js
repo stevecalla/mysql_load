@@ -23,6 +23,17 @@ CREATE TABLE booking_data (
   return_day_of_week VARCHAR(2),
   return_day_of_week_v2 VARCHAR(64),
   return_time_bucket VARCHAR(64),
+
+  advance_category_day VARCHAR(64),
+  advance_category_week VARCHAR(64),
+  advance_category_month VARCHAR(64),
+  advance_category_date_within_week VARCHAR(64),
+  advance_pickup_booking_date_diff BIGINT,
+
+  comparison_28_days VARCHAR(64),
+  comparison_period VARCHAR(64),
+  comparison_common_date DATE,
+  
   status VARCHAR(50),
   booking_type VARCHAR(12) NOT NULL,
   marketplace_or_dispatch VARCHAR(11) NOT NULL,

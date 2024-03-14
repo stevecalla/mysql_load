@@ -2,8 +2,13 @@ const queryBookingData = `
 -- SET  @str_date = '2024-01-01',@end_date = '2024-01-01';
 
 -- CHANGE LOG ********* START **************
--- add 28 day comparision field
--- add same day / forward categories
+-- adjusted a variety of fields to clean data for export / import / analytics
+-- added country_id
+-- added city_id
+-- adjusted definition of booking_day_of_week as it was returning week of the year
+-- removed the currency conversion from local to AED on customer rate
+-- added booking_charge_less_discount_aed, -- converted from local currency to UAE/AED
+-- added booking_charge_less_aed, -- converted from local currency to UAE/AED
 -- CHANGE LOG ********* END **************
 
 SELECT 
@@ -11,8 +16,6 @@ SELECT
     REPLACE(REPLACE(agreement_number, '"', ''),
         ',',
         ' ') AS agreement_number,
-
-	-- BOOKING DATE FIELDS
     IFNULL(IF(DATE_FORMAT(booking_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
                 '1900-01-01 12:00:00',
                 booking_datetime),
@@ -23,8 +26,6 @@ SELECT
     booking_day_of_week,
     booking_day_of_week_v2,
     booking_time_bucket,
-
-	-- PICKUP DATE FIELDS
     IFNULL(IF(DATE_FORMAT(pickup_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
                 '1900-01-01 12:00:00',
                 pickup_datetime),
@@ -35,8 +36,6 @@ SELECT
     pickup_day_of_week,
     pickup_day_of_week_v2,
     pickup_time_bucket,
-
-	-- RETURN DATE FIELDS
     IFNULL(IF(DATE_FORMAT(return_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
                 '1900-01-01 12:00:00',
                 return_datetime),
@@ -47,63 +46,6 @@ SELECT
     return_day_of_week,
     return_day_of_week_v2,
     return_time_bucket,
-    
-    -- ADVANCE CATEGORIES START
-	CASE
-		WHEN DAYOFMONTH(pickup_datetime) = DAYOFMONTH(booking_datetime) THEN 'SameDay'
-		WHEN DAYOFMONTH(pickup_datetime) <> DAYOFMONTH(booking_datetime) THEN 'NextDay+'
-		ELSE 'Other'
-	END AS advance_category_day,
-    
-    -- assign each record a sameWeek or nextWeek field
-    CASE
-		WHEN WEEKOFYEAR(pickup_datetime) = WEEKOFYEAR(booking_datetime) THEN 'SameWeek'
-		WHEN WEEKOFYEAR(pickup_datetime) <> WEEKOFYEAR(booking_datetime) THEN 'NextWeek+'
-		ELSE 'Other'
-	END AS advance_category_week,
-    
-    -- assign each record a sameMonth or nextMonth field
-    CASE
-		WHEN MONTH(pickup_datetime) = MONTH(booking_datetime) THEN 'SameMonth'
-		WHEN MONTH(pickup_datetime) <> MONTH(booking_datetime) THEN 'NextMonth+'
-		ELSE 'Other'
-	END AS advance_category_month,
-    
-    -- assign each record a same day, next day, within a week, more than a week
-    CASE
-		WHEN DATEDIFF(pickup_datetime, booking_datetime) <= 0 THEN 'SameDay'
-		WHEN DATEDIFF(pickup_datetime, booking_datetime) = 1 THEN 'NextDay'
-		WHEN DATEDIFF(pickup_datetime, booking_datetime) BETWEEN 2 AND 7 THEN 'WithinAWeek'
-		WHEN DATEDIFF(pickup_datetime, booking_datetime) > 7 THEN 'MoreThanAWeek'
-		ELSE 'Other'
-	END AS advance_category_date_within_week,
-    
-    -- calc the date difference between pickup and dropoff
-    DATEDIFF(pickup_datetime, booking_datetime) AS advance_pickup_booking_date_diff,
-    -- ADVANCE CATEGORES END
-
-    -- COMPARISON DATES CURRENT 28 DAYS, PRIOR 4 WEEKS, 52 WEEKS PRIOR --- START
-        CASE
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < 28) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 0)) THEN 'yes'
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + 28)) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 28)) THEN 'yes'
-        WHEN ((DateDiff(AddDate(Current_Date(), 0),DATE(booking_datetime)) < (28 + (52 * 7))) AND (DateDiff(Current_Date(),DATE(booking_datetime)) >= (52 * 7))) THEN 'yes'
-        ELSE 'no'
-    END AS comparison_28_days,
-    
-    CASE
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < 28) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 0)) THEN 'Current_28_Days'
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + 28)) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 28)) THEN '4_Weeks_Prior'
-        WHEN ((DateDiff(AddDate(Current_Date(), 0),DATE(booking_datetime)) < (28 + (52 * 7))) AND (DateDiff(Current_Date(),DATE(booking_datetime)) >= (52 * 7))) THEN '52_Weeks_Prior'
-        ELSE 'other'
-    END AS comparison_period,
-                
-    CASE  
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < 28) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 0)) THEN DATE_FORMAT(booking_datetime, '%Y-%m-%d')
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + 28)) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 28)) THEN DATE_FORMAT(DATE_ADD(DATE(booking_datetime), INTERVAL 28 DAY), '%Y-%m-%d')
-        WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + (52 * 7))) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= (52 * 7))) THEN DATE_FORMAT(DATE_ADD(DATE(booking_datetime), INTERVAL (52 * 7) DAY), '%Y-%m-%d')
-    END AS comparison_common_date,
-    -- COMPARISON DATES CURRENT 28 DAYS, PRIOR 4 WEEKS, 52 WEEKS PRIOR --- END
-    
     status,
     booking_type,
     marketplace_or_dispatch,
