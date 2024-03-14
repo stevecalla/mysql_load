@@ -14,7 +14,7 @@ CREATE TABLE booking_data (
   booking_time_bucket VARCHAR(7),
 
   booking_count BITINT,
-  booking_count_excluding_cancel BITINT,
+  booking_count_excluding_cancel BIGINT,
 
   pickup_date DATE,
   pickup_datetime DATETIME,
