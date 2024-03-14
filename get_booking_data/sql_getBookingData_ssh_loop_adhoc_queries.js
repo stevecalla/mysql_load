@@ -47,8 +47,8 @@ function createSSHConnection() {
 async function executeQueryForDateRange(pool, startDate, endDate) {
     return new Promise((resolve, reject) => {
 
-        // const query = queryAllPayments;
-        const query = `SELECT @@SERVERNAME`;
+        const query = queryAllPayments;
+        // const query = `SELECT @@SERVERNAME`;
 
         // const modifiedBookingQuery = queryBookingData
         //     .replace('startDateVariable', startDate)
@@ -215,11 +215,13 @@ async function main() {
         // }
 
         // Close the SSH connection after all queries are executed
-        sshClient.end();
         console.log('All queries executed successfully.');
+        sshClient.end();
         await pool.end();
     } catch (error) {
         console.error('Error:', error);
+        sshClient.end();
+        await pool.end();
     } finally {
         // End the pool
     }

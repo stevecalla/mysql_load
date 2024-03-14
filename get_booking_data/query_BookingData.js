@@ -4,6 +4,13 @@ const queryBookingData = `
 -- CHANGE LOG ********* START **************
 -- add 28 day comparision field
 -- add same day / forward categories
+-- added booking, pickup and return date with the time
+-- adjusted dates to have null values not a date from 1900
+-- exclude test bookings
+-- 	Burhan Khan what tech team is do when they make test booking , usually they assigned to particular vendor  therefore we exclude it from our query..
+-- 		AND COALESCE(vendor_id,'') NOT IN (33, 5 , 218, 23086)
+-- 		moreover, we also exclude this
+-- 		first_name not LIKE '%test%' and last_name not like '%test%'
 -- CHANGE LOG ********* END **************
 
 SELECT 
@@ -581,6 +588,7 @@ FROM
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
     -- WHERE DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+        -- AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
 	
 	-- FOR TESTING / AUDITING ******* START *********
 	-- WHERE date(date_add(b.created_on,interval 4 hour)) between '2024-01-01' and '2024-01-01' 
@@ -591,6 +599,7 @@ FROM
 	
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL VARIABLES DON'T WORK ******* START *********
 	WHERE date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
+      AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL VARIABLES DON'T WORK ******* END *********
 
     ORDER BY b.id
