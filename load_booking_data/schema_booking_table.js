@@ -13,7 +13,7 @@ CREATE TABLE booking_data (
   booking_day_of_week_v2 VARCHAR(64),
   booking_time_bucket VARCHAR(7),
 
-  booking_count BITINT,
+  booking_count BIGINT,
   booking_count_excluding_cancel BIGINT,
 
   pickup_date DATE,
