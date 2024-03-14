@@ -205,9 +205,10 @@ async function main() {
         }
 
         // Close the SSH connection after all queries are executed
-        sshClient.end();
-        console.log('All queries executed successfully.');
         await pool.end();
+        sshClient.end();
+
+        console.log('All queries executed successfully.');
     } catch (error) {
         console.error('Error:', error);
     } finally {

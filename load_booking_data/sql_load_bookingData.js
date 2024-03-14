@@ -79,6 +79,10 @@ async function loadData() {
             advance_category_date_within_week,
             advance_pickup_booking_date_diff,
 
+            comparison_28_days,
+            comparison_period,
+            @comparison_common_date,
+
             status,
             booking_type,
             marketplace_or_dispatch,
@@ -149,7 +153,8 @@ async function loadData() {
         )
         SET booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
             pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
-            return_datetime = STR_TO_DATE(@return_datetime, "%Y-%m-%d %H:%i:%s");
+            return_datetime = STR_TO_DATE(@return_datetime, "%Y-%m-%d %H:%i:%s"),
+            comparison_common_date = STR_TO_DATE(@comparison_common_date, "%Y-%m-%d");
             -- promocode_created_date = STR_TO_DATE(@promocode_created_date, "%Y-%m-%d %H:%i:%s");
             `
 
@@ -167,14 +172,13 @@ async function loadData() {
     }
     generateLogFile('loading_booking_data', `Total files added = ${numberOfFiles}`, config.csvExportPath);
     console.log('Files processed = ', numberOfFiles)
-
+    await pool.end();
   } catch (error) {
     console.error('Error:', error);
     generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, config.csvExportPath);
   } finally {
     generateLogFile('loading_booking_data', `Total rows added = ${rowsAdded.toLocaleString()}`, config.csvExportPath);
     // End the pool
-    await pool.end();
   }
 }
 
