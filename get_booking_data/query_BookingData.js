@@ -38,6 +38,10 @@ SELECT
     booking_day_of_week_v2,
     booking_time_bucket,
 
+    -- BOOKING COUNT STATS
+    1 AS booking_count,
+    IF(status NOT LIKE '%Cancelled%', 1, 0) AS booking_count_excluding_cancel,
+
 	-- PICKUP DATE FIELDS
     IFNULL(IF(pickup_datetime = '0000-00-00 00:00:00',
                 NULL,

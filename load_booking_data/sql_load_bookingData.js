@@ -61,6 +61,9 @@ async function loadData() {
             booking_day_of_week,
             booking_day_of_week_v2,
             booking_time_bucket,
+            
+            booking_count,
+            booking_count_excluding_cancel,           
 
             @pickup_date,
             @pickup_datetime, -- Variable to capture pickup_datetime as string

@@ -8,10 +8,13 @@ CREATE TABLE booking_data (
   booking_year VARCHAR(4),
   booking_month VARCHAR(2),
   booking_day_of_month VARCHAR(2),
-  booking_week_of_year VARCHAR(2)
+  booking_week_of_year VARCHAR(2),
   booking_day_of_week VARCHAR(2),
   booking_day_of_week_v2 VARCHAR(64),
   booking_time_bucket VARCHAR(7),
+
+  booking_count INT,
+  booking_count_excluding_cancel INT,
 
   pickup_date DATE,
   pickup_datetime DATETIME,
