@@ -51,6 +51,7 @@ CREATE TABLE booking_data (
   marketplace_partner_summary VARCHAR(100),
   booking_channel VARCHAR(15),
   booking_source VARCHAR(100),
+
   repeated_user VARCHAR(64) NOT NULL,
   total_lifetime_booking_revenue CHAR(64) NOT NULL,
   no_of_bookings BIGINT NOT NULL DEFAULT 0,
@@ -58,10 +59,16 @@ CREATE TABLE booking_data (
   no_of_completed_bookings BIGINT,
   no_of_started_bookings BIGINT,
   customer_id INT,
+      
+	first_name VARCHAR(150),
+  last_name VARCHAR(150),
+  email VARCHAR(254),
+
   date_of_birth VARCHAR(25) NOT NULL,
   age BIGINT,
   customer_driving_country VARCHAR(50),
   customer_doc_vertification_status VARCHAR(3) NOT NULL,
+
   days DOUBLE,
   extra_day_calc DOUBLE DEFAULT 0,
   customer_rate DOUBLE,

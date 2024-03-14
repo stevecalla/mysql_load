@@ -95,11 +95,14 @@ async function loadData() {
 
             status,
             booking_type,
+
             marketplace_or_dispatch,
             marketplace_partner,
             marketplace_partner_summary,
+
             booking_channel,
             booking_source,
+
             repeated_user,
             total_lifetime_booking_revenue,
             no_of_bookings,
@@ -107,10 +110,16 @@ async function loadData() {
             no_of_completed_bookings,
             no_of_started_bookings,
             customer_id,
+                
+            first_name,
+            last_name,
+            email,
+
             date_of_birth,
             age,
             customer_driving_country,
             customer_doc_vertification_status,
+
             days,
             extra_day_calc,
             customer_rate,
