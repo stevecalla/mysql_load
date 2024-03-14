@@ -72,6 +72,13 @@ async function loadData() {
             return_day_of_week,
             return_day_of_week_v2,
             return_time_bucket,
+
+            advance_category_day,
+            advance_category_week,
+            advance_category_month,
+            advance_category_date_within_week,
+            advance_pickup_booking_date_diff,
+
             status,
             booking_type,
             marketplace_or_dispatch,
