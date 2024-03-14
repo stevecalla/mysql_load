@@ -13,10 +13,18 @@ SELECT
         ' ') AS agreement_number,
 
 	-- BOOKING DATE FIELDS
-    IFNULL(IF(DATE_FORMAT(booking_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
-                '1900-01-01 12:00:00',
-                booking_datetime),
-            '1900-01-01 12:00:00') AS booking_datetime,
+    IFNULL(IF(booking_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(booking_datetime, '%Y-%m-%d')),
+            NULL) AS booking_date,
+    IFNULL(IF(booking_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(booking_datetime, '%Y-%m-%d %H:%i:%s')),
+            NULL) AS booking_datetime,
+--     IFNULL(IF(DATE_FORMAT(booking_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
+--                 '1900-01-01 12:00:00',
+--                 booking_datetime),
+--             '1900-01-01 12:00:00') AS booking_datetime,
     booking_year,
     booking_month,
     booking_day_of_month,
@@ -25,10 +33,18 @@ SELECT
     booking_time_bucket,
 
 	-- PICKUP DATE FIELDS
-    IFNULL(IF(DATE_FORMAT(pickup_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
-                '1900-01-01 12:00:00',
-                pickup_datetime),
-            '1900-01-01 12:00:00') AS pickup_datetime,
+    IFNULL(IF(pickup_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(pickup_datetime, '%Y-%m-%d')),
+            NULL) AS pickup_date,
+    IFNULL(IF(pickup_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(pickup_datetime, '%Y-%m-%d %H:%i:%s')),
+            NULL) AS pickup_datetime,
+--     IFNULL(IF(DATE_FORMAT(pickup_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
+--                 '1900-01-01 12:00:00',
+--                 pickup_datetime),
+--             '1900-01-01 12:00:00') AS pickup_datetime,
     pickup_year,
     pickup_month,
     pickup_day_of_month,
@@ -37,10 +53,18 @@ SELECT
     pickup_time_bucket,
 
 	-- RETURN DATE FIELDS
-    IFNULL(IF(DATE_FORMAT(return_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
-                '1900-01-01 12:00:00',
-                return_datetime),
-            '1900-01-01 12:00:00') AS return_datetime,
+    IFNULL(IF(return_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(return_datetime, '%Y-%m-%d')),
+            NULL) AS return_date,
+    IFNULL(IF(return_datetime = '0000-00-00 00:00:00',
+                NULL,
+                DATE_FORMAT(return_datetime, '%Y-%m-%d %H:%i:%s')),
+            NULL) AS return_datetime,
+--     IFNULL(IF(DATE_FORMAT(return_datetime, '%Y-%m-%d %H:%i:%s') = '0000-00-00 00:00:00',
+--                 '1900-01-01 12:00:00',
+--                 return_datetime),
+--             '1900-01-01 12:00:00') AS return_datetime,
     return_year,
     return_month,
     return_day_of_month,
@@ -102,6 +126,13 @@ SELECT
         WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + 28)) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 28)) THEN DATE_FORMAT(DATE_ADD(DATE(booking_datetime), INTERVAL 28 DAY), '%Y-%m-%d')
         WHEN ((DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + (52 * 7))) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= (52 * 7))) THEN DATE_FORMAT(DATE_ADD(DATE(booking_datetime), INTERVAL (52 * 7) DAY), '%Y-%m-%d')
     END AS comparison_common_date,
+    
+    CASE WHEN (DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < 28) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 0) THEN 1  ELSE 0 END AS 'Current_28_Days',
+
+    CASE WHEN (DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + 28)) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= 28) THEN 1  ELSE 0 END AS '4_Weeks_Prior',
+
+    CASE WHEN (DateDiff(AddDate(Current_Date(), 0), DATE(booking_datetime)) < (28 + (52 * 7))) AND (DateDiff(Current_Date(), DATE(booking_datetime)) >= (52 * 7)) THEN 1  ELSE 0 END AS '52_Weeks_Prior',
+
     -- COMPARISON DATES CURRENT 28 DAYS, PRIOR 4 WEEKS, 52 WEEKS PRIOR --- END
     
     status,

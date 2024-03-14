@@ -2,6 +2,8 @@ const schema_booking_table = `
 CREATE TABLE booking_data (
   booking_id INT NOT NULL DEFAULT 0,
   agreement_number VARCHAR(30),
+
+  booking_date DATE,
   booking_datetime DATETIME,
   booking_year VARCHAR(4),
   booking_month VARCHAR(2),
@@ -9,6 +11,8 @@ CREATE TABLE booking_data (
   booking_day_of_week VARCHAR(64),
   booking_day_of_week_v2 VARCHAR(64),
   booking_time_bucket VARCHAR(7),
+
+  pickup_date DATE,
   pickup_datetime DATETIME,
   pickup_year VARCHAR(4),
   pickup_month VARCHAR(64),
@@ -16,6 +20,8 @@ CREATE TABLE booking_data (
   pickup_day_of_week VARCHAR(64),
   pickup_day_of_week_v2 VARCHAR(64),
   pickup_time_bucket VARCHAR(7),
+
+  return_date DATE,
   return_datetime DATETIME,
   return_year VARCHAR(4),
   return_month VARCHAR(64),
@@ -33,7 +39,11 @@ CREATE TABLE booking_data (
   comparison_28_days VARCHAR(64),
   comparison_period VARCHAR(64),
   comparison_common_date DATE,
-  
+
+  Current_28_Days BIGINT,
+  4_Weeks_Prior BIGINT,
+  52_Weeks_Prior BIGINT,
+
   status VARCHAR(50),
   booking_type VARCHAR(12) NOT NULL,
   marketplace_or_dispatch VARCHAR(11) NOT NULL,

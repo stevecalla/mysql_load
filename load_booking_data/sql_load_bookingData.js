@@ -51,6 +51,8 @@ async function loadData() {
         (
             booking_id, 
             agreement_number,
+
+            @booking_date,
             @booking_datetime, -- Variable to capture booking_datetime as string
             booking_year,
             booking_month,
@@ -58,6 +60,8 @@ async function loadData() {
             booking_day_of_week,
             booking_day_of_week_v2,
             booking_time_bucket,
+
+            @pickup_date,
             @pickup_datetime, -- Variable to capture pickup_datetime as string
             pickup_year,
             pickup_month,
@@ -65,6 +69,8 @@ async function loadData() {
             pickup_day_of_week,
             pickup_day_of_week_v2,
             pickup_time_bucket,
+
+            @return_date,
             @return_datetime, -- Variable to capture return_datetime as string
             return_year,
             return_month,
@@ -82,6 +88,10 @@ async function loadData() {
             comparison_28_days,
             comparison_period,
             @comparison_common_date,
+
+            Current_28_Days,
+            4_Weeks_Prior,
+            52_Weeks_Prior,
 
             status,
             booking_type,
@@ -151,8 +161,12 @@ async function loadData() {
             nps_score,
             nps_comment
         )
-        SET booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
+        SET 
+            booking_date = STR_TO_DATE(@booking_date, "%Y-%m-%d"),
+            booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
+            pickup_date = STR_TO_DATE(@pickup_date, "%Y-%m-%d"),
             pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
+            return_date = STR_TO_DATE(@return_date, "%Y-%m-%d"),
             return_datetime = STR_TO_DATE(@return_datetime, "%Y-%m-%d %H:%i:%s"),
             comparison_common_date = STR_TO_DATE(@comparison_common_date, "%Y-%m-%d");
             -- promocode_created_date = STR_TO_DATE(@promocode_created_date, "%Y-%m-%d %H:%i:%s");
