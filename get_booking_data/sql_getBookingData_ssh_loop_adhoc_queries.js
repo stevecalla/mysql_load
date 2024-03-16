@@ -9,9 +9,6 @@ const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate'
 const { queryBookingData } = require('./query_BookingData');
 const { queryAllPayments } = require('../query_AllPayments'); // Import the selectQuery from query_AllPayments.js
 
-// console.log(config);
-// console.log(process.env);
-
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
