@@ -2,27 +2,39 @@ const schema_booking_table = `
 CREATE TABLE booking_data (
   booking_id INT NOT NULL DEFAULT 0,
   agreement_number VARCHAR(30),
+
+  booking_date DATE,
   booking_datetime DATETIME,
   booking_year VARCHAR(4),
   booking_month VARCHAR(2),
-  booking_day_of_month VARCHAR(64),
-  booking_day_of_week VARCHAR(64),
+  booking_day_of_month VARCHAR(2),
+  booking_week_of_year VARCHAR(2),
+  booking_day_of_week VARCHAR(2),
   booking_day_of_week_v2 VARCHAR(64),
   booking_time_bucket VARCHAR(7),
+
+  booking_count BIGINT,
+  booking_count_excluding_cancel BIGINT,
+
+  pickup_date DATE,
   pickup_datetime DATETIME,
   pickup_year VARCHAR(4),
   pickup_month VARCHAR(64),
   pickup_day_of_month VARCHAR(2),
-  pickup_day_of_week VARCHAR(64),
+  pickup_week_of_year VARCHAR(2),
+  pickup_day_of_week VARCHAR(2),
   pickup_day_of_week_v2 VARCHAR(64),
   pickup_time_bucket VARCHAR(7),
+
+  return_date DATE,
   return_datetime DATETIME,
   return_year VARCHAR(4),
   return_month VARCHAR(64),
   return_day_of_month VARCHAR(2),
+  return_week_of_year VARCHAR(2),
   return_day_of_week VARCHAR(2),
   return_day_of_week_v2 VARCHAR(64),
-  return_time_bucket VARCHAR(64),
+  return_time_bucket VARCHAR(7),
 
   advance_category_day VARCHAR(64),
   advance_category_week VARCHAR(64),
@@ -33,7 +45,11 @@ CREATE TABLE booking_data (
   comparison_28_days VARCHAR(64),
   comparison_period VARCHAR(64),
   comparison_common_date DATE,
-  
+
+  Current_28_Days BIGINT,
+  4_Weeks_Prior BIGINT,
+  52_Weeks_Prior BIGINT,
+
   status VARCHAR(50),
   booking_type VARCHAR(12) NOT NULL,
   marketplace_or_dispatch VARCHAR(11) NOT NULL,
@@ -41,6 +57,7 @@ CREATE TABLE booking_data (
   marketplace_partner_summary VARCHAR(100),
   booking_channel VARCHAR(15),
   booking_source VARCHAR(100),
+
   repeated_user VARCHAR(64) NOT NULL,
   total_lifetime_booking_revenue CHAR(64) NOT NULL,
   no_of_bookings BIGINT NOT NULL DEFAULT 0,
@@ -48,10 +65,16 @@ CREATE TABLE booking_data (
   no_of_completed_bookings BIGINT,
   no_of_started_bookings BIGINT,
   customer_id INT,
+      
+	first_name VARCHAR(150),
+  last_name VARCHAR(150),
+  email VARCHAR(254),
+
   date_of_birth VARCHAR(25) NOT NULL,
   age BIGINT,
   customer_driving_country VARCHAR(50),
   customer_doc_vertification_status VARCHAR(3) NOT NULL,
+
   days DOUBLE,
   extra_day_calc DOUBLE DEFAULT 0,
   customer_rate DOUBLE,

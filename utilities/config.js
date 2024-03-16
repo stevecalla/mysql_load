@@ -36,6 +36,15 @@ const localDbConfig = {
     connectionLimit: 20, // adjust as needed
 };
 
+const localKeyMetricsDbConfig = {
+    host: process.env.LOCAL_HOST,
+    port: 3306,
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    database: process.env.LOCAL_EZHIRE_KEYMETRICS_DB,
+    connectionLimit: 20, // adjust as needed
+};
+
 const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;
 // csvExportPath: './output/results.csv', // Update this path accordingly
 // csvExportPath: 'C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/data',
@@ -45,5 +54,6 @@ module.exports = {
     sshConfig,
     forwardConfig,
     localDbConfig,
+    localKeyMetricsDbConfig,
     csvExportPath,
 };

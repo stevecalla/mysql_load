@@ -9,9 +9,6 @@ const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate'
 const { queryBookingData } = require('./query_BookingData');
 const { queryAllPayments } = require('../query_AllPayments'); // Import the selectQuery from query_AllPayments.js
 
-// console.log(config);
-// console.log(process.env);
-
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
@@ -47,8 +44,8 @@ function createSSHConnection() {
 async function executeQueryForDateRange(pool, startDate, endDate) {
     return new Promise((resolve, reject) => {
 
-        // const query = queryAllPayments;
-        const query = `SELECT @@SERVERNAME`;
+        const query = queryAllPayments;
+        // const query = `SELECT @@SERVERNAME`;
 
         // const modifiedBookingQuery = queryBookingData
         //     .replace('startDateVariable', startDate)
@@ -215,11 +212,13 @@ async function main() {
         // }
 
         // Close the SSH connection after all queries are executed
-        sshClient.end();
         console.log('All queries executed successfully.');
+        sshClient.end();
         await pool.end();
     } catch (error) {
         console.error('Error:', error);
+        sshClient.end();
+        await pool.end();
     } finally {
         // End the pool
     }
