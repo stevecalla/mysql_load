@@ -14,7 +14,7 @@ function generateRepeatCode(variableList) {
         // console.log(variableList[i].option);
     
         let injectCode = `LOWER(${variableList[i].segment}) LIKE LOWER('${variableList[i].option}')`;
-        let fileName = `${variableList[i].option}`.replace(/\s+/g, '_').toLowerCase();
+        let fileName = `${variableList[i].segment}_on_rent_${variableList[i].option}`.replace(/\s+/g, '_').toLowerCase();
         let comma = `,`;
 
         //remove comma for final version because of SQL syntax
@@ -30,7 +30,7 @@ function generateRepeatCode(variableList) {
                     WHEN ct.calendar_date BETWEEN km.pickup_date AND km.return_date AND ${injectCode} THEN 1
                     ELSE 0
                 END
-            ) AS vendor_on_rent_${fileName}${comma}
+            ) AS ${fileName}${comma}
             `;
     
         repeatCode += templateCode;
@@ -45,7 +45,7 @@ function generateBaseCode(repeatCode) {
     
     // CREATE TEMPORARY TABLE IF NOT EXISTS temp AS
     baseCode = `
-        CREATE TABLE IF NOT EXISTS temp AS
+        CREATE TABLE IF NOT EXISTS key_metrics_data AS
         SELECT 
             DATE_FORMAT(DATE(NOW()), '%Y-%m-%d %H:%i:%s') AS created_at,
             DATE_FORMAT(DATE(ct.calendar_date), '%Y-%m-%d') AS calendar_date,
@@ -66,7 +66,7 @@ function generateBaseCode(repeatCode) {
                     ELSE 0
                 END
             ) AS days_on_rent_fraction,  
-        
+
             -- BOOKING COUNT
             SUM(
                 CASE

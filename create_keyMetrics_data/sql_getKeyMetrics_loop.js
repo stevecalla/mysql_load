@@ -32,7 +32,7 @@ async function executeQuery(pool, distinctList) {
 
         const startTime = performance.now();
 
-        const dropTable = `DROP TABLE IF EXISTS temp;`;
+        const dropTable = `DROP TABLE IF EXISTS key_metrics_data;`;
 
         pool.query(dropTable, (queryError, results) => {
             if (queryError) {
