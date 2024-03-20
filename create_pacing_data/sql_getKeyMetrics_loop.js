@@ -115,7 +115,7 @@ async function executeDropTableQuery(pool, table) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
-                console.log('\nDrop table results=');
+                console.log(`\nDrop table results= ${table}`);
                 console.table(results);
                 console.log('Drop table results\n');
                 resolve();
@@ -270,34 +270,130 @@ async function executeCreateFinalDataQuery(pool) {
     });
 }
 
+async function executeCreateBaseDataQuery(pool) {
+    return new Promise((resolve, reject) => {
+            
+        const query = `
+        -- CREATE PACING BASE STATS
+        CREATE TABLE pacing_base AS 
+        SELECT 
+            booking_id,
+            booking_date,
+            DATE_FORMAT(pickup_date, '%Y-%m-01') AS pickup_first_day_of_month,
+            TIMESTAMPDIFF(DAY, DATE_FORMAT(pickup_date, '%Y-%m-01'), booking_date) AS days_from_first_day_of_month,
+        
+            CONCAT(pickup_year, "-", LPAD(pickup_month, 2, '0')) AS pickup_month_year,
+            pickup_date,
+            
+            1 AS count,
+            booking_charge_aed,
+            booking_charge_less_discount_aed
+        
+        FROM ezhire_booking_data.booking_data 
+        WHERE status NOT LIKE '%Cancel%'
+        AND pickup_year IN (2023, 2024)
+        ORDER BY booking_date ASC, pickup_date ASC;
+        -- LIMIT 10;
+        `;
+
+        pool.query(query, (queryError, results) => {
+            if (queryError) {
+                console.error('Error executing select query:', queryError);
+                reject(queryError);
+            } else {
+                console.log('\nCreate table results');
+                console.table(results);
+                console.log('Create table results\n');
+                resolve();
+            }
+        });
+    });
+}
+
+async function executeCreateGroupByDataQuery(pool) {
+    return new Promise((resolve, reject) => {
+            
+        const query = `
+
+        -- CREATE PACING BASE STATS ROLLUP WITH GROUPING AND SUM
+        CREATE TABLE pacing_base_groupby AS
+        SELECT 
+            pb.pickup_month_year,
+            pb.booking_date,
+            pb.days_from_first_day_of_month,
+            
+            -- SUM KEY STATS BY PICKUP MONTH YEAR
+            SUM(count) AS count,
+            FORMAT(SUM(pb.booking_charge_aed), 0) AS total_booking_charge_aed,
+            FORMAT(SUM(pb.booking_charge_less_discount_aed), 0) AS total_booking_charge_less_discount_aed,
+            
+            -- CREATE RUNNING TOTAL FOR KEY STATS
+            FORMAT((SELECT SUM(count)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_count,
+            FORMAT((SELECT SUM(booking_charge_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_aed,
+            FORMAT((SELECT SUM(booking_charge_less_discount_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_aed
+        
+        FROM ezhire_pacing_metrics.pacing_base pb
+        GROUP BY 
+            pb.pickup_month_year,
+            pb.booking_date,  
+            pb.days_from_first_day_of_month
+        ORDER BY pb.pickup_month_year ASC;
+        `;
+
+        pool.query(query, (queryError, results) => {
+            if (queryError) {
+                console.error('Error executing select query:', queryError);
+                reject(queryError);
+            } else {
+                console.log('\nCreate table results');
+                console.table(results);
+                console.log('Create table results\n');
+                resolve();
+            }
+        });
+    });
+}
+
 // Main function to handle SSH connection and execute queries
 async function main() { 
     try {
         const pool = await createLocalConnection();
 
-        //get distinct list
-        const distinctList = await executeDistinctQuery(pool);
-        console.log('results', distinctList);
+        //STEP 1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
 
-        //execute drop
-        await executeDropTableQuery(pool, 'pacing_base_all_calendar_dates');
+        //STEP 2: CREATE BASE DATA
+        await executeDropTableQuery(pool, 'pacing_base;');
+        await executeCreateBaseDataQuery(pool);
+        await executeInsertCreatedAtQuery(pool, 'pacing_base');  
         
-        //execute create
-        await executeCreateTableQuery(pool);
+        //STEP 3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
+        await executeDropTableQuery(pool, 'pacing_base_groupby;');
+        await executeCreateGroupByDataQuery(pool);
+        await executeInsertCreatedAtQuery(pool, 'pacing_base_groupby');   
 
-        // Execute insert for pickup_month_year; use for loop to execute sequentially
-        for (let i = 0; i < distinctList.length; i++) {
+        //STEP 4: ADD MISSING CALENDAR DATES TO EACH MONTH
+        const distinctList = await executeDistinctQuery(pool); // get list of pickup_year_month
+        await executeDropTableQuery(pool, 'pacing_base_all_calendar_dates'); // drop prior table
+        await executeCreateTableQuery(pool); // create table
+        for (let i = 0; i < distinctList.length; i++) { // insert data into table; loop ensure sequential process
             const { pickup_month_year } = distinctList[i];
             const index = i + 1;
             await executeInsertQuery(pool, pickup_month_year, index);
             console.log(`Query for ${pickup_month_year} executed successfully.`);
             generateLogFile('pacing_data', `Query for ${pickup_month_year} executed successfully.`, config.csvExportPath);
         }
-    
-        // Insert created at data
-        await executeInsertCreatedAtQuery(pool, 'pacing_base_all_calendar_dates');
+        await executeInsertCreatedAtQuery(pool, 'pacing_base_all_calendar_dates'); // append created at date
         
-        // final table
+        //STEP 5: ROLLUP THE DATA BY PICKUP_MONTH_YEAR
         await executeDropTableQuery(pool, 'pacing_final_data;');
         await executeCreateFinalDataQuery(pool);
         await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
