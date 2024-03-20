@@ -157,10 +157,16 @@ async function loadData() {
             promo_code_discount_amount,
             @promocode_created_date,  -- Variable to capture promocode_created_date as string
             promo_code_description,
+
+            car_avail_id,
+            car_cat_id,
+            car_cat_name,
+
             requested_car,
             car_name,
             make,
             color,
+
             deliver_country,
             deliver_city,
             country_id,

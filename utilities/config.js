@@ -49,6 +49,19 @@ const localKeyMetricsDbConfig = {
     //https://stackoverflow.com/questions/46756829/node-application-how-to-increase-timeout-for-mysql2-when-debbuging
 };
 
+const localPacingDbConfig = {
+    host: process.env.LOCAL_HOST,
+    port: 3306,
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    database: process.env.LOCAL_EZHIRE_KEYMETRICS_DB,
+    connectionLimit: 20, // adjust as needed
+    // timeout: 60000 //not sure if this works
+    // connectTimeout: 10000 //not sure if this works
+    // https://github.com/mysqljs/mysql#connection-options
+    //https://stackoverflow.com/questions/46756829/node-application-how-to-increase-timeout-for-mysql2-when-debbuging
+};
+
 const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;
 // csvExportPath: './output/results.csv', // Update this path accordingly
 // csvExportPath: 'C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/data',
@@ -59,5 +72,6 @@ module.exports = {
     forwardConfig,
     localDbConfig,
     localKeyMetricsDbConfig,
+    localPacingDbConfig,
     csvExportPath,
 };
