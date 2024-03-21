@@ -2,10 +2,13 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const { Client } = require('ssh2');
 const sshClient = new Client();
-const config = require('../utilities/config');
+const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utilities/config');
 const { queryBookingData } = require('./query_BookingData');
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate');
+
+// console.log('process env', process.env);
+// console.log('sshConfig', sshConfig);
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
@@ -13,16 +16,17 @@ function createSSHConnection() {
         sshClient.on('ready', () => {
             console.log('SSH tunnel established.');
 
+            const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
             sshClient.forwardOut(
-                config.forwardConfig.srcHost,
-                config.forwardConfig.srcPort,
-                config.forwardConfig.dstHost,
-                config.forwardConfig.dstPort,
+                srcHost,
+                srcPort,
+                dstHost,
+                dstPort,
                 (err, stream) => {
                     if (err) reject(err);
 
                     const updatedDbServer = {
-                        ...config.dbConfig,
+                        ...dbConfig,
                         stream,
                         ssl: {
                             rejectUnauthorized: false,
@@ -34,7 +38,7 @@ function createSSHConnection() {
                     resolve(pool);
                 }
             );
-        }).connect(config.sshConfig);
+        }).connect(sshConfig);
     });
 }
 
@@ -57,7 +61,7 @@ async function executeQueryForDateRange(pool, startDate, endDate) {
             } else {
                 // results.forEach(result => console.log(result));
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
-                generateLogFile('booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, config.csvExportPath);
+                generateLogFile('booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
                 exportResultsToCSV(results, startDate, endDate);
                 resolve();
             }
@@ -69,7 +73,7 @@ async function executeQueryForDateRange(pool, startDate, endDate) {
 function exportResultsToCSV(results, startDate, endDate) {
     if (results.length === 0) {
         console.log('No results to export.');
-        generateLogFile('booking_data', 'No results to export.', config.csvExportPath);
+        generateLogFile('booking_data', 'No results to export.', csvExportPath);
         return;
     }
 
@@ -81,17 +85,17 @@ function exportResultsToCSV(results, startDate, endDate) {
 
         const createdAtFormatted = getCurrentDateTimeForFileNaming();
 
-        const saveFilePath = `${config.csvExportPath}results_${createdAtFormatted}_${startDate}_${endDate}.csv`;
+        const saveFilePath = `${csvExportPath}results_${createdAtFormatted}_${startDate}_${endDate}.csv`;
         console.log(saveFilePath);
 
         fs.writeFileSync(saveFilePath, csvContent);
 
-        console.log(`Results exported to ${config.csvExportPath}`);
-        generateLogFile('booking_data', `Results exported to ${saveFilePath}`, config.csvExportPath);
+        console.log(`Results exported to ${csvExportPath}`);
+        generateLogFile('booking_data', `Results exported to ${saveFilePath}`, csvExportPath);
 
     } catch (error) {
         console.error(`Error exporting results to csv:`, error);
-        generateLogFile('booking_data', `Error exporting results to csv: ${error}`, config.csvExportPath);
+        generateLogFile('booking_data', `Error exporting results to csv: ${error}`, csvExportPath);
     }
 }
 
@@ -100,27 +104,27 @@ function moveFilesToArchive() {
 
     try {
         // List all files in the directory
-        const files = fs.readdirSync(config.csvExportPath);
+        const files = fs.readdirSync(csvExportPath);
 
         // Create the "archive" directory if it doesn't exist
-        const archivePath = `${config.csvExportPath}archive`;
+        const archivePath = `${csvExportPath}archive`;
         fs.mkdirSync((archivePath), { recursive: true });
 
         // Iterate through each file
         for (const file of files) {
             if (file.endsWith('.csv')) {
                 // Construct the full file paths
-                const sourceFilePath = `${config.csvExportPath}${file}`;
+                const sourceFilePath = `${csvExportPath}${file}`;
                 const destinationFilePath = `${archivePath}/${file}`;
 
                 try {
                     // Move the file to the "archive" directory
                     fs.renameSync(sourceFilePath, destinationFilePath);
                     console.log(`Archived ${file}`);
-                    generateLogFile('booking_data', `Archived ${file}`, config.csvExportPath);
+                    generateLogFile('booking_data', `Archived ${file}`, csvExportPath);
                 } catch (archiveErr) {
                     console.error(`Error moving file ${file} to archive:`, archiveErr);
-                    generateLogFile('booking_data', `Error archive file ${file}: ${archiveErr}`, config.csvExportPath);
+                    generateLogFile('booking_data', `Error archive file ${file}: ${archiveErr}`, csvExportPath);
                 }
             }
         }
@@ -133,7 +137,7 @@ function moveFilesToArchive() {
 function deleteArchivedFiles() {
     console.log('Deleting files from archive');
     // List all files in the directory
-    const files = fs.readdirSync(`${config.csvExportPath}/archive`);
+    const files = fs.readdirSync(`${csvExportPath}/archive`);
 
     console.log(files);
 
@@ -141,24 +145,24 @@ function deleteArchivedFiles() {
     files?.forEach((file) => {
         if (file.endsWith('.csv')) {
             // Construct the full file path
-            const filePath = `${config.csvExportPath}archive/${file}`;
+            const filePath = `${csvExportPath}archive/${file}`;
             console.log(filePath);
 
             try {
                 // Delete the file
                 fs.unlinkSync(filePath);
                 console.log(`File ${filePath} deleted successfully.`);
-                generateLogFile('booking_data', `File ${filePath} deleted successfully.`, config.csvExportPath);
+                generateLogFile('booking_data', `File ${filePath} deleted successfully.`, csvExportPath);
             } catch (deleteErr) {
                 console.error(`Error deleting file ${filePath}:`, deleteErr);
-                generateLogFile('booking_data', `Error deleting file ${filePath}: ${deleteErr}`, config.csvExportPath);
+                generateLogFile('booking_data', `Error deleting file ${filePath}: ${deleteErr}`, csvExportPath);
             }
         }
     });
 }
 
 // Main function to handle SSH connection and execute queries
-async function main() {
+async function execute_get_booking_data() {
     try {
         deleteArchivedFiles();
         moveFilesToArchive();
@@ -198,7 +202,7 @@ async function main() {
         for (const { startDate, endDate } of dateRanges) {
             await executeQueryForDateRange(pool, startDate, endDate);
             console.log(`Query for ${startDate} to ${endDate} executed successfully.`);
-            generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, config.csvExportPath);
+            generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         }
 
         // Close the SSH connection after all queries are executed
@@ -214,4 +218,8 @@ async function main() {
 }
 
 // Run the main function
-main();
+// execute_get_booking_data;
+
+module.exports = {
+    execute_get_booking_data,
+}

@@ -36,3 +36,23 @@ Yes, a .bat file can output information to a log file. You can use the >> redire
 - Save the updated code into a .bat file and run it. After each command, the output messages will be appended to the log file specified. Adjust the log file path and format as needed for your requirements.
 
 Save the above code into a file with a .bat extension (e.g., myscript.bat), and then you can schedule this batch file using the Task Scheduler in Windows to run at specific times or intervals. Each command will execute sequentially, waiting for the specified duration between them.
+
+******** GET TIMESTAMP FOR FILE NAME
+
+@echo off
+REM Get current date and time in a format suitable for file names
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set "datetime=%%I"
+set "timestamp=%datetime:~0,4%%datetime:~4,2%%datetime:~6,2%_%datetime:~8,2%%datetime:~10,2%%datetime:~12,2%"
+
+REM Set the log file path with the timestamp
+set LOG_FILE=C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\data\booking_scheduled_report_%timestamp%.txt
+
+echo %LOG_FILE%
+
+In this batch file:
+
+We use wmic os get localdatetime to get the current date and time in a format like YYYYMMDDHHmmss.SSSSSS±UUU.
+We extract the relevant parts of the date and time to create a timestamp in the format YYYYMMDD_HHMMSS.
+
+Finally, we use the timestamp to create the log file name by appending it to the file path. The %timestamp% variable in %LOG_FILE% will be replaced with the actual timestamp.
+Note: Depending on your date and time format settings in Windows, you may need to adjust the parsing of %datetime% to match the format returned by wmic os get localdatetime.

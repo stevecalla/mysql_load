@@ -27,12 +27,12 @@ const forwardConfig = {
     dstPort: parseInt(process.env.MYSQL_PORT),
 };
 
-const localDbConfig = {
+const localBookingDbConfig = {
     host: process.env.LOCAL_HOST,
     port: 3306,
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
-    database: process.env.LOCAL_EZHIRE_DB,
+    database: process.env.LOCAL_EZHIRE_BOOKING_DB,
     connectionLimit: 20, // adjust as needed
 };
 
@@ -54,7 +54,7 @@ const localPacingDbConfig = {
     port: 3306,
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
-    database: process.env.LOCAL_EZHIRE_KEYMETRICS_DB,
+    database: process.env.LOCAL_EZHIRE_PACING_DB,
     connectionLimit: 20, // adjust as needed
     // timeout: 60000 //not sure if this works
     // connectTimeout: 10000 //not sure if this works
@@ -70,7 +70,7 @@ module.exports = {
     dbConfig,
     sshConfig,
     forwardConfig,
-    localDbConfig,
+    localBookingDbConfig,
     localKeyMetricsDbConfig,
     localPacingDbConfig,
     csvExportPath,

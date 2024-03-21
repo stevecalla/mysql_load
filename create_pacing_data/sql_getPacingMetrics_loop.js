@@ -364,7 +364,7 @@ async function executeCreateGroupByDataQuery(pool) {
 }
 
 // Main function to handle SSH connection and execute queries
-async function main() { 
+async function execute_create_pacing_metrics() { 
     try {
         const pool = await createLocalConnection();
 
@@ -411,4 +411,8 @@ async function main() {
 }
 
 // Run the main function
-main();
+execute_create_pacing_metrics();
+
+module.exports = {
+    execute_create_pacing_metrics,
+}

@@ -1,18 +1,15 @@
 const fs = require('fs').promises;
 const mysql = require('mysql2/promise');
-const config = require('../utilities/config');
 const { schema_booking_table } = require('./schema_booking_table');
 const { generateLogFile } = require('../utilities/generateLogFile');
+const { localBookingDbConfig, csvExportPath } = require('../utilities/config');
 
-// console.log(config);
-// console.log(process.env);
-
-async function loadData() {
-  const pool = mysql.createPool(config.localDbConfig);
+async function execute_load_booking_data() {
+  const pool = mysql.createPool(localBookingDbConfig);
   let rowsAdded = 0;
 
   // Directory containing your CSV files
-  const directory = config.csvExportPath;
+  const directory = csvExportPath;
 
   // Drop the table if it exists
   const dropTableQuery = 'DROP TABLE IF EXISTS booking_data';
@@ -200,22 +197,26 @@ async function loadData() {
         console.log(`Data loaded successfully from ${filePath}.`);
         console.log(`Rows added: ${loadInfo}`);
 
-        generateLogFile('loading_booking_data', `Rows added: ${loadInfo}`, config.csvExportPath);
+        generateLogFile('loading_booking_data', `Rows added: ${loadInfo}`, csvExportPath);
         rowsAdded += parseInt(loadDataResults.affectedRows);
         console.log('Rows added = ', rowsAdded.toLocaleString());
       }
     }
-    generateLogFile('loading_booking_data', `Total files added = ${numberOfFiles}`, config.csvExportPath);
+    generateLogFile('loading_booking_data', `Total files added = ${numberOfFiles}`, csvExportPath);
     console.log('Files processed = ', numberOfFiles)
     await pool.end();
   } catch (error) {
     console.error('Error:', error);
-    generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, config.csvExportPath);
+    generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, csvExportPath);
   } finally {
-    generateLogFile('loading_booking_data', `Total rows added = ${rowsAdded.toLocaleString()}`, config.csvExportPath);
+    generateLogFile('loading_booking_data', `Total rows added = ${rowsAdded.toLocaleString()}`, csvExportPath);
     // End the pool
   }
 }
 
 // Call the function
-loadData();
+// execute_load_booking_data();
+
+module.exports  = {
+  execute_load_booking_data,
+}
