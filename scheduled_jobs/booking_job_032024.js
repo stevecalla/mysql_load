@@ -1,9 +1,9 @@
 const { generateLogFile } = require('../utilities/generateLogFile');
 
-const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop');
-const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData');
-const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop');
-const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop');
+const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop'); //step_1
+const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData'); //step_2
+const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
+const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 
 async function get_booking_data() {
     try {

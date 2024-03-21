@@ -65,26 +65,9 @@ async function executeInsertQuery(pool, pickup_month_year, index) {
                 resolve();
             }
         });
-
-        // const addCreateAtDate = `
-        // ALTER TABLE pacing_base_all_calendar_dates ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`
-
-        // pool.query(addCreateAtDate, (queryError, results) => {
-        //     if (queryError) {
-        //         console.error('Error executing select query:', queryError);
-        //         reject(queryError);
-        //     } else {
-        //         console.log('\nCreate table results');
-        //         console.table(results);
-        //         console.log('Create table results\n');
-        //         resolve();
-        //     }
-        // });
-
     });
 }
 
-// Function to execute query for a single date range
 async function executeInsertCreatedAtQuery(pool, table) {
     return new Promise((resolve, reject) => {
         const addCreateAtDate = `
@@ -149,7 +132,7 @@ async function executeDistinctQuery(pool) {
 async function executeCreateTableQuery(pool, table) {
     return new Promise((resolve, reject) => {
 
-        const dropTable = `CREATE TABLE IF NOT EXISTS pacing_base_all_calendar_dates (
+        const query = `CREATE TABLE IF NOT EXISTS pacing_base_all_calendar_dates (
             grouping_id INT,
             pickup_month_year VARCHAR(10),
             first_day_of_month VARCHAR(10),
@@ -164,7 +147,7 @@ async function executeCreateTableQuery(pool, table) {
             running_total_booking_charge_less_discount_aed DECIMAL(20, 2)
         );`;
 
-        pool.query(dropTable, (queryError, results) => {
+        pool.query(query, (queryError, results) => {
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);

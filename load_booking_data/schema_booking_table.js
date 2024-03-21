@@ -94,13 +94,23 @@ CREATE TABLE booking_data (
   discount_charge DOUBLE,
   total_vat DOUBLE,
   other_charge DOUBLE,
+
   booking_charge DOUBLE,
   booking_charge_less_discount DOUBLE,
   booking_charge_aed DOUBLE,
   booking_charge_less_discount_aed DOUBLE,
+
+  booking_charge_less_extension DOUBLE,
+  booking_charge_less_discount_extension DOUBLE,
+  booking_charge_less_extension_aed DOUBLE,
+  booking_charge_less_discount_extension_aed DOUBLE,
+
   base_rental_revenue DOUBLE,
   non_rental_charge DOUBLE,
-  extension_charge INT NOT NULL DEFAULT 0,
+
+  extension_charge DOUBLE,
+  extension_charge_aed DOUBLE,
+
   is_extended VARCHAR(3),
   promo_code VARCHAR(200),
   promo_code_discount_amount CHAR(0) NOT NULL,

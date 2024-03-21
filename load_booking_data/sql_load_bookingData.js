@@ -142,13 +142,23 @@ async function execute_load_booking_data() {
             discount_charge,
             total_vat,
             other_charge,
+
             booking_charge,
             booking_charge_less_discount,
             booking_charge_aed,
             booking_charge_less_discount_aed,
+            
+            booking_charge_less_extension,
+            booking_charge_less_discount_extension,
+            booking_charge_less_extension_aed,
+            booking_charge_less_discount_extension_aed,
+
             base_rental_revenue,
             non_rental_charge,
+
             extension_charge,
+            extension_charge_aed,
+
             is_extended,
             Promo_Code,
             promo_code_discount_amount,
