@@ -2,11 +2,11 @@ const queryBookingData = `
 -- SET  @str_date = '2024-01-01',@end_date = '2024-01-01';
 
 -- CHANGE LOG ********* START **************
--- extension revenue adjustment
--- adjust extension revenue select statement
--- add 2 fields for booking charge without extension not currency converted and converted
--- add 2 fields for booking charge less discount less extension not currency converted and converted
--- add 1 fields for extension charge currency conversion aed
+-- added join to get car class category
+-- LEFT JOIN myproject.rental_cat cat ON cat.id = b.car_available_id -- ADDITION
+    -- car_avail_id, -- ADDED
+    -- car_cat_id, -- ADDED
+    -- car_cat_name, -- ADDED
 -- CHANGE LOG ********* END **************
 
 SELECT 
@@ -199,23 +199,13 @@ SELECT
     IFNULL(discount_charge, 0) AS discount_charge,
     IFNULL(total_vat, 0) AS total_vat,
     IFNULL(other_charge, 0) AS other_charge,
-
     IFNULL(booking_charge, 0) AS booking_charge,
     IFNULL(booking_charge_less_discount, 0) AS booking_charge_less_discount,
-    IFNULL(booking_charge * tb.conversion_rate, 0) AS booking_charge_aed, -- converted from local currency to UAE/AED
-    IFNULL(booking_charge_less_discount * tb.conversion_rate, 0) AS booking_charge_less_discount_aed, -- converted from local currency to UAE/AED
-
-    IFNULL(booking_charge - extension_charge, 0) AS booking_charge_less_extension, -- ADDED
-    IFNULL(booking_charge_less_discount - extension_charge, 0) AS booking_charge_less_discount_extension,  -- ADDED
-    IFNULL((booking_charge - extension_charge) * tb.conversion_rate, 0) AS booking_charge_less_extension_aed,  -- ADDED currency conversion
-    IFNULL((booking_charge_less_discount - extension_charge) * tb.conversion_rate, 0) AS booking_charge_less_discount_extension_aed, -- ADDED currency conversion
-
+    IFNULL(booking_charge, 0) * tb.conversion_rate AS booking_charge_aed, -- converted from local currency to UAE/AED
+    IFNULL(booking_charge_less_discount, 0) * tb.conversion_rate AS booking_charge_less_discount_aed, -- converted from local currency to UAE/AED
     IFNULL(base_rental_revenue, 0) AS base_rental_revenue,
     IFNULL(non_rental_charge, 0) AS non_rental_charge,
-    
     IFNULL(extension_charge, 0) AS extension_charge,
-    IFNULL(extension_charge * tb.conversion_rate, 0) AS extension_charge_aed, -- ADDED, currency conversion
-
     is_extended,
     Promo_Code AS promo_code,
     promo_code_discount_amount,
@@ -346,7 +336,6 @@ FROM
                     myproject.rental_car_booking_source bs
                 WHERE
                     bs.id = b.car_booking_source_id) AS booking_source,
-
             '' total_lifetime_booking_revenue,
 
             (CASE
@@ -565,24 +554,13 @@ FROM
                 WHERE
                     cc.booking_id = b.id
                         AND cc.charge_type_id IN (1 , 2, 8, 9, 13, 14, 20, 22, 24, 27, 28, 44, 45, 46, 47)) AS non_rental_charge,
-                        
-            -- 0 AS extension_charge, -- original field adjusted below
-
-            (SELECT 
-                SUM(extension_amount)
-                FROM rental_messagesuser m
-                WHERE 
-                    m.booking_id = b.id
-                    AND (m.subject LIKE '%exten%' OR m.subject=CONCAT('Late Rental Return for Booking#', m.booking_id))
-                    AND m.extension_days > 0
-                    AND m.message LIKE '%Dear Partner%') 
-                AS extension_charge,
+            0 AS extension_charge,
 
             (SELECT 
                     CASE
-                        WHEN COUNT(1) >= 1 THEN 'YES'
-                        ELSE 'NO'
-                    END
+                            WHEN COUNT(1) >= 1 THEN 'YES'
+                            ELSE 'NO'
+                        END
                 FROM
                     myproject.rental_invoice_details
                 WHERE
@@ -665,14 +643,12 @@ FROM
     LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
-	-- WHERE 
-        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+	-- WHERE DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
 		-- AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-		-- AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE -- '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+		-- AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) -- NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
 
 		-- -- AND COALESCE(b.vendor_id,'') IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
         -- -- AND b.id = '240842'
-	    -- AND b.id IN ("240667", "246876", "240842", "246867") -- need to remove DATE in where above to return all ids
         
 	-- FOR TESTING / AUDITING ******* START *********
 	-- WHERE date(date_add(b.created_on,interval 4 hour)) between '2024-01-01' and '2024-01-01' 
@@ -688,7 +664,7 @@ FROM
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL VARIABLES DON'T WORK ******* END *********
 
     ORDER BY b.id
-    -- LIMIT 10
+    -- LIMIT 1
     ) tb;
 `;
 

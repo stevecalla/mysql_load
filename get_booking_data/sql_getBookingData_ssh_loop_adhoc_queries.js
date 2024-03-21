@@ -42,6 +42,7 @@ function createSSHConnection() {
 
 // Function to execute query for a single date range
 async function executeQueryForDateRange(pool, startDate, endDate) {
+
     return new Promise((resolve, reject) => {
 
         const query = queryAllPayments;
