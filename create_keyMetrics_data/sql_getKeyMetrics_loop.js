@@ -21,14 +21,11 @@ function createLocalConnection() {
 
 // Function to execute query for a single date range
 async function executeQuery(pool, distinctList) {
+
     //create sql query
     const query = await generateRepeatCode(distinctList);
-    console.log(query);
 
     return new Promise((resolve, reject) => {
-
-        // const query = generateRepeatCode(list);
-        // console.log(query);
 
         const startTime = performance.now();
 
@@ -41,8 +38,6 @@ async function executeQuery(pool, distinctList) {
             } else {
                 console.log('\nDrop table results=');
                 console.table( results);
-                console.log('Drop table results\n');
-                // resolve();
             }
         })
 
@@ -65,13 +60,12 @@ async function executeQuery(pool, distinctList) {
 }
 
 // Main function to handle SSH connection and execute queries
-async function main() {
+async function execute_create_key_metrics() {
     try {
         const pool = await createLocalConnection();
 
         //get distinct list
         const distinctList = await get_distinct();
-        console.log('a', distinctList)
 
         //send distinct list to the execute function
         await executeQuery(pool, distinctList);
@@ -87,4 +81,8 @@ async function main() {
 }
 
 // Run the main function
-main();
+// execute_create_key_metrics();
+
+module.exports = {
+    execute_create_key_metrics,
+}

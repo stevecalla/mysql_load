@@ -83,6 +83,14 @@ function generateBaseCode(repeatCode) {
                 END
             ) AS pickup_count,
         
+            -- RETURN COUNT
+            SUM(
+                CASE
+                    WHEN ct.calendar_date = km.return_date THEN 1
+                    ELSE 0
+                END
+            ) AS return_count,
+        
             -- REVENUE ALLOCATION
             SUM(
                 CASE

@@ -106,10 +106,16 @@ CREATE TABLE booking_data (
   promo_code_discount_amount CHAR(0) NOT NULL,
   promocode_created_date DATETIME,
   promo_code_description VARCHAR(200),
+
+  car_avail_id INT,
+  car_cat_id INT,
+  car_cat_name VARCHAR(50),
+
   requested_car VARCHAR(50),
   car_name VARCHAR(50),
   make VARCHAR(30),
   color VARCHAR(20),
+
   deliver_country VARCHAR(50) NOT NULL,
   deliver_city VARCHAR(50) NOT NULL,
   country_id INT,
