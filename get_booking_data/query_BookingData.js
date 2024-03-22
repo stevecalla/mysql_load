@@ -158,6 +158,8 @@ SELECT
     customer_doc_vertification_status,
     
     days,
+    IFNULL(extension_days, 0) AS extension_days, -- ADDED
+    
     IFNULL(extra_day_calc, 0) AS extra_day_calc,
 --     IFNULL(myproject.get_rental_rates(tb.booking_id,
 --                     tb.millage_id,
@@ -205,10 +207,10 @@ SELECT
     IFNULL(booking_charge * tb.conversion_rate, 0) AS booking_charge_aed, -- converted from local currency to UAE/AED
     IFNULL(booking_charge_less_discount * tb.conversion_rate, 0) AS booking_charge_less_discount_aed, -- converted from local currency to UAE/AED
 
-    IFNULL(booking_charge - extension_charge, 0) AS booking_charge_less_extension, -- ADDED
-    IFNULL(booking_charge_less_discount - extension_charge, 0) AS booking_charge_less_discount_extension,  -- ADDED
-    IFNULL((booking_charge - extension_charge) * tb.conversion_rate, 0) AS booking_charge_less_extension_aed,  -- ADDED currency conversion
-    IFNULL((booking_charge_less_discount - extension_charge) * tb.conversion_rate, 0) AS booking_charge_less_discount_extension_aed, -- ADDED currency conversion
+    IFNULL(booking_charge - extension_charge, booking_charge) AS booking_charge_less_extension, -- ADDED
+    IFNULL(booking_charge_less_discount - extension_charge, booking_charge_less_discount) AS booking_charge_less_discount_extension,  -- ADDED
+    IFNULL((booking_charge - extension_charge) * tb.conversion_rate, (booking_charge * tb.conversion_rate)) AS booking_charge_less_extension_aed,  -- ADDED currency conversion
+    IFNULL((booking_charge_less_discount - extension_charge) * tb.conversion_rate, (booking_charge_less_discount * tb.conversion_rate)) AS booking_charge_less_discount_extension_aed, -- ADDED currency conversion
 
     IFNULL(base_rental_revenue, 0) AS base_rental_revenue,
     IFNULL(non_rental_charge, 0) AS non_rental_charge,
@@ -577,6 +579,16 @@ FROM
                     AND m.extension_days > 0
                     AND m.message LIKE '%Dear Partner%') 
                 AS extension_charge,
+
+            (SELECT 
+                SUM(extension_days)
+                FROM rental_messagesuser m
+                WHERE 
+                    m.booking_id = b.id
+                    AND (m.subject LIKE '%exten%' OR m.subject=CONCAT('Late Rental Return for Booking#', m.booking_id))
+                    AND m.extension_days > 0
+                    AND m.message LIKE '%Dear Partner%') 
+                AS extension_days,
 
             (SELECT 
                     CASE

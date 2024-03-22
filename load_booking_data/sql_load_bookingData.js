@@ -124,6 +124,8 @@ async function execute_load_booking_data() {
             customer_doc_vertification_status,
 
             days,
+            extension_days,
+            
             extra_day_calc,
             customer_rate,
             insurance_rate,

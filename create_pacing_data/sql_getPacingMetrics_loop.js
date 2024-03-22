@@ -394,7 +394,7 @@ async function execute_create_pacing_metrics() {
 }
 
 // Run the main function
-execute_create_pacing_metrics();
+// execute_create_pacing_metrics();
 
 module.exports = {
     execute_create_pacing_metrics,

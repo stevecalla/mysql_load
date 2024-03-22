@@ -76,6 +76,8 @@ CREATE TABLE booking_data (
   customer_doc_vertification_status VARCHAR(3) NOT NULL,
 
   days DOUBLE,
+  extension_days DOUBLE,
+  
   extra_day_calc DOUBLE DEFAULT 0,
   customer_rate DOUBLE,
   insurance_rate DOUBLE,

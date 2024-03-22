@@ -69,28 +69,56 @@ async function executeCreateBaseDataQuery(pool) {
         
             -- DAYS CALCULATION
             minutes_rented DECIMAL(20, 4) AS (TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime)),
-            days_rented DECIMAL(10, 4) AS (TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime) / (24 * 60)),
+            days_rented DECIMAL(10, 4) AS (TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)),
+            days_less_extension_days DECIMAL(10, 4) AS ((TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)) - extension_days),
+            extension_days DECIMAL(10, 4),
         
             -- REVENUE CALCULATION
             booking_charge_aed DOUBLE,
             booking_charge_less_discount_aed DOUBLE,
-
-            extension_charge_aed DOUBLE,
-            booking_charge_less_discount_extension_aed DOUBLE,
         
+            booking_charge_less_discount_extension_aed DOUBLE,
+            extension_charge_aed DOUBLE,
+        
+            -- BOOKING CHARGE AED PER DAY
             booking_charge_aed_per_day DOUBLE AS (
                 CASE
                     WHEN pickup_date = return_date THEN booking_charge_aed
                     WHEN pickup_date <> return_date AND days_rented <= 2 THEN booking_charge_aed / 2
-                    ELSE booking_charge_aed / CEIL((TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime) / (24 * 60)))
+                    -- ELSE booking_charge_aed / days_rented
+                    
+                    WHEN days_rented > 0 THEN booking_charge_aed / days_rented
+                    ELSE 0            
                 END
             ),
         
+            -- BOOKING CHARGE LESS DISCOUNT AED PER DAY
             booking_charge_less_discount_aed_per_day DOUBLE AS (
                 CASE
                     WHEN pickup_date = return_date THEN booking_charge_less_discount_aed
-                    WHEN pickup_date <> return_date AND days_rented <= 2 THEN booking_charge_less_discount_aed / 2
-                    ELSE booking_charge_less_discount_aed / CEIL((TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime) / (24 * 60)))
+                    WHEN pickup_date <> return_date AND days_rented <= 2 THEN booking_charge_less_discount_aed / 2      
+                    WHEN days_rented > 0 THEN booking_charge_less_discount_aed / days_rented
+                    ELSE 0
+                END
+            ),
+        
+            -- BOOKING CHARGE LESS DISCOUNT LESS EXTENSION AED PER DAY
+            booking_charge_less_discount_extension_aed_per_day DOUBLE AS (
+                CASE
+                    WHEN pickup_date = return_date THEN booking_charge_less_discount_extension_aed
+                    WHEN pickup_date <> return_date AND days_less_extension_days <= 2 THEN booking_charge_less_discount_extension_aed / 2
+                    WHEN days_less_extension_days > 0 THEN booking_charge_less_discount_extension_aed / days_less_extension_days
+                    ELSE 0
+                END
+            ),
+        
+            -- EXTENSION CHARGE AED PER DAY CALC
+            extension_charge_aed_per_day DOUBLE AS (
+                CASE
+                    WHEN pickup_date = return_date THEN extension_charge_aed
+                    WHEN pickup_date <> return_date AND extension_days <= 2 THEN extension_charge_aed / 2
+                    WHEN extension_days > 0 THEN extension_charge_aed / extension_days
+                    ELSE 0
                 END
             ),
         
@@ -153,9 +181,9 @@ async function executeInsertBaseDataQuery(pool, table) {
 
         const query = `
         -- Step 2: Insert data from ezhire_booking_data.booking_data into key_metrics table
-        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed)
+        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed)
         
-        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed
+        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed
         
         FROM ezhire_booking_data.booking_data;
         `;
@@ -246,7 +274,7 @@ async function execute_create_key_metrics() {
 }
 
 // Run the main function
-execute_create_key_metrics();
+// execute_create_key_metrics();
 
 module.exports = {
     execute_create_key_metrics,

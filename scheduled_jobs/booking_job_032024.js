@@ -50,7 +50,7 @@ async function step_3() {
         console.log(message_3);
         generateLogFile('scheduled booking data', message_3);
 
-        await step_4();
+        // await step_4();
     } catch (error) {
         console.error('Error executing Step #3:', error);
         generateLogFile('scheduled booking data', `Error executing Step #3: ${error}`);
