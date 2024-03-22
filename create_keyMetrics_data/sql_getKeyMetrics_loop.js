@@ -74,6 +74,9 @@ async function executeCreateBaseDataQuery(pool) {
             -- REVENUE CALCULATION
             booking_charge_aed DOUBLE,
             booking_charge_less_discount_aed DOUBLE,
+
+            extension_charge_aed DOUBLE,
+            booking_charge_less_discount_extension_aed DOUBLE,
         
             booking_charge_aed_per_day DOUBLE AS (
                 CASE
@@ -145,37 +148,15 @@ async function executeInsertCreatedAtQuery(pool, table) {
     });
 }
 
-async function executeInsertCreatedAtQuery(pool, table) {
-    return new Promise((resolve, reject) => {
-
-        const addCreateAtDate = `
-            ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        `;
-        // console.log(addCreateAtDate);
-
-        pool.query(addCreateAtDate, (queryError, results) => {
-            if (queryError) {
-                console.error('Error executing select query:', queryError);
-                reject(queryError);
-            } else {
-                console.log('\nCreate at insert results');
-                console.table(results);
-                console.log('Create at insert results\n');
-                resolve();
-            }
-        });
-    });
-}
-
 async function executeInsertBaseDataQuery(pool, table) {
     return new Promise((resolve, reject) => {
 
         const query = `
         -- Step 2: Insert data from ezhire_booking_data.booking_data into key_metrics table
-
-        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed)
+        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed)
         
-        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed
+        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed
+        
         FROM ezhire_booking_data.booking_data;
         `;
 
@@ -265,7 +246,7 @@ async function execute_create_key_metrics() {
 }
 
 // Run the main function
-// execute_create_key_metrics();
+execute_create_key_metrics();
 
 module.exports = {
     execute_create_key_metrics,
