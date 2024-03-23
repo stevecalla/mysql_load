@@ -42,18 +42,17 @@ function generateRepeatCode(variableList) {
 };
 
 function generateBaseCode(repeatCode) {
-    
     // CREATE TEMPORARY TABLE IF NOT EXISTS temp AS
     baseCode = `
         CREATE TABLE IF NOT EXISTS key_metrics_data AS
         SELECT 
             DATE_FORMAT(DATE(NOW()), '%Y-%m-%d %H:%i:%s') AS created_at,
-            DATE_FORMAT(DATE(ct.calendar_date), '%Y-%m-%d') AS calendar_date,
-            YEAR(ct.calendar_date) AS year,
-            QUARTER(ct.calendar_date) AS quarter,
-            MONTH(ct.calendar_date) AS month,
-            WEEK(ct.calendar_date) AS week,
-            DAY(ct.calendar_date) AS day,
+            DATE_FORMAT(DATE(ct.calendar_date), '%Y-%m-%d') AS calendar_date,     
+            ct.year AS year,
+            ct.quarter AS quarter,
+            ct.month AS month,
+            ct.week_of_year AS week,
+            ct.day_of_year AS day,
             
             -- TOTAL ON-RENT CALCULATION
             COUNT(km.id) AS days_on_rent_whole_day,
@@ -90,11 +89,40 @@ function generateBaseCode(repeatCode) {
                     ELSE 0
                 END
             ) AS return_count,
-        
-            -- REVENUE ALLOCATION
+
+            -- INITIAL RENTAL PERIOD DAYS
             SUM(
                 CASE
-                    -- between is inclusive of pickup and return date
+                    WHEN extension_days > 0
+                        AND ct.calendar_date BETWEEN 
+                        km.pickup_date AND DATE_ADD(km.pickup_date, INTERVAL (km.days_less_extension_days - 1) DAY)
+                        THEN 1
+        
+                    WHEN extension_days = 0
+                        AND ct.calendar_date BETWEEN             
+                            km.pickup_date AND
+                            km.return_date
+                        THEN 1
+        
+                    ELSE 0
+                END
+            ) AS day_in_initial_period,
+        
+            -- EXTENSION PERIOD DAYS
+            SUM(
+                CASE
+                    WHEN extension_days > 0
+                        AND ct.calendar_date BETWEEN 
+                        DATE_ADD(km.pickup_date, INTERVAL (km.days_less_extension_days) DAY)
+                        AND km.return_date
+                        THEN 1
+                    ELSE 0
+                END
+            ) AS day_in_extension_period,
+        
+            -- REVENUE ALLOCATION FOR EACH DAY
+            SUM(
+                CASE
                     WHEN ct.calendar_date BETWEEN km.pickup_date AND km.return_date THEN booking_charge_aed_per_day
                     ELSE 0
                 END
@@ -102,24 +130,53 @@ function generateBaseCode(repeatCode) {
         
             SUM(
                 CASE
-                    -- between is inclusive of pickup and return date
                     WHEN ct.calendar_date BETWEEN km.pickup_date AND km.return_date THEN booking_charge_less_discount_aed_per_day
                     ELSE 0
                 END
-            ) AS booking_charge_Less_discount_aed_rev_allocation,
-            
+            ) AS booking_charge_less_discount_aed_rev_allocation,
+        
+            -- INITIAL PERIOD REVENUE ALLOCATION
+            SUM(
+                CASE
+                    WHEN extension_days > 0
+                        AND ct.calendar_date BETWEEN 
+                        km.pickup_date AND DATE_ADD(km.pickup_date, INTERVAL (km.days_less_extension_days - 1) DAY)
+                        THEN booking_charge_less_discount_aed_per_day
+        
+                    WHEN extension_days = 0
+                        AND ct.calendar_date BETWEEN             
+                            km.pickup_date AND
+                            km.return_date
+                        THEN booking_charge_less_discount_aed_per_day
+        
+                    ELSE 0
+                END
+            ) AS rev_aed_in_initial_period,
+        
+            -- EXTENSION PERIOD REVENUE ALLOCATION
+            SUM(
+                CASE
+                    WHEN extension_days > 0
+                        AND ct.calendar_date BETWEEN 
+                        DATE_ADD(km.pickup_date, INTERVAL (km.days_less_extension_days) DAY)
+                        AND km.return_date
+                        THEN booking_charge_less_discount_aed_per_day
+                    ELSE 0
+                END
+            ) AS rev_aed_in_extension_period,
+        
             -- DAYS ON-RENT BY SEGMENT = VENDOR, IS_REPEAT, BOOKING_TYPE, COUNTRY
             ${repeatCode}
 
         FROM ezhire_key_metrics.calendar_table ct
 
         INNER JOIN
-        key_metrics_base km
-        ON ct.calendar_date >= '${booking_date}'
-        AND km.return_date >= '${return_date}'
-        AND ct.calendar_date >= km.booking_date
-        AND ct.calendar_date <= km.return_date
-        AND km.status NOT LIKE '${status}'
+            key_metrics_base km
+            ON ct.calendar_date >= '${booking_date}'
+            AND km.return_date >= '${return_date}'
+            AND ct.calendar_date >= km.booking_date
+            AND ct.calendar_date <= km.return_date
+            AND km.status NOT LIKE '${status}'
 
         GROUP BY ct.calendar_date
 

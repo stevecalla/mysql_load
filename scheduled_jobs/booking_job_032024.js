@@ -9,7 +9,7 @@ async function get_booking_data() {
     try {
         // STEP #1: GET BOOKING DATA
         console.log('\n*************** STARTING STEP 1 ***************\n');
-        await execute_get_booking_data();
+        // await execute_get_booking_data();
 
         const message_1 = 'Command #1 retrieving booking data is complete';
         console.log(message_1);
@@ -26,7 +26,7 @@ async function step_2() {
     try {
         // STEP #2: LOAD BOOKING DATA
         console.log('\n*************** STARTING STEP 2 ***************\n');
-        await execute_load_booking_data();
+        // await execute_load_booking_data();
 
         const message_2 = 'Command #2 loading booking data is complete';
         console.log(message_2);
