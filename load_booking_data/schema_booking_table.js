@@ -76,6 +76,8 @@ CREATE TABLE booking_data (
   customer_doc_vertification_status VARCHAR(3) NOT NULL,
 
   days DOUBLE,
+  extension_days DOUBLE,
+  
   extra_day_calc DOUBLE DEFAULT 0,
   customer_rate DOUBLE,
   insurance_rate DOUBLE,
@@ -94,13 +96,23 @@ CREATE TABLE booking_data (
   discount_charge DOUBLE,
   total_vat DOUBLE,
   other_charge DOUBLE,
+
   booking_charge DOUBLE,
   booking_charge_less_discount DOUBLE,
   booking_charge_aed DOUBLE,
   booking_charge_less_discount_aed DOUBLE,
+
+  booking_charge_less_extension DOUBLE,
+  booking_charge_less_discount_extension DOUBLE,
+  booking_charge_less_extension_aed DOUBLE,
+  booking_charge_less_discount_extension_aed DOUBLE,
+
   base_rental_revenue DOUBLE,
   non_rental_charge DOUBLE,
-  extension_charge INT NOT NULL DEFAULT 0,
+
+  extension_charge DOUBLE,
+  extension_charge_aed DOUBLE,
+
   is_extended VARCHAR(3),
   promo_code VARCHAR(200),
   promo_code_discount_amount CHAR(0) NOT NULL,

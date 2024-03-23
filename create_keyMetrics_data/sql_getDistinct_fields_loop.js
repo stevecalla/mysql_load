@@ -91,7 +91,7 @@ async function get_distinct() {
 }
 
 // Run the main function
-get_distinct();
+// get_distinct();
 
 module.exports = {
     get_distinct,
