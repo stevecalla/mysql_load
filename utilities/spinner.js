@@ -63,13 +63,16 @@ async function get_spinner(stop) {
         count > stop && clear_spinner(spinnerInterval);
     // }, spinner.interval);
     }, 1000);
+
+    // console.log(spinnerInterval);
+    return spinnerInterval;
 };
 
 function clear_spinner(spinnerName) {
     clearInterval(spinnerName);
 }
 
-get_spinner(20);
+let spinner = get_spinner(5);
 
 module.exports = {
     get_spinner,

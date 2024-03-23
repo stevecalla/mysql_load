@@ -2,7 +2,7 @@ const fs = require('fs');
 const mysql = require('mysql2');
 
 const config = require('../utilities/config');
-const { get_spinner, clear_spinner } = require('../utilities/spinner');
+// const { get_spinner, clear_spinner } = require('../utilities/spinner');
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { generate_distinct_list } = require('./query_distinct_keyMetricsCore_031424');
@@ -17,7 +17,34 @@ function createLocalConnection() {
         // Create a MySQL connection pool
         const pool = mysql.createPool(mysqlConfig);
 
+        // Handle process termination signals
+process.on('SIGINT', () => {
+    console.log('\nReceived SIGINT signal. Closing database connection pool.');
+    pool.end(err => {
+      if (err) {
+        console.error('Error closing connection pool:', err.message);
+      } else {
+        console.log('Connection pool closed successfully.');
+        process.exit(0); // Exit the process gracefully
+      }
+    });
+  });
+
+  // Don't forget to close the connection pool when your application is shutting down
+process.on('exit', () => {
+    console.log('Exiting application. Closing database connection pool.');
+    pool.end(err => {
+      if (err) {
+        console.error('Error closing connection pool:', err.message);
+      } else {
+        console.log('Connection pool closed successfully.');
+      }
+    });
+  });
+
         resolve(pool);
+
+        
     });
 }
 
@@ -151,48 +178,7 @@ async function executeCreateGroupByDataQuery(pool) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
-            
-        // const query = `
-        // CREATE TABLE pacing_base_groupby AS
-        // SELECT 
-        //     pb.pickup_month_year,
-        //     pb.booking_date,
-        //     pb.days_from_first_day_of_month,
-    
-        //     -- CREATE RUNNING TOTAL FOR KEY STATS
-        //     FORMAT((SELECT SUM(count)
-        //             FROM ezhire_pacing_metrics.pacing_base
-        //             WHERE pickup_month_year = pb.pickup_month_year
-        //             AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_count,
-        
-        //     FORMAT((SELECT SUM(booking_charge_aed)
-        //             FROM ezhire_pacing_metrics.pacing_base
-        //             WHERE pickup_month_year = pb.pickup_month_year
-        //             AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_aed,
-        
-        //     FORMAT((SELECT SUM(booking_charge_less_discount_aed)
-        //             FROM ezhire_pacing_metrics.pacing_base
-        //             WHERE pickup_month_year = pb.pickup_month_year
-        //             AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_aed,
-        
-        //     FORMAT((SELECT SUM(booking_charge_less_discount_extension_aed)
-        //             FROM ezhire_pacing_metrics.pacing_base
-        //             WHERE pickup_month_year = pb.pickup_month_year
-        //             AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_extension_aed,
-        
-        //     FORMAT((SELECT SUM(extension_charge_aed)
-        //             FROM ezhire_pacing_metrics.pacing_base
-        //             WHERE pickup_month_year = pb.pickup_month_year
-        //             AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_extension_charge_aed
-        
-        // FROM ezhire_pacing_metrics.pacing_base pb
-        // GROUP BY 
-        //     pb.pickup_month_year,
-        //     pb.booking_date,  
-        //     pb.days_from_first_day_of_month
-        // ORDER BY pb.pickup_month_year ASC;
-        // `;
-            
+
         const query = `
         CREATE TABLE pacing_base_groupby AS
         SELECT 
@@ -200,11 +186,38 @@ async function executeCreateGroupByDataQuery(pool) {
             pb.booking_date,
             pb.days_from_first_day_of_month,
     
-        -- CREATE RUNNING TOTAL FOR KEY STATS
-        FORMAT((SELECT SUM(count)
-                FROM ezhire_pacing_metrics.pacing_base
-                WHERE pickup_month_year = pb.pickup_month_year
-                AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_count
+            -- SUM KEY STATS BY PICKUP MONTH YEAR
+            SUM(count) AS count,
+            FORMAT(SUM(pb.booking_charge_aed), 0) AS total_booking_charge_aed,
+            FORMAT(SUM(pb.booking_charge_less_discount_aed), 0) AS total_booking_charge_less_discount_aed,
+            FORMAT(SUM(pb.booking_charge_less_discount_extension_aed), 0) AS total_booking_charge_less_discount_extension_aed,
+            FORMAT(SUM(pb.extension_charge_aed), 0) AS total_extension_charge_aed,
+    
+            -- CREATE RUNNING TOTAL FOR KEY STATS
+            FORMAT((SELECT SUM(count)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_count,
+
+            FORMAT((SELECT SUM(booking_charge_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_aed,
+
+            FORMAT((SELECT SUM(booking_charge_less_discount_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_aed,
+
+            FORMAT((SELECT SUM(booking_charge_less_discount_extension_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_extension_aed,
+
+            FORMAT((SELECT SUM(extension_charge_aed)
+                    FROM ezhire_pacing_metrics.pacing_base
+                    WHERE pickup_month_year = pb.pickup_month_year
+                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_extension_charge_aed
     
         FROM ezhire_pacing_metrics.pacing_base pb
         GROUP BY 
@@ -219,13 +232,18 @@ async function executeCreateGroupByDataQuery(pool) {
             const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
             if (queryError) {
-                console.error('Error executing select query:', queryError);
+                console.error('Error executing select query:', queryError);    
+                // If the job fails, destroy the connection to clear it from the pool
+                // if (connection) {
+                //   connection.destroy();
+                // }
+                // clear_spinner(spinner);
                 reject(queryError);
             } else {
                 console.log('\nCreate table results = ROLLUP BASE DATA');
                 console.table(results);
                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
-                clear_spinner();
+                // clear_spinner(spinner);
                 resolve();
             }
         });
@@ -471,7 +489,7 @@ async function execute_create_pacing_metrics() {
 
         //STEP 4.2: CREATE BASE DATA
         console.log(`STEP 4.2: CREATE BASE DATA`);
-        // await get_spinner(10);
+        // spinner = await get_spinner(10);
 
         // await executeDropTableQuery(pool, 'pacing_base;');
         // await executeCreateBaseDataQuery(pool);
@@ -479,7 +497,10 @@ async function execute_create_pacing_metrics() {
         
         //STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
         console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
-        await get_spinner();
+
+        // spinner = await get_spinner(10);
+        // spinner();
+        // console.log(spinner);
 
         await executeDropTableQuery(pool, 'pacing_base_groupby;');
         

@@ -1,6 +1,6 @@
-const {
-    getCurrentDateTimeForFileNaming,
-    getCurrentDateForFileNaming } = require('./getCurrentDate');
+// const {
+//     getCurrentDateTimeForFileNaming,
+//     getCurrentDateForFileNaming } = require('./getCurrentDate');
 
-getCurrentDateForFileNaming();
-getCurrentDateTimeForFileNaming();
+// getCurrentDateForFileNaming();
+// getCurrentDateTimeForFileNaming();
