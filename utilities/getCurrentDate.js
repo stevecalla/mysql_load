@@ -16,6 +16,14 @@ function getCurrentDateTime() {
     return createdAtFormatted;
 }
 
+//returns "10:25:25"
+function getCurrentTime() {
+    const createdAt = dayjs(); // Current date and time
+    const createdAtFormatted = createdAt.format('HH:mm:ss');
+    // console.log('Current date and time = ', createdAtFormatted);
+    return createdAtFormatted;
+}
+
 //returns "2024-03-10"
 function getCurrentDateForFileNaming() {
     const createdAt = dayjs(); // Current date and time
@@ -31,4 +39,5 @@ module.exports = {
     getCurrentDateTimeForFileNaming,
     getCurrentDateForFileNaming,
     getCurrentDateTime,
+    getCurrentTime,
 }

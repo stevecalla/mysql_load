@@ -44,13 +44,13 @@ async function step_3() {
     try {
         // STEP #3: CREATE KEY METRICS / ON RENT DATA
         console.log('\n*************** STARTING STEP 3 ***************\n');
-        await execute_create_key_metrics();
+        // await execute_create_key_metrics();
 
         const message_3 = 'Command #3 creating key metrics data is complete';
         console.log(message_3);
         generateLogFile('scheduled booking data', message_3);
 
-        // await step_4();
+        await step_4();
     } catch (error) {
         console.error('Error executing Step #3:', error);
         generateLogFile('scheduled booking data', `Error executing Step #3: ${error}`);

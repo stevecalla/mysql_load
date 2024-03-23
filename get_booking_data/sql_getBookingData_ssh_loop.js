@@ -45,11 +45,12 @@ function createSSHConnection() {
 // Function to execute query for a single date range
 async function executeQueryForDateRange(pool, startDate, endDate) {
     return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
+
         const modifiedBookingQuery = queryBookingData
             .replace('startDateVariable', startDate)
             .replace('endDateVariable', endDate);
-
-        const startTime = performance.now();
 
         pool.query(modifiedBookingQuery, (queryError, results) => {
             const endTime = performance.now();
