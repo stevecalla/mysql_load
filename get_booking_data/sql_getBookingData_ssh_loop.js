@@ -60,8 +60,11 @@ async function executeQueryForDateRange(pool, startDate, endDate) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
+
                 // results.forEach(result => console.log(result));
+
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
+
                 generateLogFile('booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
                 exportResultsToCSV(results, startDate, endDate);
                 resolve();
@@ -91,7 +94,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 
         fs.writeFileSync(saveFilePath, csvContent);
 
-        console.log(`Results exported to ${csvExportPath}`);
+        console.log(`Results exported to ${csvExportPath}\n`);
         generateLogFile('booking_data', `Results exported to ${saveFilePath}`, csvExportPath);
 
     } catch (error) {
@@ -201,8 +204,10 @@ async function execute_get_booking_data() {
 
         // Execute queries for each date range
         for (const { startDate, endDate } of dateRanges) {
+
+            console.log(`Started query for ${startDate} to ${endDate}.`);
             await executeQueryForDateRange(pool, startDate, endDate);
-            console.log(`Query for ${startDate} to ${endDate} executed successfully.`);
+            
             generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         }
 

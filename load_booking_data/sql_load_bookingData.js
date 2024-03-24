@@ -65,15 +65,14 @@ async function executeInsertBookingDataQuery(pool, filePath, rowsAdded) {
     const startTime = performance.now();
 
     const query = createLoadBookingDataQuery(filePath);
-    // console.log(query);
 
     pool.query(query, (queryError, results) => {
       const endTime = performance.now();
       const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        reject(queryError);
 
       if (queryError) {
         console.error('Error executing select query:', queryError);
-        reject(queryError);
       } else {
 
         console.log(`Data loaded successfully from ${filePath}.`);
