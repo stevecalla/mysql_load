@@ -1,23 +1,10 @@
 const fs = require('fs');
 const mysql = require('mysql2');
-const config = require('../utilities/config');
-const { generateLogFile } = require('../utilities/generateLogFile');
-const { generateRepeatCode } = require('./generateOnRentSQL_031624');
+const { localKeyMetricsDbConfig } = require('../utilities/config');
+const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 const { get_distinct } = require('./sql_getDistinct_fields_loop');
-
-// Function to create a Promise for managing the SSH connection and MySQL queries
-function createLocalConnection() {
-    return new Promise((resolve, reject) => {
-
-        // MySQL configuration
-        const mysqlConfig = config.localKeyMetricsDbConfig;
-
-        // Create a MySQL connection pool
-        const pool = mysql.createPool(mysqlConfig);
-
-        resolve(pool);
-    });
-}
+const { generateRepeatCode } = require('./generateOnRentSQL_031624');
+const { generateLogFile } = require('../utilities/generateLogFile');
 
 async function executeDropTableQuery(pool, table) {
     return new Promise((resolve, reject) => {
@@ -246,7 +233,7 @@ async function executeQuery(pool, distinctList) {
 // Main function to handle SSH connection and execute queries
 async function execute_create_key_metrics() {
     try {
-        const pool = await createLocalConnection();
+        const pool = await createLocalDBConnection(localKeyMetricsDbConfig);
 
         //STEP 1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
 
@@ -262,7 +249,7 @@ async function execute_create_key_metrics() {
         //STEP 4: GET ALL DATA -- send distinct list to the execute function
         await executeQuery(pool, distinctList);
 
-        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, config.csvExportPath);
+        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         console.log('All queries executed successfully.');
         await pool.end();
 

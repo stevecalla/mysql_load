@@ -5,7 +5,7 @@ const spinnerLibrary = require('./spinner.json');
 const { getCurrentDateTime, getCurrentTime } = require('./getCurrentDate');
 
 function getRandomNumber(max) {
-  return Math.floor(Math.random() * max);
+    return Math.floor(Math.random() * max);
 };
 
 function getRandomSpinner() {
@@ -23,46 +23,48 @@ function getRandomSpinner() {
 
     // get spinner array & interval
     let spinner = spinnerLibrary[randomSpinnerKey];
-    
+
     // console.log(spinner);
 
     return spinner;
 };
 
-async function get_spinner(stop) {
+function get_spinner(stop) {
     let index = 0;
     let count = 0;
 
     process.stdout.write("\x1B[?25l");
 
     let spinner = getRandomSpinner();
-    
+
     const startTime = performance.now();
 
-    let spinnerInterval = setInterval(() => {
-        let line = spinner.frames[index];
+    console.log(getCurrentDateTime());
 
-        if (line === undefined) {
-            index = 0;
-            line = spinner.frames[index];
-        };
-        
+    let spinnerInterval = setInterval(() => {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(0); //convert ms to sec
+        const runningTime = `Elapsed Time: ${elapsedTime} sec`;
+        const message = `waiting ...`;
 
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        // let text = `waiting ... ${line}    Elapsed Time: ${elapsedTime} sec`;
-        let text = `waiting ... ${line}    ${getCurrentTime()} Elapsed Time: ${elapsedTime} sec`;
+
+        let renderSpinner = spinner.frames[index];
+
+        if (renderSpinner === undefined) {
+            index = 0;
+            renderSpinner = spinner.frames[index];
+        };
+
+        let text = `${message} ${renderSpinner} ${runningTime}`;
         process.stdout.write(text);
-        
 
         index = index >= spinner.length ? 0 : index + 1;
         count++;
 
         count > stop && clear_spinner(spinnerInterval);
-    // }, spinner.interval);
-    }, 1000);
+    }, 500);
 
     // console.log(spinnerInterval);
     return spinnerInterval;
@@ -72,7 +74,7 @@ function clear_spinner(spinnerName) {
     clearInterval(spinnerName);
 }
 
-let spinner = get_spinner(5);
+get_spinner(20);
 
 module.exports = {
     get_spinner,

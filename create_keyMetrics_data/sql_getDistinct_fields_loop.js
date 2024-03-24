@@ -1,22 +1,9 @@
 const fs = require('fs');
 const mysql = require('mysql2');
-const config = require('../utilities/config');
-const { generateLogFile } = require('../utilities/generateLogFile');
+const { localKeyMetricsDbConfig, } = require('../utilities/config');
+const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 const { generate_distinct_list } = require('./query_distinct_keyMetricsCore_031424');
-
-// Function to create a Promise for managing the SSH connection and MySQL queries
-function createLocalConnection() {
-    return new Promise((resolve, reject) => {
-
-        // MySQL configuration
-        const mysqlConfig = config.localKeyMetricsDbConfig;
-
-        // Create a MySQL connection pool
-        const pool = mysql.createPool(mysqlConfig);
-
-        resolve(pool);
-    });
-}
+const { generateLogFile } = require('../utilities/generateLogFile');
 
 // Function to execute query for a single date range
 async function executeQuery(pool, field, distinctList) {
@@ -50,11 +37,9 @@ async function executeQuery(pool, field, distinctList) {
 // Main function to handle SSH connection and execute queries
 async function get_distinct() {
     try {
-        const pool = await createLocalConnection();
+        const pool = await createLocalDBConnection(localKeyMetricsDbConfig);
 
         // Array of date ranges to loop through
-        // const fields = ['vendor'];
-        // const fields = ['vendor', 'booking_type', 'is_repeat'];
         const fields = ['vendor', 'booking_type', 'is_repeat', 'country'];
 
         let distinctList = [];

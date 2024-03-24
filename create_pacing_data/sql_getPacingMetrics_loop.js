@@ -1,52 +1,12 @@
 const fs = require('fs');
 const mysql = require('mysql2');
-
-const config = require('../utilities/config');
-// const { get_spinner, clear_spinner } = require('../utilities/spinner');
+const { localPacingDbConfig, csvExportPath } = require('../utilities/config');
+const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
+const { generate_distinct_list } = require('./query_distinct_pickup_month_year_031424');
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
+
 const { generateLogFile } = require('../utilities/generateLogFile');
-const { generate_distinct_list } = require('./query_distinct_keyMetricsCore_031424');
-
-// Function to create a Promise for managing the SSH connection and MySQL queries
-function createLocalConnection() {
-    return new Promise((resolve, reject) => {
-
-        // MySQL configuration
-        const mysqlConfig = config.localPacingDbConfig;
-
-        // Create a MySQL connection pool
-        const pool = mysql.createPool(mysqlConfig);
-
-        // Handle process termination signals
-        process.on('SIGINT', () => {
-            console.log('\nReceived SIGINT signal. Closing database connection pool.');
-            pool.end(err => {
-            if (err) {
-                console.error('Error closing connection pool:', err.message);
-            } else {
-                console.log('Connection pool closed successfully.');
-                process.exit(0); // Exit the process gracefully
-            }
-            });
-        });
-
-        // Don't forget to close the connection pool when your application is shutting down
-        process.on('exit', () => {
-            console.log('Exiting application. Closing database connection pool.');
-            pool.end(err => {
-            if (err) {
-                console.error('Error closing connection pool:', err.message);
-            } else {
-                console.log('Connection pool closed successfully.');
-            }
-            });
-        });
-
-        resolve(pool);
-
-        
-    });
-}
+// const { get_spinner, clear_spinner } = require('../utilities/spinner');
 
 async function executeInsertCreatedAtQuery(pool, table) {
     return new Promise((resolve, reject) => {
@@ -249,7 +209,7 @@ async function executeCreateGroupByDataQuery(pool) {
 }
 
 // STEP #3a - INSERT MISSING DATES
-async function executeCreateTableQuery(pool, table) {
+async function executeCreateTableQuery(pool) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
@@ -477,33 +437,34 @@ async function executeCreateFinalDataQuery(pool) {
 // Main function to handle SSH connection and execute queries
 async function execute_create_pacing_metrics() { 
     try {
-        const pool = await createLocalConnection();
+        const pool = await createLocalDBConnection(localPacingDbConfig);
+        // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
         //STEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
-        // console.log(`\nSTEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION`);
-        // console.log(getCurrentDateTime());
+        console.log(`\nSTEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION`);
+        console.log(getCurrentDateTime());
 
         //STEP 4.2: CREATE BASE DATA
-        // console.log(`STEP 4.2: CREATE BASE DATA`);
-        // console.log(getCurrentDateTime());
-        // await executeDropTableQuery(pool, 'pacing_base;');
-        // await executeCreateBaseDataQuery(pool);
-        // await executeInsertCreatedAtQuery(pool, 'pacing_base');  
+        console.log(`STEP 4.2: CREATE BASE DATA`);
+        console.log(getCurrentDateTime());
+        await executeDropTableQuery(pool, 'pacing_base;');
+        await executeCreateBaseDataQuery(pool);
+        await executeInsertCreatedAtQuery(pool, 'pacing_base');  
         
         //STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
-        // console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
-        // console.log(getCurrentDateTime());
-        // await executeDropTableQuery(pool, 'pacing_base_groupby;');
+        console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
+        console.log(getCurrentDateTime());
+        await executeDropTableQuery(pool, 'pacing_base_groupby;');
         
-        // console.log(`Executing create group by / rollup by date`);
-        // await executeCreateGroupByDataQuery(pool);
-        // await executeInsertCreatedAtQuery(pool, 'pacing_base_groupby');   
+        console.log(`Executing create group by / rollup by date`);
+        await executeCreateGroupByDataQuery(pool);
+        await executeInsertCreatedAtQuery(pool, 'pacing_base_groupby');   
 
         //STEP 4.4: ADD MISSING CALENDAR DATES TO EACH MONTH
         console.log(`STEP 4.4: ADD MISSING CALENDAR DATES TO EACH MONTH`);
         console.log(getCurrentDateTime());
         const distinctList = await executeDistinctQuery(pool); // get list of pickup_year_month
-        
+
         await executeDropTableQuery(pool, 'pacing_base_all_calendar_dates'); // drop prior table
         await executeCreateTableQuery(pool); // create table
 
@@ -513,7 +474,7 @@ async function execute_create_pacing_metrics() {
 
             await executeInsertQuery(pool, pickup_month_year, index);
 
-            generateLogFile('pacing_data', `Query for ${pickup_month_year} executed successfully.`, config.csvExportPath);
+            generateLogFile('pacing_data', `Query for ${pickup_month_year} executed successfully.`, csvExportPath);
         }
         
         //STEP 5: ROLLUP THE DATA BY PICKUP_MONTH_YEAR
@@ -523,7 +484,7 @@ async function execute_create_pacing_metrics() {
         await executeCreateFinalDataQuery(pool);
         await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
 
-        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, config.csvExportPath);
+        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         console.log('All queries executed successfully.');
 
         await pool.end();
