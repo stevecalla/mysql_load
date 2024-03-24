@@ -2,7 +2,10 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const { localPacingDbConfig, csvExportPath } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
+
 const { generate_distinct_list } = require('./query_distinct_pickup_month_year_031424');
+const { query_pacing_groupby_optimized } = require('./query_create_pacing_groupby_optimized');
+
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
 const { generateLogFile } = require('../utilities/generateLogFile');
@@ -137,71 +140,19 @@ async function executeCreateGroupByDataQuery(pool) {
 
         const startTime = performance.now();
 
-        const query = `
-        CREATE TABLE pacing_base_groupby AS
-        SELECT 
-            pb.pickup_month_year,
-            pb.booking_date,
-            pb.days_from_first_day_of_month,
-    
-            -- SUM KEY STATS BY PICKUP MONTH YEAR
-            SUM(count) AS count,
-            FORMAT(SUM(pb.booking_charge_aed), 0) AS total_booking_charge_aed,
-            FORMAT(SUM(pb.booking_charge_less_discount_aed), 0) AS total_booking_charge_less_discount_aed,
-            FORMAT(SUM(pb.booking_charge_less_discount_extension_aed), 0) AS total_booking_charge_less_discount_extension_aed,
-            FORMAT(SUM(pb.extension_charge_aed), 0) AS total_extension_charge_aed,
-    
-            -- CREATE RUNNING TOTAL FOR KEY STATS
-            FORMAT((SELECT SUM(count)
-                    FROM ezhire_pacing_metrics.pacing_base
-                    WHERE pickup_month_year = pb.pickup_month_year
-                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_count,
-
-            FORMAT((SELECT SUM(booking_charge_aed)
-                    FROM ezhire_pacing_metrics.pacing_base
-                    WHERE pickup_month_year = pb.pickup_month_year
-                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_aed,
-
-            FORMAT((SELECT SUM(booking_charge_less_discount_aed)
-                    FROM ezhire_pacing_metrics.pacing_base
-                    WHERE pickup_month_year = pb.pickup_month_year
-                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_aed,
-
-            FORMAT((SELECT SUM(booking_charge_less_discount_extension_aed)
-                    FROM ezhire_pacing_metrics.pacing_base
-                    WHERE pickup_month_year = pb.pickup_month_year
-                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_booking_charge_less_discount_extension_aed,
-
-            FORMAT((SELECT SUM(extension_charge_aed)
-                    FROM ezhire_pacing_metrics.pacing_base
-                    WHERE pickup_month_year = pb.pickup_month_year
-                    AND days_from_first_day_of_month <= pb.days_from_first_day_of_month), 0) AS running_total_extension_charge_aed
-    
-        FROM ezhire_pacing_metrics.pacing_base pb
-        GROUP BY 
-            pb.pickup_month_year,
-            pb.booking_date,  
-            pb.days_from_first_day_of_month
-        ORDER BY pb.pickup_month_year ASC;
-        `;
+        const query = query_pacing_groupby_optimized();
 
         pool.query(query, (queryError, results) => {
             const endTime = performance.now();
             const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
             if (queryError) {
-                console.error('Error executing select query:', queryError);    
-                // If the job fails, destroy the connection to clear it from the pool
-                // if (connection) {
-                //   connection.destroy();
-                // }
-                // clear_spinner(spinner);
+                console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
                 console.log('\nCreate table results = ROLLUP BASE DATA');
                 console.table(results);
                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
-                // clear_spinner(spinner);
                 resolve();
             }
         });
