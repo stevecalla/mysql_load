@@ -165,22 +165,28 @@ async function execute_load_booking_data() {
     console.log('Files processed = ', numberOfFiles);
 
     // STEP #2.4 - INSERT "CREATED AT" DATE
-    await executeInsertCreatedAtQuery(pool, `${table}`);  
+    await executeInsertCreatedAtQuery(pool, `${table}`);
 
     console.log('All queries executed successfully.');
-    
-    await pool.end();
+
+    await pool.end(err => {
+      if (err) {
+        console.error('Error closing connection pool:', err.message);
+      } else {
+        console.log('Connection pool closed successfully.');
+      }
+    });
 
   } catch (error) {
     console.error('Error:', error);
     generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, csvExportPath);
   } finally {
+    // TODO
   }
 }
 
 // Call the function
-execute_load_booking_data();
-
+// execute_load_booking_data();
 
 module.exports = {
   execute_load_booking_data,

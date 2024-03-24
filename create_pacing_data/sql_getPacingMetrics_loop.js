@@ -487,7 +487,13 @@ async function execute_create_pacing_metrics() {
         // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         console.log('All queries executed successfully.');
 
-        await pool.end();
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
 
     } catch (error) {
         console.error('Error:', error);

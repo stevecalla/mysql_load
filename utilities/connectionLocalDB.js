@@ -14,26 +14,26 @@ function createLocalDBConnection(conf_details) {
         process.on('SIGINT', () => {
             console.log('\nReceived SIGINT signal. Closing database connection pool.');
             pool.end(err => {
-            if (err) {
-                console.error('Error closing connection pool:', err.message);
-            } else {
-                console.log('Connection pool closed successfully.');
-                process.exit(0); // Exit the process gracefully
-            }
+                if (err) {
+                    console.error('Error closing connection pool:', err.message);
+                } else {
+                    console.log('Connection pool closed successfully.');
+                    process.exit(0); // Exit the process gracefully
+                }
             });
         });
 
         // Close the connection pool when your application is shutting down
-        // process.on('exit', () => {
-        //     console.log('Exiting application. Closing database connection pool.');
-        //     pool.end(err => {
-        //     if (err) {
-        //         console.error('Error closing connection pool:', err.message);
-        //     } else {
-        //         console.log('Connection pool closed successfully.');
-        //     }
-        //     });
-        // });
+        process.on('exit', () => {
+            console.log('\nExiting application. Closing database connection pool.');
+            pool.end(err => {
+                if (pool & err) {
+                    console.error('Error closing connection pool:', err.message);
+                } else {
+                    console.log('Connection pool closed successfully.');
+                }
+            });
+        });
 
         resolve(pool);
     });

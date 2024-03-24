@@ -250,9 +250,17 @@ async function execute_create_key_metrics() {
         await executeQuery(pool, distinctList);
 
         // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
+        
+        await pool.end(err => {
+            if (err) {
+                console.error('Error closing connection pool:', err.message);
+            } else {
+                console.log('Connection pool closed successfully.');
+            }
+        });
+        
         console.log('All queries executed successfully.');
-        await pool.end();
-
+        
     } catch (error) {
         console.error('Error:', error);
     } finally {

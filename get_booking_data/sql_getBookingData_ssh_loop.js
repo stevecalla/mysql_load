@@ -207,7 +207,7 @@ async function execute_get_booking_data() {
         }
 
         // Close the SSH connection after all queries are executed
-        await pool.end();
+        await 
         sshClient.end();
 
         console.log('All queries executed successfully.');

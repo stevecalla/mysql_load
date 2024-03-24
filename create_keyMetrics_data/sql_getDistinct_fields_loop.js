@@ -61,17 +61,29 @@ async function get_distinct() {
 
         finalDistinctList.forEach(element => { generateLogFile('distinct_onrent_list', `${element.segment}, ${element.option}`) });
 
-        // console.log(finalDistinctList);
-
         // Close the pool connection after all queries are executed
-        await pool.end();
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
+
         console.log('All queries executed successfully.');
 
         return(finalDistinctList);
 
     } catch (error) {
         console.error('Error:', error);
-        await pool.end();
+        
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
     }
 }
 

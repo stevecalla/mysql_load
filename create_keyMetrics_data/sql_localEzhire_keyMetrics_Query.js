@@ -23,9 +23,15 @@ const { generateRepeatCode } = require('./generateOnRentSQL_031624');
             }
 
             console.timeLog("query execution");
-    
+
             // Close the connection pool
-            pool.end();
+            pool.end(err => {
+              if (err) {
+                console.error('Error closing connection pool:', err.message);
+              } else {
+                console.log('Connection pool closed successfully.');
+              }
+            });
         });
 
     } catch (error) {
