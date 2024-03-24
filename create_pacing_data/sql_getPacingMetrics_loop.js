@@ -18,29 +18,29 @@ function createLocalConnection() {
         const pool = mysql.createPool(mysqlConfig);
 
         // Handle process termination signals
-process.on('SIGINT', () => {
-    console.log('\nReceived SIGINT signal. Closing database connection pool.');
-    pool.end(err => {
-      if (err) {
-        console.error('Error closing connection pool:', err.message);
-      } else {
-        console.log('Connection pool closed successfully.');
-        process.exit(0); // Exit the process gracefully
-      }
-    });
-  });
+        process.on('SIGINT', () => {
+            console.log('\nReceived SIGINT signal. Closing database connection pool.');
+            pool.end(err => {
+            if (err) {
+                console.error('Error closing connection pool:', err.message);
+            } else {
+                console.log('Connection pool closed successfully.');
+                process.exit(0); // Exit the process gracefully
+            }
+            });
+        });
 
-  // Don't forget to close the connection pool when your application is shutting down
-process.on('exit', () => {
-    console.log('Exiting application. Closing database connection pool.');
-    pool.end(err => {
-      if (err) {
-        console.error('Error closing connection pool:', err.message);
-      } else {
-        console.log('Connection pool closed successfully.');
-      }
-    });
-  });
+        // Don't forget to close the connection pool when your application is shutting down
+        process.on('exit', () => {
+            console.log('Exiting application. Closing database connection pool.');
+            pool.end(err => {
+            if (err) {
+                console.error('Error closing connection pool:', err.message);
+            } else {
+                console.log('Connection pool closed successfully.');
+            }
+            });
+        });
 
         resolve(pool);
 
@@ -101,7 +101,6 @@ async function executeDropTableQuery(pool, table) {
 
 // Get distinct list of pickup_month_year
 async function executeDistinctQuery(pool) {
-    let list = "";
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
@@ -116,7 +115,6 @@ async function executeDistinctQuery(pool) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
-                console.log(`\nDistinct results= ${results}`);
                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve(results);
             }
@@ -299,8 +297,6 @@ async function executeInsertQuery(pool, pickup_month_year, index) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
-
-        console.log(pickup_month_year);
             
         const insertQuery = `INSERT INTO pacing_base_all_calendar_dates
             SELECT
@@ -345,8 +341,8 @@ async function executeInsertQuery(pool, pickup_month_year, index) {
                 reject(queryError);
             } else {
                 console.log(`\nCreate table results 3b = ${pickup_month_year}`);
-                console.table(results);
                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
+                console.log(`Query for ${pickup_month_year} executed successfully.`);
                 resolve();
             }
         });
@@ -390,8 +386,8 @@ async function executeCreateFinalDataQuery(pool) {
                 COALESCE(count, 0) AS count,
                 COALESCE(total_booking_charge_aed, 0) AS total_booking_charge_aed,
                 COALESCE(total_booking_charge_less_discount_aed, 0) AS total_booking_charge_less_discount_aed,
-                COALESCE(pb.booking_charge_less_discount_extension_aed, 0) AS total_booking_charge_less_discount_extension_aed,
-                COALESCE(pb.extension_charge_aed, 0) AS total_extension_charge_aed,
+                COALESCE(total_booking_charge_less_discount_extension_aed, 0) AS total_booking_charge_less_discount_extension_aed,
+                COALESCE(total_extension_charge_aed, 0) AS total_extension_charge_aed,
             
             -- running_count
             CASE
@@ -484,57 +480,52 @@ async function execute_create_pacing_metrics() {
         const pool = await createLocalConnection();
 
         //STEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
-        console.log(`\nSTEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION`);
-        console.log(getCurrentDateTime());
+        // console.log(`\nSTEP 4.1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION`);
+        // console.log(getCurrentDateTime());
 
         //STEP 4.2: CREATE BASE DATA
-        console.log(`STEP 4.2: CREATE BASE DATA`);
-        // spinner = await get_spinner(10);
-
+        // console.log(`STEP 4.2: CREATE BASE DATA`);
+        // console.log(getCurrentDateTime());
         // await executeDropTableQuery(pool, 'pacing_base;');
         // await executeCreateBaseDataQuery(pool);
         // await executeInsertCreatedAtQuery(pool, 'pacing_base');  
         
         //STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
-        console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
-
-        // spinner = await get_spinner(10);
-        // spinner();
-        // console.log(spinner);
-
-        await executeDropTableQuery(pool, 'pacing_base_groupby;');
+        // console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
+        // console.log(getCurrentDateTime());
+        // await executeDropTableQuery(pool, 'pacing_base_groupby;');
         
-        console.log(`Executing create group by / rollup by date`);
-        await executeCreateGroupByDataQuery(pool);
+        // console.log(`Executing create group by / rollup by date`);
+        // await executeCreateGroupByDataQuery(pool);
         // await executeInsertCreatedAtQuery(pool, 'pacing_base_groupby');   
 
         //STEP 4.4: ADD MISSING CALENDAR DATES TO EACH MONTH
         console.log(`STEP 4.4: ADD MISSING CALENDAR DATES TO EACH MONTH`);
         console.log(getCurrentDateTime());
-        // const distinctList = await executeDistinctQuery(pool); // get list of pickup_year_month
-        // await executeDropTableQuery(pool, 'pacing_base_all_calendar_dates'); // drop prior table
-        // await executeCreateTableQuery(pool); // create table
+        const distinctList = await executeDistinctQuery(pool); // get list of pickup_year_month
+        
+        await executeDropTableQuery(pool, 'pacing_base_all_calendar_dates'); // drop prior table
+        await executeCreateTableQuery(pool); // create table
 
-        // for (let i = 0; i < distinctList.length; i++) { // insert data into table; loop ensure sequential process
-        //     const { pickup_month_year } = distinctList[i];
-        //     const index = i + 1;
-        //     await executeInsertQuery(pool, pickup_month_year, index);
-        //     console.log(`Query for ${pickup_month_year} executed successfully.`);
-        //     generateLogFile('pacing_data', `Query for ${pickup_month_year} executed successfully.`, config.csvExportPath);
-        // }
+        for (let i = 0; i < distinctList.length; i++) { // insert data into table; loop ensure sequential process
+            const { pickup_month_year } = distinctList[i];
+            const index = i + 1;
 
-        // await executeInsertCreatedAtQuery(pool, 'pacing_base_all_calendar_dates'); // append created at date
+            await executeInsertQuery(pool, pickup_month_year, index);
+
+            generateLogFile('pacing_data', `Query for ${pickup_month_year} executed successfully.`, config.csvExportPath);
+        }
         
         //STEP 5: ROLLUP THE DATA BY PICKUP_MONTH_YEAR
         console.log(`STEP 5: ROLLUP THE DATA BY PICKUP_MONTH_YEAR`);
         console.log(getCurrentDateTime());
-        // await executeDropTableQuery(pool, 'pacing_final_data;');
-        // await executeCreateFinalDataQuery(pool);
-        // await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
+        await executeDropTableQuery(pool, 'pacing_final_data;');
+        await executeCreateFinalDataQuery(pool);
+        await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
 
         // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, config.csvExportPath);
-
         console.log('All queries executed successfully.');
+
         await pool.end();
 
     } catch (error) {
@@ -545,7 +536,7 @@ async function execute_create_pacing_metrics() {
 }
 
 // Run the main function
-execute_create_pacing_metrics();
+// execute_create_pacing_metrics();
 
 module.exports = {
     execute_create_pacing_metrics,

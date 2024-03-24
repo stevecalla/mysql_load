@@ -5,11 +5,16 @@ const { execute_load_booking_data } = require('../load_booking_data/sql_load_boo
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 
+const run_step_1 = true; // get booking data
+const run_step_2 = true; // load booking data
+const run_step_3 = true; // create key metrics
+const run_step_4 = true; // create pacing metrics
+
 async function get_booking_data() {
     try {
         // STEP #1: GET BOOKING DATA
         console.log('\n*************** STARTING STEP 1 ***************\n');
-        // await execute_get_booking_data();
+        run_step_1 && await execute_get_booking_data();
 
         const message_1 = 'Command #1 retrieving booking data is complete';
         console.log(message_1);
@@ -26,7 +31,7 @@ async function step_2() {
     try {
         // STEP #2: LOAD BOOKING DATA
         console.log('\n*************** STARTING STEP 2 ***************\n');
-        // await execute_load_booking_data();
+        run_step_2 && await execute_load_booking_data();
 
         const message_2 = 'Command #2 loading booking data is complete';
         console.log(message_2);
@@ -44,7 +49,7 @@ async function step_3() {
     try {
         // STEP #3: CREATE KEY METRICS / ON RENT DATA
         console.log('\n*************** STARTING STEP 3 ***************\n');
-        // await execute_create_key_metrics();
+        run_step_3 && await execute_create_key_metrics();
 
         const message_3 = 'Command #3 creating key metrics data is complete';
         console.log(message_3);
@@ -62,9 +67,9 @@ async function step_4() {
     try {
         // STEP #4: CREATE PACING DATA
         console.log('\n*************** STARTING STEP 4 ***************\n');
-        await execute_create_pacing_metrics();
+        run_step_4 && await execute_create_pacing_metrics();
 
-        const message_4 = 'Command #4 creating pacing data is comNlete';
+        const message_4 = 'Command #4 creating pacing data is complete';
         console.log(message_4);
         generateLogFile('scheduled booking data', message_4);
     } catch (error) {
