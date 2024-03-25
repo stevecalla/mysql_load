@@ -388,6 +388,8 @@ async function executeCreateFinalDataQuery(pool) {
 // Main function to handle SSH connection and execute queries
 async function execute_create_pacing_metrics() { 
     try {
+
+        const startTime = performance.now();
         const pool = await createLocalDBConnection(localPacingDbConfig);
         // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
@@ -435,7 +437,6 @@ async function execute_create_pacing_metrics() {
         await executeCreateFinalDataQuery(pool);
         await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
 
-        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         console.log('All queries executed successfully.');
 
         await pool.end(err => {
@@ -445,6 +446,12 @@ async function execute_create_pacing_metrics() {
             console.log('Connection pool closed successfully.');
           }
         });
+
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+        // console.log(`\nAll create pacing data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        return elapsedTime;
 
     } catch (error) {
         console.error('Error:', error);

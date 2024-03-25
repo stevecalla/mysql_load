@@ -233,6 +233,8 @@ async function executeQuery(pool, distinctList) {
 // Main function to handle SSH connection and execute queries
 async function execute_create_key_metrics() {
     try {
+        const startTime = performance.now();
+        
         const pool = await createLocalDBConnection(localKeyMetricsDbConfig);
 
         //STEP 1: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
@@ -260,6 +262,13 @@ async function execute_create_key_metrics() {
         });
         
         console.log('All queries executed successfully.');
+
+        // LOGS
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+        // console.log(`\nAll create key metrics queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        return elapsedTime;
         
     } catch (error) {
         console.error('Error:', error);

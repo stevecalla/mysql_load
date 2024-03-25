@@ -14,11 +14,17 @@ async function get_booking_data() {
     try {
         // STEP #1: GET BOOKING DATA
         console.log('\n*************** STARTING STEP 1 ***************\n');
-        run_step_1 && await execute_get_booking_data();
+        // EXECUTE QUERIES
+        let getResults;
+        run_step_1 && (getResults = await execute_get_booking_data());
 
-        const message_1 = 'Command #1 retrieving booking data is complete';
-        console.log(message_1);
-        generateLogFile('scheduled booking data', message_1);
+        // LOGS
+        const message = `\nAll get booking data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        console.log(message);
+        console.log('\n*************** END OF STEP 1 ***************\n');
+        generateLogFile('scheduled booking data', message);
+
+        // NEXT STEP
         await step_2();
     } catch (error) {
         console.error('Error executing Step #1:', error);
@@ -31,12 +37,17 @@ async function step_2() {
     try {
         // STEP #2: LOAD BOOKING DATA
         console.log('\n*************** STARTING STEP 2 ***************\n');
-        run_step_2 && await execute_load_booking_data();
+        // EXECUTE QUERIES
+        let getResults;
+        run_step_2 && (getResults = await execute_load_booking_data());
 
-        const message_2 = 'Command #2 loading booking data is complete';
-        console.log(message_2);
-        generateLogFile('scheduled booking data', message_2);
+        // LOGS
+        const message = `\nAll get loading data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        console.log(message);
+        console.log('\n*************** END OF STEP 2 ***************\n');
+        generateLogFile('scheduled booking data', message);
 
+        // NEXT STEP
         await step_3();
     } catch (error) {
         console.error('Error executing Step #2:', error);
@@ -49,12 +60,17 @@ async function step_3() {
     try {
         // STEP #3: CREATE KEY METRICS / ON RENT DATA
         console.log('\n*************** STARTING STEP 3 ***************\n');
-        run_step_3 && await execute_create_key_metrics();
+        // EXECUTE QUERIES
+        let getResults;
+        run_step_3 && (getResults = await execute_create_key_metrics());
 
-        const message_3 = 'Command #3 creating key metrics data is complete';
-        console.log(message_3);
-        generateLogFile('scheduled booking data', message_3);
+        // LOGS
+        const message = `\nAll create key metrics queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        console.log(message);
+        console.log('\n*************** END OF STEP 3 ***************\n');
+        generateLogFile('scheduled booking data', message);
 
+        // NEXT STEP
         await step_4();
     } catch (error) {
         console.error('Error executing Step #3:', error);
@@ -67,11 +83,17 @@ async function step_4() {
     try {
         // STEP #4: CREATE PACING DATA
         console.log('\n*************** STARTING STEP 4 ***************\n');
-        run_step_4 && await execute_create_pacing_metrics();
+        // EXECUTE QUERIES
+        let getResults;
+        run_step_4 && (getResults = await execute_create_pacing_metrics());
 
-        const message_4 = 'Command #4 creating pacing data is complete';
-        console.log(message_4);
-        generateLogFile('scheduled booking data', message_4);
+        // LOGS
+        const message = `\nAll create pacing data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        console.log(message);
+        console.log('\n*************** END OF STEP 4 ***************\n');
+        generateLogFile('scheduled booking data', message);
+
+        //NEXT STEP = NONE
     } catch (error) {
         console.error('Error executing Step #4:', error);
         generateLogFile('scheduled booking data', `Error executing Step #4: ${error}`);

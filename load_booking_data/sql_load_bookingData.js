@@ -121,6 +121,8 @@ async function executeInsertCreatedAtQuery(pool, table) {
 // Main function to handle SSH connection and execute queries
 async function execute_load_booking_data() {
   try {
+    const startTime = performance.now();
+    
     const pool = await createLocalDBConnection(localBookingDbConfig);
     // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
@@ -171,8 +173,6 @@ async function execute_load_booking_data() {
     // STEP #2.4 - INSERT "CREATED AT" DATE
     await executeInsertCreatedAtQuery(pool, `${table}`);
 
-    console.log('All queries executed successfully.');
-
     await pool.end(err => {
       if (err) {
         console.error('Error closing connection pool:', err.message);
@@ -180,6 +180,12 @@ async function execute_load_booking_data() {
         console.log('Connection pool closed successfully.');
       }
     });
+
+    const endTime = performance.now();
+    const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+    // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+    // console.log(`\nAll get loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+    return elapsedTime;
 
   } catch (error) {
     console.error('Catch error:', error);

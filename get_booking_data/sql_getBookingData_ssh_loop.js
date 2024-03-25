@@ -168,6 +168,8 @@ function deleteArchivedFiles() {
 // Main function to handle SSH connection and execute queries
 async function execute_get_booking_data() {
     try {
+        const startTime = performance.now();
+
         deleteArchivedFiles();
         moveFilesToArchive();
 
@@ -204,17 +206,15 @@ async function execute_get_booking_data() {
 
         // Execute queries for each date range
         for (const { startDate, endDate } of dateRanges) {
-
             console.log(`Started query for ${startDate} to ${endDate}.`);
+
             await executeQueryForDateRange(pool, startDate, endDate);
             
             generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         }
 
         // Close the SSH connection after all queries are executed
-        // sshClient.end();
-
-                // Close the SSH connection after all queries are executed
+        // sshClient.end(); //revised below to include error messaging
         sshClient.end(err => {
             if (err) {
               console.error('Error closing SSH connection pool:', err.message);
@@ -231,11 +231,15 @@ async function execute_get_booking_data() {
             }
           });
 
-        console.log('All queries executed successfully.');
+          const endTime = performance.now();
+          const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+          // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+        //   console.log(`\nAll get booking data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+          return elapsedTime;
+
     } catch (error) {
         console.error('Error:', error);
-    } finally {
-        // End the pool
+
     }
 }
 
