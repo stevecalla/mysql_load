@@ -60,6 +60,9 @@ async function executeCreateBookingDataTable(pool) {
 
 // STEP STEP #2.3 - GET FILES IN DIRECTORY / LOAD INTO "BOOKING DATA" TABLE
 async function executeInsertBookingDataQuery(pool, filePath, rowsAdded) {
+
+  console.log(filePath);
+
   return new Promise((resolve, reject) => {
 
     const startTime = performance.now();
@@ -69,10 +72,10 @@ async function executeInsertBookingDataQuery(pool, filePath, rowsAdded) {
     pool.query(query, (queryError, results) => {
       const endTime = performance.now();
       const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-        reject(queryError);
-
+      
       if (queryError) {
         console.error('Error executing select query:', queryError);
+        reject(queryError);
       } else {
 
         console.log(`Data loaded successfully from ${filePath}.`);
@@ -141,21 +144,23 @@ async function execute_load_booking_data() {
     // List all files in the directory
     const files = await fs.readdir(directory);
     let numberOfFiles = 0;
-    console.log(files);
 
     // Iterate through each file
-    for (const file of files) {
-      if (file.endsWith('.csv')) {
+    for (let i = 0; i < files.length; i++) {
+      let currentFile = files[i];
+      
+      if (currentFile.endsWith('.csv')) {
         numberOfFiles++;
 
         // Construct the full file path
-        const filePath = `${directory}${file}`;
+        const filePath = `${directory}${currentFile}`;
 
         // Insert file into "booking_data" table
         let query = await executeInsertBookingDataQuery(pool, filePath, rowsAdded);
 
         // track number of rows added
         rowsAdded += parseInt(query);
+        console.log(`File ${i} of ${files.length}`);
         console.log(`Rows added = ${rowsAdded}\n`);
       }
     }
@@ -177,7 +182,7 @@ async function execute_load_booking_data() {
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Catch error:', error);
     generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, csvExportPath);
   } finally {
     // TODO

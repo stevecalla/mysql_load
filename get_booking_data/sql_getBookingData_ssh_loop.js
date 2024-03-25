@@ -212,8 +212,24 @@ async function execute_get_booking_data() {
         }
 
         // Close the SSH connection after all queries are executed
-        await 
-        sshClient.end();
+        // sshClient.end();
+
+                // Close the SSH connection after all queries are executed
+        sshClient.end(err => {
+            if (err) {
+              console.error('Error closing SSH connection pool:', err.message);
+            } else {
+              console.log('SSH Connection pool closed successfully.');
+            }
+          });
+  
+          await pool.end(err => {
+            if (err) {
+              console.error('Error closing connection pool:', err.message);
+            } else {
+              console.log('Connection pool closed successfully.');
+            }
+          });
 
         console.log('All queries executed successfully.');
     } catch (error) {
