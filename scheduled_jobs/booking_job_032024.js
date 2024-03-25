@@ -42,7 +42,7 @@ async function step_2() {
         run_step_2 && (getResults = await execute_load_booking_data());
 
         // LOGS
-        const message = `\nAll get loading data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        const message = `\nAll loading data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
         console.log(message);
         console.log('\n*************** END OF STEP 2 ***************\n');
         generateLogFile('scheduled booking data', message);

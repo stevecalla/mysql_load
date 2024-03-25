@@ -184,7 +184,7 @@ async function execute_load_booking_data() {
     const endTime = performance.now();
     const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
     // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
-    // console.log(`\nAll get loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+    // console.log(`\nAll loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
     return elapsedTime;
 
   } catch (error) {
