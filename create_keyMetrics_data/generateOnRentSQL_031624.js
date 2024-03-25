@@ -64,7 +64,15 @@ function generateBaseCode(repeatCode) {
                     WHEN ct.calendar_date BETWEEN km.pickup_date AND km.return_date THEN 1
                     ELSE 0
                 END
-            ) AS days_on_rent_fraction,  
+            ) AS days_on_rent_fraction,
+
+            SUM(
+                CASE
+                    WHEN ct.calendar_date = km.pickup_date THEN 1
+                    WHEN ct.calendar_date > km.pickup_date AND ct.day_of_year = 1 THEN 1
+                    ELSE 0
+                END
+            ) AS trans_on_rent_count,
 
             -- BOOKING COUNT
             SUM(

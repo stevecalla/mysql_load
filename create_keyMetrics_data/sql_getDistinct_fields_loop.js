@@ -1,22 +1,9 @@
 const fs = require('fs');
 const mysql = require('mysql2');
-const config = require('../utilities/config');
-const { generateLogFile } = require('../utilities/generateLogFile');
+const { localKeyMetricsDbConfig, } = require('../utilities/config');
+const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 const { generate_distinct_list } = require('./query_distinct_keyMetricsCore_031424');
-
-// Function to create a Promise for managing the SSH connection and MySQL queries
-function createLocalConnection() {
-    return new Promise((resolve, reject) => {
-
-        // MySQL configuration
-        const mysqlConfig = config.localKeyMetricsDbConfig;
-
-        // Create a MySQL connection pool
-        const pool = mysql.createPool(mysqlConfig);
-
-        resolve(pool);
-    });
-}
+const { generateLogFile } = require('../utilities/generateLogFile');
 
 // Function to execute query for a single date range
 async function executeQuery(pool, field, distinctList) {
@@ -50,11 +37,9 @@ async function executeQuery(pool, field, distinctList) {
 // Main function to handle SSH connection and execute queries
 async function get_distinct() {
     try {
-        const pool = await createLocalConnection();
+        const pool = await createLocalDBConnection(localKeyMetricsDbConfig);
 
         // Array of date ranges to loop through
-        // const fields = ['vendor'];
-        // const fields = ['vendor', 'booking_type', 'is_repeat'];
         const fields = ['vendor', 'booking_type', 'is_repeat', 'country'];
 
         let distinctList = [];
@@ -76,17 +61,29 @@ async function get_distinct() {
 
         finalDistinctList.forEach(element => { generateLogFile('distinct_onrent_list', `${element.segment}, ${element.option}`) });
 
-        // console.log(finalDistinctList);
-
         // Close the pool connection after all queries are executed
-        await pool.end();
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
+
         console.log('All queries executed successfully.');
 
         return(finalDistinctList);
 
     } catch (error) {
         console.error('Error:', error);
-        await pool.end();
+        
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
     }
 }
 

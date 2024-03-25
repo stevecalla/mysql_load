@@ -213,13 +213,44 @@ async function main() {
         // }
 
         // Close the SSH connection after all queries are executed
+        sshClient.end(err => {
+          if (err) {
+            console.error('Error closing SSH connection pool:', err.message);
+          } else {
+            console.log('SSH Connection pool closed successfully.');
+          }
+        });
+
+        await pool.end(err => {
+          if (err) {
+            console.error('Error closing connection pool:', err.message);
+          } else {
+            console.log('Connection pool closed successfully.');
+          }
+        });
+
         console.log('All queries executed successfully.');
-        sshClient.end();
-        await pool.end();
+
     } catch (error) {
         console.error('Error:', error);
-        sshClient.end();
-        await pool.end();
+
+        // Close the SSH connection after all queries are executed
+        sshClient.end(err => {
+            if (err) {
+              console.error('Error closing SSH connection pool:', err.message);
+            } else {
+              console.log('SSH Connection pool closed successfully.');
+            }
+          });
+  
+          await pool.end(err => {
+            if (err) {
+              console.error('Error closing connection pool:', err.message);
+            } else {
+              console.log('Connection pool closed successfully.');
+            }
+          });
+
     } finally {
         // End the pool
     }

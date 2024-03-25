@@ -21,5 +21,11 @@ pool.query(selectQuery, (err, results) => {
   }
 
   // Close the connection pool
-  pool.end();
+  pool.end(err => {
+    if (err) {
+      console.error('Error closing connection pool:', err.message);
+    } else {
+      console.log('Connection pool closed successfully.');
+    }
+  });
 });

@@ -45,11 +45,12 @@ function createSSHConnection() {
 // Function to execute query for a single date range
 async function executeQueryForDateRange(pool, startDate, endDate) {
     return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
+
         const modifiedBookingQuery = queryBookingData
             .replace('startDateVariable', startDate)
             .replace('endDateVariable', endDate);
-
-        const startTime = performance.now();
 
         pool.query(modifiedBookingQuery, (queryError, results) => {
             const endTime = performance.now();
@@ -59,8 +60,11 @@ async function executeQueryForDateRange(pool, startDate, endDate) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
+
                 // results.forEach(result => console.log(result));
+
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
+
                 generateLogFile('booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
                 exportResultsToCSV(results, startDate, endDate);
                 resolve();
@@ -90,7 +94,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 
         fs.writeFileSync(saveFilePath, csvContent);
 
-        console.log(`Results exported to ${csvExportPath}`);
+        console.log(`Results exported to ${csvExportPath}\n`);
         generateLogFile('booking_data', `Results exported to ${saveFilePath}`, csvExportPath);
 
     } catch (error) {
@@ -164,6 +168,8 @@ function deleteArchivedFiles() {
 // Main function to handle SSH connection and execute queries
 async function execute_get_booking_data() {
     try {
+        const startTime = performance.now();
+
         deleteArchivedFiles();
         moveFilesToArchive();
 
@@ -200,20 +206,40 @@ async function execute_get_booking_data() {
 
         // Execute queries for each date range
         for (const { startDate, endDate } of dateRanges) {
+            console.log(`Started query for ${startDate} to ${endDate}.`);
+
             await executeQueryForDateRange(pool, startDate, endDate);
-            console.log(`Query for ${startDate} to ${endDate} executed successfully.`);
+            
             generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
         }
 
         // Close the SSH connection after all queries are executed
-        await pool.end();
-        sshClient.end();
+        // sshClient.end(); //revised below to include error messaging
+        sshClient.end(err => {
+            if (err) {
+              console.error('Error closing SSH connection pool:', err.message);
+            } else {
+              console.log('SSH Connection pool closed successfully.');
+            }
+          });
+  
+          await pool.end(err => {
+            if (err) {
+              console.error('Error closing connection pool:', err.message);
+            } else {
+              console.log('Connection pool closed successfully.');
+            }
+          });
 
-        console.log('All queries executed successfully.');
+          const endTime = performance.now();
+          const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+          // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+        //   console.log(`\nAll get booking data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+          return elapsedTime;
+
     } catch (error) {
         console.error('Error:', error);
-    } finally {
-        // End the pool
+
     }
 }
 

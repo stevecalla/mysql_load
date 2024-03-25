@@ -1,234 +1,203 @@
-const fs = require('fs').promises;
-const mysql = require('mysql2/promise');
-const { schema_booking_table } = require('./schema_booking_table');
-const { generateLogFile } = require('../utilities/generateLogFile');
+const fs = require('fs').promises; // promses necessary for "fs.readdir"
+const mysql = require('mysql2');
 const { localBookingDbConfig, csvExportPath } = require('../utilities/config');
+const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
+const { schema_booking_table } = require('./schema_booking_table');
+const { createLoadBookingDataQuery } = require('./query_load_data');
+const { getCurrentDateTime } = require('../utilities/getCurrentDate');
+const { generateLogFile } = require('../utilities/generateLogFile');
 
+// STEP 2.1 DROP "BOOKING DATA" TABLE
+async function executeDropTableQuery(pool, table) {
+  return new Promise((resolve, reject) => {
+
+    const startTime = performance.now();
+
+    const dropTable = `DROP TABLE IF EXISTS ${table};`;
+
+    pool.query(dropTable, (queryError, results) => {
+      const endTime = performance.now();
+      const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+      if (queryError) {
+        console.error('Error executing select query:', queryError);
+        reject(queryError);
+      } else {
+        console.log(`\nDrop table results= ${table}`);
+        console.table(results);
+        console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
+        resolve();
+      }
+    })
+  });
+}
+
+// STEP #2.2 - CREATE "BOOKING DATA" TABLE
+async function executeCreateBookingDataTable(pool) {
+  return new Promise((resolve, reject) => {
+
+    const startTime = performance.now();
+
+    const query = schema_booking_table;
+
+    pool.query(query, (queryError, results) => {
+      const endTime = performance.now();
+      const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+      if (queryError) {
+        console.error('Error executing select query:', queryError);
+        reject(queryError);
+      } else {
+
+        console.log('\nTable created successfully.');
+        console.table(results);
+        console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
+        resolve();
+      }
+    });
+  });
+}
+
+// STEP STEP #2.3 - GET FILES IN DIRECTORY / LOAD INTO "BOOKING DATA" TABLE
+async function executeInsertBookingDataQuery(pool, filePath, rowsAdded) {
+
+  console.log(filePath);
+
+  return new Promise((resolve, reject) => {
+
+    const startTime = performance.now();
+
+    const query = createLoadBookingDataQuery(filePath);
+
+    pool.query(query, (queryError, results) => {
+      const endTime = performance.now();
+      const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+      
+      if (queryError) {
+        console.error('Error executing select query:', queryError);
+        reject(queryError);
+      } else {
+
+        console.log(`Data loaded successfully from ${filePath}.`);
+        console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec`);
+
+        generateLogFile('loading_booking_data', `Rows added: ${results.info}`, csvExportPath);
+
+        rowsAdded = parseInt(results.affectedRows);
+        resolve(rowsAdded);
+      }
+    });
+  });
+}
+
+// STEP #2.4 - INSERT "CREATED AT" DATE
+async function executeInsertCreatedAtQuery(pool, table) {
+  return new Promise((resolve, reject) => {
+
+    const startTime = performance.now();
+
+    const addCreateAtDate = `
+          ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+      `;
+
+    pool.query(addCreateAtDate, (queryError, results) => {
+      const endTime = performance.now();
+      const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+      if (queryError) {
+        console.error('Error executing select query:', queryError);
+        reject(queryError);
+      } else {
+        console.log('\nInsert "created at" date');
+        console.table(results);
+        console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
+
+        resolve();
+      }
+    });
+  });
+}
+
+// Main function to handle SSH connection and execute queries
 async function execute_load_booking_data() {
-  const pool = mysql.createPool(localBookingDbConfig);
-  let rowsAdded = 0;
-
-  // Directory containing your CSV files
-  const directory = csvExportPath;
-
-  // Drop the table if it exists
-  const dropTableQuery = 'DROP TABLE IF EXISTS booking_data';
-  await pool.query(dropTableQuery);
-
-  console.log('Table dropped successfully.');
-
-  // Create the table
-  await pool.query(schema_booking_table);
-  console.log('Table created successfully.');
-
   try {
+    const startTime = performance.now();
+    
+    const pool = await createLocalDBConnection(localBookingDbConfig);
+    // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
+
+    let table = 'booking_data';
+
+    // STEP 2.1: DROP THE "BOOKING DATA" TABLE
+    console.log(`STEP 2.1: DROP THE "BOOKING DATA" TABLE`);
+    console.log(getCurrentDateTime());
+    await executeDropTableQuery(pool, `${table};`);
+
+    // STEP #2.2 - CREATE "BOOKING DATA" TABLE
+    console.log(`STEP #2.2 - CREATE "BOOKING DATA" TABLE`);
+    console.log(getCurrentDateTime());
+    await executeCreateBookingDataTable(pool);
+
+    // STEP #2.3 - GET FILES IN DIRECTORY / LOAD INTO "BOOKING DATA" TABLE
+    console.log(`STEP #2.3 - GET FILES IN DIRECTORY / LOAD INTO "BOOKING DATA" TABLE`);
+    console.log(getCurrentDateTime());
+    let rowsAdded = 0;
+    const directory = csvExportPath; // Directory containing your CSV files
     // List all files in the directory
     const files = await fs.readdir(directory);
     let numberOfFiles = 0;
-    console.log(files);
 
     // Iterate through each file
-    for (const file of files) {
-      if (file.endsWith('.csv')) {
+    for (let i = 0; i < files.length; i++) {
+      let currentFile = files[i];
+      
+      if (currentFile.endsWith('.csv')) {
         numberOfFiles++;
+
         // Construct the full file path
-        const filePath = `${directory}${file}`;
-        console.log(filePath);
+        const filePath = `${directory}${currentFile}`;
 
-        // Read the contents of the CSV file
-        // const data = await fs.readFile(filePath, 'utf8');
+        // Insert file into "booking_data" table
+        let query = await executeInsertBookingDataQuery(pool, filePath, rowsAdded);
 
-        const loadDataQuery = `
-        LOAD DATA INFILE '${filePath}'
-        INTO TABLE booking_data
-        FIELDS TERMINATED BY ','
-        ENCLOSED BY '"'
-        LINES TERMINATED BY '\\n'
-        IGNORE 1 LINES
-        (
-            booking_id, 
-            agreement_number,
-
-            @booking_date,
-            @booking_datetime, -- Variable to capture booking_datetime as string
-            booking_year,
-            booking_month,
-            booking_day_of_month,
-            booking_week_of_year,
-            booking_day_of_week,
-            booking_day_of_week_v2,
-            booking_time_bucket,
-            
-            booking_count,
-            booking_count_excluding_cancel,           
-
-            @pickup_date,
-            @pickup_datetime, -- Variable to capture pickup_datetime as string
-            pickup_year,
-            pickup_month,
-            pickup_day_of_month,
-            pickup_week_of_year,
-            pickup_day_of_week,
-            pickup_day_of_week_v2,
-            pickup_time_bucket,
-
-            @return_date,
-            @return_datetime, -- Variable to capture return_datetime as string
-            return_year,
-            return_month,
-            return_day_of_month,
-            return_week_of_year,
-            return_day_of_week,
-            return_day_of_week_v2,
-            return_time_bucket,
-
-            advance_category_day,
-            advance_category_week,
-            advance_category_month,
-            advance_category_date_within_week,
-            advance_pickup_booking_date_diff,
-
-            comparison_28_days,
-            comparison_period,
-            @comparison_common_date,
-
-            Current_28_Days,
-            4_Weeks_Prior,
-            52_Weeks_Prior,
-
-            status,
-            booking_type,
-
-            marketplace_or_dispatch,
-            marketplace_partner,
-            marketplace_partner_summary,
-
-            booking_channel,
-            booking_source,
-
-            repeated_user,
-            total_lifetime_booking_revenue,
-            no_of_bookings,
-            no_of_cancel_bookings,
-            no_of_completed_bookings,
-            no_of_started_bookings,
-            customer_id,
-                
-            first_name,
-            last_name,
-            email,
-
-            date_of_birth,
-            age,
-            customer_driving_country,
-            customer_doc_vertification_status,
-
-            days,
-            extension_days,
-            
-            extra_day_calc,
-            customer_rate,
-            insurance_rate,
-            insurance_type,
-            millage_rate,
-            millage_cap_km,
-            rent_charge,
-            extra_day_charge,
-            delivery_charge,
-            collection_charge,
-            additional_driver_charge,
-            insurance_charge,
-            intercity_charge,
-            millage_charge,
-            other_rental_charge,
-            discount_charge,
-            total_vat,
-            other_charge,
-
-            booking_charge,
-            booking_charge_less_discount,
-            booking_charge_aed,
-            booking_charge_less_discount_aed,
-            
-            booking_charge_less_extension,
-            booking_charge_less_discount_extension,
-            booking_charge_less_extension_aed,
-            booking_charge_less_discount_extension_aed,
-
-            base_rental_revenue,
-            non_rental_charge,
-
-            extension_charge,
-            extension_charge_aed,
-
-            is_extended,
-            Promo_Code,
-            promo_code_discount_amount,
-            @promocode_created_date,  -- Variable to capture promocode_created_date as string
-            promo_code_description,
-
-            car_avail_id,
-            car_cat_id,
-            car_cat_name,
-
-            requested_car,
-            car_name,
-            make,
-            color,
-
-            deliver_country,
-            deliver_city,
-            country_id,
-            city_id,
-            delivery_location,
-            deliver_method,
-            delivery_lat,
-            delivery_lng,
-            collection_location,
-            collection_method,
-            collection_lat,
-            collection_lng,
-            nps_score,
-            nps_comment
-        )
-        SET 
-            booking_date = STR_TO_DATE(@booking_date, "%Y-%m-%d"),
-            booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
-            pickup_date = STR_TO_DATE(@pickup_date, "%Y-%m-%d"),
-            pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
-            return_date = STR_TO_DATE(@return_date, "%Y-%m-%d"),
-            return_datetime = STR_TO_DATE(@return_datetime, "%Y-%m-%d %H:%i:%s"),
-            comparison_common_date = STR_TO_DATE(@comparison_common_date, "%Y-%m-%d");
-            -- promocode_created_date = STR_TO_DATE(@promocode_created_date, "%Y-%m-%d %H:%i:%s");
-            `
-
-        // Execute the query with the data
-        // const [loadDataResults] = await pool.query(loadDataQuery, [data]);
-        const [loadDataResults] = await pool.query(loadDataQuery);
-        const loadInfo = loadDataResults.info;
-        console.log(`Data loaded successfully from ${filePath}.`);
-        console.log(`Rows added: ${loadInfo}`);
-
-        generateLogFile('loading_booking_data', `Rows added: ${loadInfo}`, csvExportPath);
-        rowsAdded += parseInt(loadDataResults.affectedRows);
-        console.log('Rows added = ', rowsAdded.toLocaleString());
+        // track number of rows added
+        rowsAdded += parseInt(query);
+        console.log(`File ${i} of ${files.length}`);
+        console.log(`Rows added = ${rowsAdded}\n`);
       }
     }
-    generateLogFile('loading_booking_data', `Total files added = ${numberOfFiles}`, csvExportPath);
-    console.log('Files processed = ', numberOfFiles)
-    await pool.end();
+
+    generateLogFile('loading_booking_data', `Total files added = ${numberOfFiles} Total rows added = ${rowsAdded.toLocaleString()}`, csvExportPath);
+    console.log('Files processed = ', numberOfFiles);
+
+    // STEP #2.4 - INSERT "CREATED AT" DATE
+    await executeInsertCreatedAtQuery(pool, `${table}`);
+
+    await pool.end(err => {
+      if (err) {
+        console.error('Error closing connection pool:', err.message);
+      } else {
+        console.log('Connection pool closed successfully.');
+      }
+    });
+
+    const endTime = performance.now();
+    const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+    // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+    // console.log(`\nAll loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+    return elapsedTime;
+
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Catch error:', error);
     generateLogFile('loading_booking_data', `Error loading booking data: ${error}`, csvExportPath);
   } finally {
-    generateLogFile('loading_booking_data', `Total rows added = ${rowsAdded.toLocaleString()}`, csvExportPath);
-    // End the pool
+    // TODO
   }
 }
 
 // Call the function
 // execute_load_booking_data();
 
-module.exports  = {
+module.exports = {
   execute_load_booking_data,
 }

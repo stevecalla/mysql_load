@@ -10,7 +10,7 @@ function generate_distinct_list() {
         AND pickup_month_year IS NOT NULL 
         AND pickup_month_year != ''
 
-        ORDER BY pickup_month_year;;
+        ORDER BY pickup_month_year;
     `;
 
     // console.log(query_distinct_pickup_month_year);
@@ -20,6 +20,3 @@ function generate_distinct_list() {
 // generate_distinct_list();
 
 module.exports = { generate_distinct_list };
-
-
-// ${distinct_field}
