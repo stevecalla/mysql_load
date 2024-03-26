@@ -93,7 +93,10 @@ function createLoadBookingDataQuery(filePath) {
       insurance_type,
       millage_rate,
       millage_cap_km,
+
       rent_charge,
+      rent_charge_less_discount_extension_aed,
+
       extra_day_charge,
       delivery_charge,
       collection_charge,

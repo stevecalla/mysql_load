@@ -84,7 +84,10 @@ const schema_booking_table = `
     insurance_type VARCHAR(14) NOT NULL,
     millage_rate DOUBLE,
     millage_cap_km VARCHAR(15),
+
     rent_charge DOUBLE,
+    rent_charge_less_discount_extension_aed DOUBLE,
+
     extra_day_charge DOUBLE,
     delivery_charge DOUBLE,
     collection_charge DOUBLE,

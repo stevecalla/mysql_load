@@ -7,6 +7,7 @@ const queryBookingData = `
 -- add 2 fields for booking charge without extension not currency converted and converted
 -- add 2 fields for booking charge less discount less extension not currency converted and converted
 -- add 1 fields for extension charge currency conversion aed
+-- added field for rent_charge_less_discount_extension_aed
 -- CHANGE LOG ********* END **************
 
 SELECT 
@@ -189,7 +190,11 @@ SELECT
     IFNULL(insurance_type, 0) AS insurance_type,
     IFNULL(millage_rate, 0) AS millage_rate,
     IFNULL(millage_cap_km, 0) AS millage_cap_km,
+
+    -- rental charge less discount less extension times conversion rate aed
     IFNULL(rent_charge, 0) AS rent_charge,
+    IFNULL((rent_charge - discount_charge - extension_charge) * tb.conversion_rate, rent_charge) AS rent_charge_less_discount_extension_aed,
+
     IFNULL(extra_day_charge, 0) AS extra_day_charge,
     IFNULL(delivery_charge, 0) AS delivery_charge,
     IFNULL(collection_charge, 0) AS collection_charge,
