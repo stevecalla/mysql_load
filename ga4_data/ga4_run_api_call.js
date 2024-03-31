@@ -25,6 +25,8 @@ async function runReport(propertyId) {
 
     const request = { "property": `properties/${propertyId}`, "dimensions": [{ "name": "date" }], "metrics": [{ "name": "sessions" }, { "name": "sessionConversionRate" }, { "name": "sessionConversionRate:form_initiation_website" }, { "name": "sessionConversionRate:form_submission" }, { "name": "sessionConversionRate:form_submission_website" }, { "name": "sessionConversionRate:purchase" }, { "name": "sessionConversionRate:thanks" }], "dateRanges": [{ "startDate": "30daysAgo", "endDate": "yesterday" }], "limit": "31" };
 
+    
+
     // Runs a simple report.
     async function runReport() {
         // const [response] = await analyticsDataClient.runReport({
@@ -80,16 +82,13 @@ async function runReport(propertyId) {
                 // "sessions7": g.value,
             }
 
-            // console.log(values.join('\t'));
         });
-
+        
         test.sort(function (a, b) {
             return new Date(b.date) - new Date(a.date)
         });
-
+        
         console.log(test);
-
-
     }
 
     await runReport();
