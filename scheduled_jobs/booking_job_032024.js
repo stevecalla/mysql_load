@@ -19,7 +19,7 @@ async function get_booking_data() {
         run_step_1 && (getResults = await execute_get_booking_data());
 
         // LOGS
-        const message = `\nAll get booking data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        const message = run_step_1 ? `\nAll get booking data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n` : `\nSkipped STEP 1 due to toggle set to false.\n`;
         console.log(message);
         console.log('\n*************** END OF STEP 1 ***************\n');
         generateLogFile('scheduled booking data', message);
@@ -42,7 +42,7 @@ async function step_2() {
         run_step_2 && (getResults = await execute_load_booking_data());
 
         // LOGS
-        const message = `\nAll loading data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        const message = run_step_2 ? `\nAll loading data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n` : `\nSkipped STEP 1 due to toggle set to false.\n`;
         console.log(message);
         console.log('\n*************** END OF STEP 2 ***************\n');
         generateLogFile('scheduled booking data', message);
@@ -65,7 +65,7 @@ async function step_3() {
         run_step_3 && (getResults = await execute_create_key_metrics());
 
         // LOGS
-        const message = `\nAll create key metrics queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        const message = run_step_3 ? `\nAll create key metrics queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n` : `\nSkipped STEP 3 due to toggle set to false.\n`;
         console.log(message);
         console.log('\n*************** END OF STEP 3 ***************\n');
         generateLogFile('scheduled booking data', message);
@@ -88,7 +88,7 @@ async function step_4() {
         run_step_4 && (getResults = await execute_create_pacing_metrics());
 
         // LOGS
-        const message = `\nAll create pacing data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n`;
+        const message = run_step_4 ? `\nAll create pacing data queries executed successfully. Elapsed Time: ${getResults ? getResults : "Opps error getting time"} sec\n` : `\nSkipped STEP 4 due to toggle set to false.\n`;
         console.log(message);
         console.log('\n*************** END OF STEP 4 ***************\n');
         generateLogFile('scheduled booking data', message);

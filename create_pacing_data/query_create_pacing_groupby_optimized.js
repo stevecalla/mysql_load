@@ -60,7 +60,7 @@ function query_pacing_groupby_optimized() {
                     pb.booking_date,  
                     pb.days_from_first_day_of_month
                 ORDER BY pb.pickup_month_year ASC
-                LIMIT 1000
+                -- LIMIT 1000
             ) AS subquery
             JOIN (SELECT 
                     @running_total_booking_count := 0, 

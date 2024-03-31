@@ -193,7 +193,13 @@ SELECT
 
     -- rental charge less discount less extension times conversion rate aed
     IFNULL(rent_charge, 0) AS rent_charge,
-    IFNULL(((rent_charge - discount_charge - extension_charge) * tb.conversion_rate), IFNULL((rent_charge - extension_charge) * tb.conversion_rate, rent_charge * tb. conversion_rate)) AS rent_charge_less_discount_extension_aed,
+    -- IFNULL(((rent_charge - discount_charge - extension_charge) * tb.conversion_rate), IFNULL((rent_charge - extension_charge) * tb.conversion_rate, rent_charge * tb. conversion_rate)) AS rent_charge_less_discount_extension_aed,
+    CASE 
+        WHEN (rent_charge - discount_charge - extension_charge) * tb.conversion_rate THEN (rent_charge - discount_charge - extension_charge) * tb.conversion_rate
+        WHEN (rent_charge - discount_charge) * tb.conversion_rate THEN (rent_charge - discount_charge) * tb.conversion_rate
+        WHEN (rent_charge - extension_charge) * tb.conversion_rate THEN (rent_charge - extension_charge) * tb.conversion_rate
+        ELSE rent_charge
+    END AS rent_charge_less_discount_extension_aed, -- using case statement due to null values
 
     IFNULL(extra_day_charge, 0) AS extra_day_charge,
     IFNULL(delivery_charge, 0) AS delivery_charge,
