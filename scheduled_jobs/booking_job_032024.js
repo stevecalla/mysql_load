@@ -14,6 +14,7 @@ const run_step_4 = false; // create pacing metrics
 async function get_booking_data() {
     const startTime = performance.now();
     console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+    generateLogFile('scheduled_booking_data', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
 
     try {
         // STEP #1: GET BOOKING DATA
@@ -149,6 +150,7 @@ async function step_4(startTime) {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
         console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+        generateLogFile('scheduled_booking_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
 
     } catch (error) {
         console.error('Error executing Step #4:', error);
