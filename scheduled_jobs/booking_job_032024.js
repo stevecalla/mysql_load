@@ -4,12 +4,11 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop'); //step_1
 const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData'); //step_2
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
-const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
-
-const run_step_1 = false; // get booking data
-const run_step_2 = false; // load booking data
-const run_step_3 = false; // create key metrics
-const run_step_4 = false; // create pacing metrics
+const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //sttrue
+const run_step_1 = true; // get booking data
+const run_step_2 = true; // load booking data
+const run_step_3 = true; // create key metrics
+const run_step_4 = true; // create pacing metrics
 
 async function get_booking_data() {
     const startTime = performance.now();
@@ -149,7 +148,7 @@ async function step_4(startTime) {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
         console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
-        
+
     } catch (error) {
         console.error('Error executing Step #4:', error);
         generateLogFile('scheduled_booking_data', `Error executing Step #4: ${error}`);
