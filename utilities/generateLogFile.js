@@ -1,8 +1,5 @@
 const fs = require('fs');
-const {
-    getCurrentDateForFileNaming,
-    getCurrentDateTime
-} = require('./getCurrentDate');
+const { getCurrentDateForFileNaming, getCurrentDateTime } = require('./getCurrentDate');
 
 function generateLogFile(source, content, passedFolderPath) {
     // CREATE FILE NAME
@@ -20,6 +17,8 @@ function generateLogFile(source, content, passedFolderPath) {
     // CREATE CONTENT
     const logContent = `${getCurrentDateTime()} - ${content}\n`;
 
+    // const filePath = 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\data\\logs\\log_loading_booking_data_2024-04-02.txt';
+
     // CHECK IF FOLDER EXISTS, IF NOT, CREATE IT
     if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
@@ -32,9 +31,20 @@ function generateLogFile(source, content, passedFolderPath) {
         // console.log(`File created: ${filePath}`);
     }
 
-    // APPEND CONTENT TO THE FILE
-    fs.appendFileSync(filePath, logContent);
-    // console.log(`Content appended to ${filePath}`);
+    // use fs.access to check if the file or directory is accessible and writable
+    fs.access(filePath, fs.constants.W_OK, (err) => {
+        if (err) {
+            console.error('Error accessing file:', err);
+            // Handle permission error or choose an alternative file path
+        } else {
+            console.log('File is accessible and writable.');
+            // Proceed with writing to the file
+            // APPEND CONTENT TO THE FILE
+            fs.appendFileSync(filePath, logContent);
+            // console.log(`Content appended to ${filePath}`);
+        }
+    });
+
 }
 
 // generateLogFile('bookingsData', 'Log message content', '');
