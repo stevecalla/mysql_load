@@ -27,7 +27,9 @@ async function executeDropTableQuery(pool, table) {
 
 async function executeCreateBaseDataQuery(pool) {
     return new Promise((resolve, reject) => {
-            
+
+        const startTime = performance.now();
+
         const query = `
         -- Step 1: Create the table structure (assuming the structure of booking_data is known)
         CREATE TABLE IF NOT EXISTS key_metrics_base (
@@ -130,6 +132,9 @@ async function executeCreateBaseDataQuery(pool) {
         `;
 
         pool.query(query, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -137,6 +142,7 @@ async function executeCreateBaseDataQuery(pool) {
                 console.log('\nCreate table results');
                 console.table(results);
                 console.log('Create table results\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
@@ -145,11 +151,17 @@ async function executeCreateBaseDataQuery(pool) {
 
 async function executeInsertCreatedAtQuery(pool, table) {
     return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
+
         const addCreateAtDate = `
         ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`
         console.log(addCreateAtDate);
 
         pool.query(addCreateAtDate, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -157,6 +169,7 @@ async function executeInsertCreatedAtQuery(pool, table) {
                 console.log('\nCreate at insert results');
                 console.table(results);
                 console.log('Create at insert results\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
@@ -165,6 +178,8 @@ async function executeInsertCreatedAtQuery(pool, table) {
 
 async function executeInsertBaseDataQuery(pool, table) {
     return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
 
         const query = `
         -- Step 2: Insert data from ezhire_booking_data.booking_data into key_metrics table
@@ -175,8 +190,10 @@ async function executeInsertBaseDataQuery(pool, table) {
         FROM ezhire_booking_data.booking_data;
         `;
 
-
         pool.query(query, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+            
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -184,6 +201,7 @@ async function executeInsertBaseDataQuery(pool, table) {
                 console.log('\nInsert base data\n');
                 console.table(results);
                 console.log('Insert base data\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
