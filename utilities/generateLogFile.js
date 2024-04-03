@@ -37,10 +37,13 @@ function generateLogFile(source, content, passedFolderPath) {
             console.error('Error accessing file:', err);
             // Handle permission error or choose an alternative file path
         } else {
-            console.log('File is accessible and writable.');
+            // console.log('File is accessible and writable.');
+
             // Proceed with writing to the file
             // APPEND CONTENT TO THE FILE
+            
             fs.appendFileSync(filePath, logContent);
+
             // console.log(`Content appended to ${filePath}`);
         }
     });

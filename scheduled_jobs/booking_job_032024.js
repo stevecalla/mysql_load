@@ -6,10 +6,10 @@ const { execute_load_booking_data } = require('../load_booking_data/sql_load_boo
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 
-const run_step_1 = false; // get booking data
+const run_step_1 = true; // get booking data
 const run_step_2 = true; // load booking data
-const run_step_3 = false; // create key metrics
-const run_step_4 = false; // create pacing metrics
+const run_step_3 = true; // create key metrics
+const run_step_4 = true; // create pacing metrics
 
 async function get_booking_data() {
     const startTime = performance.now();
