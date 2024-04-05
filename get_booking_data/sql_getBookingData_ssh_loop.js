@@ -5,7 +5,7 @@ const sshClient = new Client();
 const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utilities/config');
 const { queryBookingData } = require('./query_BookingData');
 const { generateLogFile } = require('../utilities/generateLogFile');
-const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate');
+const { getCurrentDateTimeForFileNaming } = require('../utilities/getCurrentDate');
 
 // console.log('process env', process.env);
 // console.log('sshConfig', sshConfig);

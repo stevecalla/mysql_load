@@ -32,12 +32,31 @@ function getCurrentDateForFileNaming() {
     return createdAtFormatted;
 }
 
+// Function to convert Unix timestamp 1712179121648 to 2024-04-03 15:18:41
+function convertTimestampToDateTime(timestamp) {
+    // Ensure the timestamp is parsed as a number (if it's a string)
+    const timestampNumber = typeof timestamp === 'string' ? parseInt(timestamp, 10) : timestamp;
+
+    // Create a Day.js object from the Unix timestamp (in milliseconds)
+    const dateObj = dayjs(timestampNumber);
+
+    // Format the date object to yy mm dd hh mm ss format
+    const formattedDateTime = dateObj.format('YYYY-MM-DD HH:mm:ss');
+
+    // console.log(timestamp);
+    // console.log(formattedDateTime);
+
+    return formattedDateTime;
+}
+
 // getCurrentDateForFileNaming();
 // getCurrentDateTimeForFileNaming();
+// convertTimestampToDateTime('1712179121648');
 
 module.exports = {
     getCurrentDateTimeForFileNaming,
     getCurrentDateForFileNaming,
     getCurrentDateTime,
     getCurrentTime,
+    convertTimestampToDateTime,
 }

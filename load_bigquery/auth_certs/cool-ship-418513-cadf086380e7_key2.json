@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "cool-ship-418513",
+  "private_key_id": "cadf086380e70691b27696da220049124b6de8cf",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCn1A5CjDNIsgmJ\n3VyE4XTqFWYy68+g/izRqNQ1iuIVm43cghJReDHfO5lP5SlOSEw4qUeXqkehjDUs\nlVbq5kWizezuLbcffJAR03sKnx95Asg4woO/1ez4nlEPOd6Som0AFJDapi9Qnz69\nrPRBUEIKIuGYZWZs3n5jCNa8cvwRJgGMe1YHWZr4o/Elm+EFP8C/dLjhzqEjf/KL\n8+lSaRnYs6e8XpimXdZUs76MBa0WwPCccWUoQn3kRFrgnSk/TbkZ1t/3mWbkgoDz\nhWgJKcXou7EkUpKN2RbtguK/sbPnzVgMwbRx47zar0eEmxXWyado2tBQmyL6hvMN\n0yufmZZfAgMBAAECggEADAZ9Fq/RqIBSGaXmw4JQhjAnvtDrWcqzCG5tKJow4Y55\nuqNuHGNQSegNCYICLmDhmt/Arv5Dz303fcaeAz47uB/CpD0nVW/vj/w6YUQnyHWp\nrHnkYDvVlOm3JWNAO2G8pxhSJso1Zef7Lv+BD8FoWGFjQjAZB9NlDl1eqzZSZG7a\nHv8PgPoFLtIRhPeMcOzpSw+WT5PDhbl7j8Jt4uGvHKrV38ORse/mQpOo5CL/7XG+\niEOdhsgr6UAlRCVOv9cgnzlRU0daEqPvt9xrCFPNmZsGE0O17354ch/P6vXQwxaR\nGJdfSrOfwhB+XNAvz5TH077KcBBtzu6GrYfjwAqCOQKBgQDPxSQ2W6CY2KSYkVG3\nr5dc1wPUfUsUiw4aKFlk3cp323hgvI3a2AM/Y/99AM2saxMSkw6PNZKVFqHWp4bl\nywIASN0xGUd3+k9lcPlLyZ8EHNQPlCOZiP/DM6XYSKXVll+N5AtaJoZzwbEnDcar\nnOrKD+mUxcZZQ89cPPpbGinmVwKBgQDOyVpbQoL65NyNTKWgmvdSi9d/Ye5jlBxF\n1+FoNHefKZgC+urjrYDHKR8MaFneo7oUghu+Dc8MkdxctIA7NBVEsJMTlhaL65ml\n76tWVmz9b6bzCDNP6qdiEygqpaku2TAGOgXTl9aL//Y0R73tCcAE7KP8Hwtw/d58\nSnTtM0L7OQKBgQCTbIkDYQSVL7Oq5gIb2iYGpDJ9heHOU9TPzq2PmqhdX4cM7P2i\nuP+k7SmN4xINM3S3C02bZCH8U7DGBNz9FIz48rqwagWCJkRL8FuT4R5J5sK5wx13\nhfQk5/LXgsTYxvhKT/OWJhvk6xzuXyIHBzK56YyOGb9h+3GZO1NRbUEpxQKBgHNP\nIpybFTDU6Au+/uj1IQ8dvdhhgq5yi+WCgUY7Y60UY5jd1JeLS7FDQ/YGRn75K619\n8/xh9OAcghYL7SmWXHnGQO1+FyqFAVPfttpZLUORvDXvj7Vzs0zkQ9SsNhBSug3u\n0wrvs4qz+9WhX85LTpEwaC0SHq4uUp9aYaNXn3U5AoGBAL7ADDBiIr7+mXfw25u8\nGuI3p8O+viy4rGtjffucNJ07uq+VBEka7Q6QNCdzI96C+DiBFcuujLWbkoudQgvA\ncRtU0YJcFagsW81K3nl/0zeXOxJvl5W/RiJYsam8YmoKZSSaYeT4l+1CP7np7jjA\ne4XOePo0XdJruR9LO+otdVCV\n-----END PRIVATE KEY-----\n",
+  "client_email": "bigquery-service-account@cool-ship-418513.iam.gserviceaccount.com",
+  "client_id": "104459977064669970587",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bigquery-service-account%40cool-ship-418513.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
