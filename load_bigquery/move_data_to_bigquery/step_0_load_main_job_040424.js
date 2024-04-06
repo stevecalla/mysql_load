@@ -6,6 +6,7 @@ const { execute_upload_csv_to_cloud } = require('./step_2_upload_csv_to_cloud');
 const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset'); //step_3
 const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
 
+//TODO:
 const run_step_1 = true; // retrieve booking, key metrics, pacing data
 const run_step_2 = true; // load csv to google cloud bucket
 const run_step_3 = true; // create_dataset_table

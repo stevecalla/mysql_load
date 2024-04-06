@@ -6,53 +6,10 @@ dotenv.config({ path: "../../.env" }); // adding the path ensures each folder wi
 const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, csvExportPath, } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
+const { bookingQuery, keyMetricsQuery, pacingQuery} = require('./query_booking_keyMetrics_pacing');
+
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');
-
-// DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date
-//converts 2022-11-08T07:00:00.000Z to '2022-11-08'
-// DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
-// converts timestamp 2024-04-03T20:38:20.000Z to the format 2018-07-05 12:54:00 UTC 
-
-const bookingQuery = `
-    SELECT *
-    FROM ezhire_booking_data.booking_data 
-    -- WHERE status NOT LIKE '%Cancel%'
-    -- AND pickup_year IN (2023, 2024)
-    WHERE pickup_year IN (2023, 2024)
-    ORDER BY booking_date ASC, pickup_date ASC
-    -- LIMIT 1;
-`;
-
-const keyMetricsQuery = `
-    SELECT
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at,
-        calendar_date, -- selected as a string
-        year,quarter,month,week,day,days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,country_on_rent_serbia,country_on_rent_united_arab_emirates
-    FROM ezhire_key_metrics.key_metrics_data
-    ORDER BY calendar_date ASC
-    LIMIT 5;
-`;
-
-const pacingQuery = `
-    SELECT
-        pickup_month_year,
-        DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date,
-        days_from_first_day_of_month,
-        count,
-        total_booking_charge_aed,
-        total_booking_charge_less_discount_aed,
-        total_booking_charge_less_discount_extension_aed,
-        total_extension_charge_aed,
-        running_count,running_total_booking_charge_aed,
-        running_total_booking_charge_less_discount_aed,
-        running_total_booking_charge_less_discount_extension_aed,
-        running_total_extension_charge_aed,
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
-    FROM ezhire_pacing_metrics.pacing_final_data
-    ORDER BY pickup_month_year ASC, booking_date ASC
-    -- LIMIT 5;
-`;
 
 // STEP #0 - MOVE FILES TO ARCHIVE
 function moveFilesToArchive() {
@@ -93,6 +50,7 @@ function moveFilesToArchive() {
 }
 
 // STEP #1 - RETRIEVE BOOKING, KEY METRICS, PACING DATA
+//todo:
 async function execute_get_data(pool, file_name, query) {
     return new Promise((resolve, reject) => {
 
@@ -108,7 +66,7 @@ async function execute_get_data(pool, file_name, query) {
             } else {
 
                 console.log(`GET DATA ${file_name}`);
-                console.table(results);
+                // console.table(results); //todo:
                 // console.log(Object.keys(results[0]));
                 console.log(`Query results: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
                 resolve(results);
@@ -160,27 +118,29 @@ function export_results_to_csv(results, file_name) {
 }
 
 // MAIN FUNCTION TO EXECUTE THE PROCESS
+//TODO:
 async function execute_retrieve_data() {
     try {
         const startTime = performance.now();
 
         // SET DATA OBJECT
+        //TODO:
         const getData = [
-            // {
-            //     poolName: localBookingDbConfig,
-            //     fileName: 'booking_data',
-            //     query: bookingQuery,
-            // },
+            {
+                poolName: localBookingDbConfig,
+                fileName: 'booking_data',
+                query: bookingQuery,
+            },
             {
                 poolName: localKeyMetricsDbConfig,
                 fileName: 'key_metrics_data',
                 query: keyMetricsQuery,
             },
-            // {
-            //     poolName: localPacingDbConfig,
-            //     fileName: 'pacing_data',
-            //     query: pacingQuery,
-            // },
+            {
+                poolName: localPacingDbConfig,
+                fileName: 'pacing_data',
+                query: pacingQuery,
+            },
         ];
 
         // STEP 1.0 ARCHIVE FILES

@@ -3,9 +3,12 @@ const { BigQuery } = require('@google-cloud/bigquery'); // Import the Google Clo
 
 const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
 const datasetId = "ezhire_metrics";
-// const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
+
+//TODO:
+const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
 // const tableIds = ["key_metrics_data", "pacing_data"];
-const tableIds = ["key_metrics_data",];
+// const tableIds = ["booking_data",];
+// const tableIds = ["key_metrics_data",];
 // const tableIds = ["pacing_data"];
 
 async function execute_create_bigquery_dataset() {

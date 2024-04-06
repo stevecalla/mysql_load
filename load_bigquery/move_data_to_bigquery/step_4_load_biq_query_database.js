@@ -8,10 +8,15 @@ const { Storage } = require('@google-cloud/storage');
 const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
 const { csvExportPath } = require('../../utilities/config');
 
+const { booking_schema } = require('./schema_booking_data');
+
 const datasetId = "ezhire_metrics";
-// const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
+
+//TODO:
+const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
 // const tableIds = ["key_metrics_data", "pacing_data"];
-const tableIds = ["key_metrics_data",];
+// const tableIds = ["booking_data",];
+// const tableIds = ["key_metrics_data",];
 // const tableIds = ["pacing_data"];
 
 // Import a GCS file into a table with manually defined schema.
@@ -51,7 +56,15 @@ async function execute_load_big_query_database() {
         // Configure the load job. For full list of options, see:
         // https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
         // source: https://cloud.google.com/bigquery/docs/samples/bigquery-load-table-gcs-csv-truncate
-        const metadata = {
+        const metadata = file.tableName === "booking_data" ? {
+            sourceFormat: 'CSV',
+            skipLeadingRows: 1,
+            schema: { fields: booking_schema },
+            // autodetect: true,
+            location: 'US',
+            // Set the write disposition to overwrite existing table data.
+            writeDisposition: 'WRITE_TRUNCATE',
+        } : {
             sourceFormat: 'CSV',
             skipLeadingRows: 1,
             autodetect: true,
@@ -65,7 +78,6 @@ async function execute_load_big_query_database() {
             .dataset(datasetId)
             .table(file.tableName)
             .load(storageClient.bucket(bucketName).file(file.tablePath), metadata);
-    
             
         const endTime = performance.now();
         elapsedTime = ((endTime - startTime) / 1000).toFixed(2); // CONVERT MS TO SEC
@@ -79,7 +91,6 @@ async function execute_load_big_query_database() {
         if (errors && errors.length > 0) {
             throw errors;
         }
-
     }
 
     const endTime = performance.now();

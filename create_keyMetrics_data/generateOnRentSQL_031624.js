@@ -45,8 +45,8 @@ function generateBaseCode(repeatCode) {
     // CREATE TEMPORARY TABLE IF NOT EXISTS temp AS
     baseCode = `
         CREATE TABLE IF NOT EXISTS key_metrics_data AS
-        SELECT 
-            DATE_FORMAT(DATE(NOW()), '%Y-%m-%d %H:%i:%s') AS created_at,
+        SELECT
+            km.created_at,
             DATE_FORMAT(DATE(ct.calendar_date), '%Y-%m-%d') AS calendar_date,     
             ct.year AS year,
             ct.quarter AS quarter,
@@ -186,7 +186,7 @@ function generateBaseCode(repeatCode) {
             AND ct.calendar_date <= km.return_date
             AND km.status NOT LIKE '${status}'
 
-        GROUP BY ct.calendar_date
+        GROUP BY km.created_at, ct.calendar_date
 
         ORDER BY ct.calendar_date ASC
 

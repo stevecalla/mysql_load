@@ -8,6 +8,8 @@ const queryBookingData = `
 -- add 2 fields for booking charge less discount less extension not currency converted and converted
 -- add 1 fields for extension charge currency conversion aed
 -- added field for rent_charge_less_discount_extension_aed
+-- 4/6/24: delivery lat & lng if null 0
+-- 4/6/24: rental charge if null then 0
 -- CHANGE LOG ********* END **************
 
 SELECT 
@@ -198,6 +200,7 @@ SELECT
         WHEN (rent_charge - discount_charge - extension_charge) * tb.conversion_rate THEN (rent_charge - discount_charge - extension_charge) * tb.conversion_rate
         WHEN (rent_charge - discount_charge) * tb.conversion_rate THEN (rent_charge - discount_charge) * tb.conversion_rate
         WHEN (rent_charge - extension_charge) * tb.conversion_rate THEN (rent_charge - extension_charge) * tb.conversion_rate
+        WHEN rent_charge IS NULL THEN 0
         ELSE rent_charge
     END AS rent_charge_less_discount_extension_aed, -- using case statement due to null values
 
@@ -218,10 +221,33 @@ SELECT
     IFNULL(booking_charge * tb.conversion_rate, 0) AS booking_charge_aed, -- converted from local currency to UAE/AED
     IFNULL(booking_charge_less_discount * tb.conversion_rate, 0) AS booking_charge_less_discount_aed, -- converted from local currency to UAE/AED
 
-    IFNULL(booking_charge - extension_charge, booking_charge) AS booking_charge_less_extension, -- ADDED
-    IFNULL(booking_charge_less_discount - extension_charge, booking_charge_less_discount) AS booking_charge_less_discount_extension,  -- ADDED
-    IFNULL((booking_charge - extension_charge) * tb.conversion_rate, (booking_charge * tb.conversion_rate)) AS booking_charge_less_extension_aed,  -- ADDED currency conversion
-    IFNULL((booking_charge_less_discount - extension_charge) * tb.conversion_rate, (booking_charge_less_discount * tb.conversion_rate)) AS booking_charge_less_discount_extension_aed, -- ADDED currency conversion
+    -- IFNULL(booking_charge - extension_charge, booking_charge) AS booking_charge_less_extension, -- ADDED
+    CASE 
+        WHEN booking_charge - extension_charge THEN booking_charge - extension_charge
+        WHEN booking_charge IS NULL THEN 0
+        ELSE booking_charge
+    END AS booking_charge_less_extension, -- using case statement due to null values
+
+    -- IFNULL(booking_charge_less_discount - extension_charge, booking_charge_less_discount) AS booking_charge_less_discount_extension,  -- ADDED
+    CASE 
+        WHEN booking_charge_less_discount - extension_charge THEN booking_charge_less_discount - extension_charge
+        WHEN booking_charge_less_discount IS NULL THEN 0
+        ELSE booking_charge_less_discount
+    END AS booking_charge_less_discount_extension, -- using case statement due to null values
+
+    -- IFNULL((booking_charge - extension_charge) * tb.conversion_rate, (booking_charge * tb.conversion_rate)) AS booking_charge_less_extension_aed,  -- ADDED currency conversion
+    CASE 
+        WHEN ((booking_charge - extension_charge) * tb.conversion_rate) THEN ((booking_charge - extension_charge) * tb.conversion_rate)
+        WHEN booking_charge IS NULL THEN 0
+        ELSE booking_charge * tb.conversion_rate
+    END AS booking_charge_less_extension_aed, -- using case statement due to null values
+
+    -- IFNULL((booking_charge_less_discount - extension_charge) * tb.conversion_rate, (booking_charge_less_discount * tb.conversion_rate)) AS booking_charge_less_discount_extension_aed, -- ADDED currency conversion
+    CASE 
+        WHEN ((booking_charge_less_discount - extension_charge) * tb.conversion_rate) THEN ((booking_charge_less_discount - extension_charge) * tb.conversion_rate)
+        WHEN booking_charge IS NULL THEN 0
+        ELSE (booking_charge_less_discount * tb.conversion_rate)
+    END AS booking_charge_less_discount_extension_aed, -- using case statement due to null values
 
     IFNULL(base_rental_revenue, 0) AS base_rental_revenue,
     IFNULL(non_rental_charge, 0) AS non_rental_charge,
@@ -260,8 +286,10 @@ SELECT
         '"',
         '') AS delivery_location,
     deliver_method,
-    delivery_lat,
-    delivery_lng,
+    
+    IFNULL(delivery_lat, collection_lat) AS delivery_lat,
+    IFNULL(delivery_lng, collection_lng) AS delivery_lng,
+
     REPLACE(REPLACE(REPLACE(collection_location,
                 '
                 ',
@@ -271,10 +299,12 @@ SELECT
         '"',
         '') AS collection_location,
     collection_method,
+
     IFNULL(SUBSTRING_INDEX(collection_lat, ',', 1),
             collection_lat) AS collection_lat,
     IFNULL(SUBSTRING_INDEX(collection_lng, ',', 1),
             collection_lat) AS collection_lng,
+            
     nps_score,
 	NULLIF(REPLACE(REPLACE(REPLACE(nps_comment, '\n', ''), ',', ''), '"', ''), '') AS nps_comment
 FROM
