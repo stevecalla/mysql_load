@@ -37,7 +37,7 @@ const booking_schema = [
     {
         "name": "booking_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -121,7 +121,7 @@ const booking_schema = [
     {
         "name": "pickup_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -191,7 +191,7 @@ const booking_schema = [
     {
         "name": "return_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
