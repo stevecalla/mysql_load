@@ -35,13 +35,6 @@ const booking_schema = [
         "fields": []
     },
     {
-        "name": "booking_quarter",
-        "mode": "NULLABLE",
-        "type": "STRING",
-        "description": null,
-        "fields": []
-    },
-    {
         "name": "booking_month",
         "mode": "NULLABLE",
         "type": "INTEGER",
@@ -112,20 +105,6 @@ const booking_schema = [
         "fields": []
     },
     {
-        "name": "pickup_year",
-        "mode": "NULLABLE",
-        "type": "INTEGER",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "pickup_quarter",
-        "mode": "NULLABLE",
-        "type": "STRING",
-        "description": null,
-        "fields": []
-    },
-    {
         "name": "pickup_month",
         "mode": "NULLABLE",
         "type": "INTEGER",
@@ -178,20 +157,6 @@ const booking_schema = [
         "name": "return_datetime",
         "mode": "NULLABLE",
         "type": "TIMESTAMP",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "return_year",
-        "mode": "NULLABLE",
-        "type": "INTEGER",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "return_quarter",
-        "mode": "NULLABLE",
-        "type": "STRING",
         "description": null,
         "fields": []
     },
@@ -497,27 +462,6 @@ const booking_schema = [
         "fields": []
     },
     {
-        "name": "additional_driver_rate_rate",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "pai_rate",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "baby_seat_rate",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
         "name": "insurance_type",
         "mode": "NULLABLE",
         "type": "STRING",
@@ -588,55 +532,6 @@ const booking_schema = [
         "fields": []
     },
     {
-        "name": "pai_charge",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "baby_charge",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "long_distance",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "premium_delivery",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "airport_delivery",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "gps_charge",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "delivery_update",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
         "name": "intercity_charge",
         "mode": "NULLABLE",
         "type": "FLOAT",
@@ -659,13 +554,6 @@ const booking_schema = [
     },
     {
         "name": "discount_charge",
-        "mode": "NULLABLE",
-        "type": "FLOAT",
-        "description": null,
-        "fields": []
-    },
-    {
-        "name": "discount_extension_charge",
         "mode": "NULLABLE",
         "type": "FLOAT",
         "description": null,
@@ -959,8 +847,6 @@ const booking_schema = [
         "fields": []
     }
 ];
-
-// console.log(booking_schema.length);
 
 module.exports = {
     booking_schema,
