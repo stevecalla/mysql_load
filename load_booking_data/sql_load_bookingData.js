@@ -197,7 +197,7 @@ async function execute_load_booking_data() {
 }
 
 // Call the function
-execute_load_booking_data();
+// execute_load_booking_data();
 
 module.exports = {
   execute_load_booking_data,
