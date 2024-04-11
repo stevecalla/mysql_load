@@ -1,5 +1,6 @@
 const fs = require('fs').promises; // promses necessary for "fs.readdir"
 const mysql = require('mysql2');
+
 const { localBookingDbConfig, csvExportPath } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 const { schema_booking_table } = require('./schema_booking_table');

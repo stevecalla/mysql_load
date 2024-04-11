@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-dotenv.config(); // Load environment variables from .env file
+dotenv.config({path: "../.env"}); // adding the path ensures each folder will read the .env file as necessary
 
 // console.log(process.env); // double check if env variables are available
 

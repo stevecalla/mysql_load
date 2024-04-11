@@ -12,7 +12,12 @@ function createLoadBookingDataQuery(filePath) {
 
       @booking_date,
       @booking_datetime, -- Variable to capture booking_datetime as string
+
+      @max_booking_datetime,
+      today,
+
       booking_year,
+      booking_quarter,
       booking_month,
       booking_day_of_month,
       booking_week_of_year,
@@ -26,6 +31,7 @@ function createLoadBookingDataQuery(filePath) {
       @pickup_date,
       @pickup_datetime, -- Variable to capture pickup_datetime as string
       pickup_year,
+      pickup_quarter,
       pickup_month,
       pickup_day_of_month,
       pickup_week_of_year,
@@ -36,6 +42,7 @@ function createLoadBookingDataQuery(filePath) {
       @return_date,
       @return_datetime, -- Variable to capture return_datetime as string
       return_year,
+      return_quarter,
       return_month,
       return_day_of_month,
       return_week_of_year,
@@ -59,11 +66,9 @@ function createLoadBookingDataQuery(filePath) {
 
       status,
       booking_type,
-
       marketplace_or_dispatch,
       marketplace_partner,
       marketplace_partner_summary,
-
       booking_channel,
       booking_source,
 
@@ -90,19 +95,39 @@ function createLoadBookingDataQuery(filePath) {
       extra_day_calc,
       customer_rate,
       insurance_rate,
+
+      additional_driver_rate,
+      pai_rate,
+      baby_seat_rate,
+
       insurance_type,
       millage_rate,
       millage_cap_km,
+
       rent_charge,
+      rent_charge_less_discount_extension_aed,
+
       extra_day_charge,
       delivery_charge,
       collection_charge,
       additional_driver_charge,
       insurance_charge,
+
+      pai_charge,
+      baby_charge,
+      long_distance,
+      premium_delivery,
+      airport_delivery,
+      gps_charge,
+      delivery_update,
+
       intercity_charge,
       millage_charge,
       other_rental_charge,
+
       discount_charge,
+      discount_extension_charge,
+
       total_vat,
       other_charge,
 
@@ -121,9 +146,9 @@ function createLoadBookingDataQuery(filePath) {
 
       extension_charge,
       extension_charge_aed,
-
       is_extended,
-      Promo_Code,
+
+      promo_code,
       promo_code_discount_amount,
       @promocode_created_date,  -- Variable to capture promocode_created_date as string
       promo_code_description,
@@ -131,7 +156,6 @@ function createLoadBookingDataQuery(filePath) {
       car_avail_id,
       car_cat_id,
       car_cat_name,
-
       requested_car,
       car_name,
       make,
@@ -155,6 +179,7 @@ function createLoadBookingDataQuery(filePath) {
   SET 
       booking_date = STR_TO_DATE(@booking_date, "%Y-%m-%d"),
       booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
+      max_booking_datetime = STR_TO_DATE(@max_booking_datetime, "%Y-%m-%d %H:%i:%s"),
       pickup_date = STR_TO_DATE(@pickup_date, "%Y-%m-%d"),
       pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
       return_date = STR_TO_DATE(@return_date, "%Y-%m-%d"),

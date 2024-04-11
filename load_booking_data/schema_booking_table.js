@@ -5,7 +5,12 @@ const schema_booking_table = `
 
     booking_date DATE,
     booking_datetime DATETIME,
+
+    max_booking_datetime DATETIME,
+    today VARCHAR(3),
+
     booking_year VARCHAR(4),
+    booking_quarter VARCHAR(4),
     booking_month VARCHAR(2),
     booking_day_of_month VARCHAR(2),
     booking_week_of_year VARCHAR(2),
@@ -19,6 +24,7 @@ const schema_booking_table = `
     pickup_date DATE,
     pickup_datetime DATETIME,
     pickup_year VARCHAR(4),
+    pickup_quarter VARCHAR(4),
     pickup_month VARCHAR(64),
     pickup_day_of_month VARCHAR(2),
     pickup_week_of_year VARCHAR(2),
@@ -29,6 +35,7 @@ const schema_booking_table = `
     return_date DATE,
     return_datetime DATETIME,
     return_year VARCHAR(4),
+    return_quarter VARCHAR(4),
     return_month VARCHAR(64),
     return_day_of_month VARCHAR(2),
     return_week_of_year VARCHAR(2),
@@ -81,19 +88,39 @@ const schema_booking_table = `
     extra_day_calc DOUBLE DEFAULT 0,
     customer_rate DOUBLE,
     insurance_rate DOUBLE,
+
+    additional_driver_rate DOUBLE,
+    pai_rate DOUBLE,
+    baby_seat_rate DOUBLE,
+
     insurance_type VARCHAR(14) NOT NULL,
     millage_rate DOUBLE,
     millage_cap_km VARCHAR(15),
+
     rent_charge DOUBLE,
+    rent_charge_less_discount_extension_aed DOUBLE,
+
     extra_day_charge DOUBLE,
     delivery_charge DOUBLE,
     collection_charge DOUBLE,
     additional_driver_charge DOUBLE,
     insurance_charge DOUBLE,
+    
+    pai_charge DOUBLE,
+    baby_charge DOUBLE,
+    long_distance DOUBLE,
+    premium_delivery DOUBLE,
+    airport_delivery DOUBLE,
+    gps_charge DOUBLE,
+    delivery_update DOUBLE,
+
     intercity_charge DOUBLE,
     millage_charge INT NOT NULL DEFAULT 0,
     other_rental_charge DOUBLE,
+
     discount_charge DOUBLE,
+    discount_extension_charge DOUBLE,
+
     total_vat DOUBLE,
     other_charge DOUBLE,
 
@@ -112,8 +139,8 @@ const schema_booking_table = `
 
     extension_charge DOUBLE,
     extension_charge_aed DOUBLE,
-
     is_extended VARCHAR(3),
+
     promo_code VARCHAR(200),
     promo_code_discount_amount CHAR(0) NOT NULL,
     promocode_created_date DATETIME,
@@ -122,7 +149,6 @@ const schema_booking_table = `
     car_avail_id INT,
     car_cat_id INT,
     car_cat_name VARCHAR(50),
-
     requested_car VARCHAR(50),
     car_name VARCHAR(50),
     make VARCHAR(30),

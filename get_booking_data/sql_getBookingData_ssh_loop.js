@@ -5,7 +5,7 @@ const sshClient = new Client();
 const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utilities/config');
 const { queryBookingData } = require('./query_BookingData');
 const { generateLogFile } = require('../utilities/generateLogFile');
-const { getCurrentDateTimeForFileNaming} = require('../utilities/getCurrentDate');
+const { getCurrentDateTimeForFileNaming } = require('../utilities/getCurrentDate');
 
 // console.log('process env', process.env);
 // console.log('sshConfig', sshConfig);
@@ -94,7 +94,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 
         fs.writeFileSync(saveFilePath, csvContent);
 
-        console.log(`Results exported to ${csvExportPath}\n`);
+        console.log(`Results exported to ${csvExportPath}`);
         generateLogFile('booking_data', `Results exported to ${saveFilePath}`, csvExportPath);
 
     } catch (error) {
@@ -179,23 +179,23 @@ async function execute_get_booking_data() {
         const dateRanges = [
             { startDate: '2024-01-01', endDate: '2024-12-31' }, // OKAY
 
-            // // 2023
+            // 2023
             { startDate: '2023-10-01', endDate: '2023-12-31' }, // OKAY
             { startDate: '2023-07-01', endDate: '2023-09-30' }, // OKAY
             { startDate: '2023-04-01', endDate: '2023-06-30' }, // OKAY
             { startDate: '2023-01-01', endDate: '2023-03-31' }, // OKAY
 
-            // // // 2022
+            // 2022
             { startDate: '2022-10-01', endDate: '2022-12-31' }, // OKAY
             { startDate: '2022-07-01', endDate: '2022-09-30' }, // OKAY
             { startDate: '2022-04-01', endDate: '2022-06-30' }, // OKAY
             { startDate: '2022-01-01', endDate: '2022-03-31' }, // OKAY
 
-            // // // 2021
+            // 2021
             { startDate: '2021-07-01', endDate: '2021-12-31' }, // OKAY
             { startDate: '2021-01-01', endDate: '2021-06-30' }, // OKAY
 
-            // // // 2017 - 2020
+            // 2017 - 2020
             { startDate: '2020-01-01', endDate: '2020-12-31' }, // 
             { startDate: '2019-01-01', endDate: '2019-12-31' }, // 
             { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
@@ -205,12 +205,17 @@ async function execute_get_booking_data() {
         ];
 
         // Execute queries for each date range
-        for (const { startDate, endDate } of dateRanges) {
-            console.log(`Started query for ${startDate} to ${endDate}.`);
+        const dateRangesLength = dateRanges.length;
+
+        for (let i = 0; i < dateRangesLength; i++) {
+            let { startDate, endDate } = dateRanges[i];
+
+            console.log(`Started query for ${startDate} to ${endDate}.`);     
 
             await executeQueryForDateRange(pool, startDate, endDate);
-            
-            generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
+
+            console.log(`File ${i + 1} of ${dateRangesLength} complete.\n`);      
+            generateLogFile('booking_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);            
         }
 
         // Close the SSH connection after all queries are executed

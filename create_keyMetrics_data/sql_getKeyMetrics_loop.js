@@ -27,7 +27,9 @@ async function executeDropTableQuery(pool, table) {
 
 async function executeCreateBaseDataQuery(pool) {
     return new Promise((resolve, reject) => {
-            
+
+        const startTime = performance.now();
+
         const query = `
         -- Step 1: Create the table structure (assuming the structure of booking_data is known)
         CREATE TABLE IF NOT EXISTS key_metrics_base (
@@ -38,9 +40,10 @@ async function executeCreateBaseDataQuery(pool) {
             vendor VARCHAR(64),
             is_repeat VARCHAR(64),
             country VARCHAR(64),
-        
+
             -- BOOKING DATE FIELD
             booking_date DATE,
+            max_booking_datetime DATETIME,
         
             -- PICKUP DATE FIELDS
             pickup_date DATE,
@@ -130,6 +133,9 @@ async function executeCreateBaseDataQuery(pool) {
         `;
 
         pool.query(query, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -137,6 +143,7 @@ async function executeCreateBaseDataQuery(pool) {
                 console.log('\nCreate table results');
                 console.table(results);
                 console.log('Create table results\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
@@ -145,11 +152,19 @@ async function executeCreateBaseDataQuery(pool) {
 
 async function executeInsertCreatedAtQuery(pool, table) {
     return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
+
         const addCreateAtDate = `
-        ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`
+            ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+        `;
+        
         console.log(addCreateAtDate);
 
         pool.query(addCreateAtDate, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -157,6 +172,7 @@ async function executeInsertCreatedAtQuery(pool, table) {
                 console.log('\nCreate at insert results');
                 console.table(results);
                 console.log('Create at insert results\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
@@ -166,17 +182,21 @@ async function executeInsertCreatedAtQuery(pool, table) {
 async function executeInsertBaseDataQuery(pool, table) {
     return new Promise((resolve, reject) => {
 
+        const startTime = performance.now();
+
         const query = `
         -- Step 2: Insert data from ezhire_booking_data.booking_data into key_metrics table
-        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed)
+        INSERT INTO key_metrics_base (booking_id, status, booking_type, vendor, is_repeat, country, booking_date, max_booking_datetime, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed)
         
-        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed
+        SELECT booking_id, status, booking_type, marketplace_or_dispatch AS vendor, repeated_user AS is_repeat, deliver_country AS country, booking_date, max_booking_datetime, pickup_date, pickup_datetime, return_date, return_datetime, extension_days, booking_charge_aed, booking_charge_less_discount_aed, extension_charge_aed, booking_charge_less_discount_extension_aed
         
         FROM ezhire_booking_data.booking_data;
         `;
 
-
         pool.query(query, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+            
             if (queryError) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
@@ -184,6 +204,7 @@ async function executeInsertBaseDataQuery(pool, table) {
                 console.log('\nInsert base data\n');
                 console.table(results);
                 console.log('Insert base data\n');
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
             }
         });
