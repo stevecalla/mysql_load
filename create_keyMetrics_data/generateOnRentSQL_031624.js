@@ -53,6 +53,13 @@ function generateBaseCode(repeatCode) {
             ct.month AS month,
             ct.week_of_year AS week,
             ct.day_of_year AS day,
+            km.max_booking_datetime,
+        
+            -- CALC IS_TODAY
+            CASE
+                WHEN ct.calendar_date = DATE_FORMAT(km.max_booking_datetime, '%Y-%m-%d') THEN "yes"
+                ELSE "no"
+            END AS is_today,
             
             -- TOTAL ON-RENT CALCULATION
             COUNT(km.id) AS days_on_rent_whole_day,
@@ -186,7 +193,7 @@ function generateBaseCode(repeatCode) {
             AND ct.calendar_date <= km.return_date
             AND km.status NOT LIKE '${status}'
 
-        GROUP BY km.created_at, ct.calendar_date
+        GROUP BY km.created_at, ct.calendar_date, km.max_booking_datetime
 
         ORDER BY ct.calendar_date ASC
 

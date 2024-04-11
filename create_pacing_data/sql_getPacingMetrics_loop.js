@@ -408,7 +408,6 @@ async function execute_create_pacing_metrics() {
         console.log(`STEP 4.3: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
         console.log(getCurrentDateTime());
         await executeDropTableQuery(pool, 'pacing_base_groupby;');
-        
         console.log(`Executing create group by / rollup by date`);
         await executeCreateGroupByDataQuery(pool);
         await executeInsertCreatedAtQuery(pool, 'pacing_base_groupby');   

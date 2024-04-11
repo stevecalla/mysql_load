@@ -12,6 +12,10 @@ function createLoadBookingDataQuery(filePath) {
 
       @booking_date,
       @booking_datetime, -- Variable to capture booking_datetime as string
+
+      @max_booking_datetime,
+      today,
+
       booking_year,
       booking_quarter,
       booking_month,
@@ -175,6 +179,7 @@ function createLoadBookingDataQuery(filePath) {
   SET 
       booking_date = STR_TO_DATE(@booking_date, "%Y-%m-%d"),
       booking_datetime = STR_TO_DATE(@booking_datetime, "%Y-%m-%d %H:%i:%s"),
+      max_booking_datetime = STR_TO_DATE(@max_booking_datetime, "%Y-%m-%d %H:%i:%s"),
       pickup_date = STR_TO_DATE(@pickup_date, "%Y-%m-%d"),
       pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
       return_date = STR_TO_DATE(@return_date, "%Y-%m-%d"),

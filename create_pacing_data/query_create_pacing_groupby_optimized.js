@@ -2,6 +2,7 @@ function query_pacing_groupby_optimized() {
     let query_pacing_groupby_optimized = `
         CREATE TABLE pacing_base_groupby AS
             SELECT
+                max_booking_datetime,
                 pickup_month_year,
                 booking_date,
                 days_from_first_day_of_month,
@@ -46,6 +47,7 @@ function query_pacing_groupby_optimized() {
                 @prev_month_year := pickup_month_year AS dummy_variable  -- used to restart the totals for each pickup_month_year combo
             FROM (
                 SELECT
+                    pb.max_booking_datetime,
                     pb.pickup_month_year,
                     pb.booking_date,
                     pb.days_from_first_day_of_month,
@@ -56,6 +58,7 @@ function query_pacing_groupby_optimized() {
                     SUM(extension_charge_aed) AS extension_charge_aed
                 FROM ezhire_pacing_metrics.pacing_base pb
                 GROUP BY 
+                    pb.max_booking_datetime,
                     pb.pickup_month_year,
                     pb.booking_date,  
                     pb.days_from_first_day_of_month

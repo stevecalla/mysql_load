@@ -5,6 +5,10 @@ const schema_booking_table = `
 
     booking_date DATE,
     booking_datetime DATETIME,
+
+    max_booking_datetime DATETIME,
+    today VARCHAR(3),
+
     booking_year VARCHAR(4),
     booking_quarter VARCHAR(4),
     booking_month VARCHAR(2),

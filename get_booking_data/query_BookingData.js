@@ -1,4 +1,5 @@
 const queryBookingData = `
+
 -- SET @str_date = '2024-01-01',@end_date = '2024-01-01';
 
 -- ********* START ************ CHANGE LOG
@@ -9,6 +10,8 @@ const queryBookingData = `
 -- adjusted insurance rate to be used in extension charge calc (insurance rate = 0 when insurance charge null/0)
 -- added baby seat, GPS and other add ons
 -- adjusted is_extended definition since original def didn't match extended days
+-- 4/10/24 = added max created on field = line 323 & 36
+-- 4/10/24 = added today yes / no field = line 38
 -- ********* END *************** CHANGE LOG
 
 SELECT 
@@ -26,6 +29,14 @@ SELECT
                 NULL,
                 DATE_FORMAT(booking_datetime, '%Y-%m-%d %H:%i:%s')),
             NULL) AS booking_datetime,
+
+    DATE_FORMAT(max_booking_datetime, '%Y-%m-%d %H:%i:%s') AS max_booking_datetime,
+
+    CASE
+        WHEN DATE_FORMAT(booking_datetime, '%Y-%m-%d') = DATE_FORMAT(max_booking_datetime, '%Y-%m-%d') THEN 'yes'
+        ELSE 'no'
+    END AS today,
+        
     booking_year,
     booking_quarter,
     booking_month,
@@ -304,6 +315,12 @@ FROM
             DAYOFWEEK(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) AS booking_day_of_week,
             DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%W') booking_day_of_week_v2,
             DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%H') booking_time_bucket,
+            
+            (SELECT 
+                    MAX(DATE_ADD(created_on, INTERVAL 4 HOUR))
+                FROM
+                    myproject.rental_car_booking2
+            ) AS max_booking_datetime,
             
             DATE_FORMAT(CONCAT(STR_TO_DATE(b.deliver_date_string, '%d/%m/%Y'), ' ', b.deliver_time_string), '%Y-%m-%d %H:%i:%s') AS pickup_datetime,
             DATE_FORMAT(CONCAT(STR_TO_DATE(b.deliver_date_string, '%d/%m/%Y'), ' ', b.deliver_time_string), '%Y') pickup_year,
