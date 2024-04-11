@@ -1,20 +1,96 @@
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
+const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
 const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop'); //step_1
 const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData'); //step_2
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 
-const run_step_1 = true; // get booking data
-const run_step_2 = true; // load booking data
-const run_step_3 = true; // create key metrics
-const run_step_4 = true; // create pacing metrics   
+let run_step_0 = true; // get most recent created on / updated on datetime
+let run_step_1 = true; // get booking data
+let run_step_2 = true; // load booking data
+let run_step_3 = true; // create key metrics
+let run_step_4 = true; // create pacing metrics   
 
-async function get_booking_data() {
+async function check_most_recent_created_on_date() {
     const startTime = performance.now();
     console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
     generateLogFile('scheduled_booking_data', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+    
+    try {
+        // STEP #1: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
+        console.log('\n*************** STARTING STEP 0 ***************\n');
+        
+        if (run_step_0) {
+            // EXECUTE QUERIES
+            let getResults;
+            getResults = await execute_get_most_recent_created_on_date();
+            
+            // let { results } = getResults;
+
+            let { last_updated, execution_timestamp, time_stamp_difference, is_within_2_hours } = getResults.results[0];
+
+            // console.log(is_within_2_hours);
+
+            // if false then 
+            if (is_within_2_hours === 'false') {
+                // (a) adjust variables to false to prevent running next steps
+                run_step_1 = false; // get booking data
+                run_step_2 = false; // load booking data
+                run_step_3 = false; // create key metrics
+                run_step_4 = false; // create pacing metrics 
+
+                // (b) send email with warning
+
+                // (b.1) LOGS
+                let message = getResults ? `\nMost recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
+                
+                let log_results = getResults ? `LAST UPDATED: ${last_updated}, EXECUTION TIMESTAMP:${execution_timestamp}, TIME STAMP DIFFERENCE: ${time_stamp_difference}, IS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results\n`;
+
+                console.log(message);
+                console.log(getResults);
+
+                generateLogFile('scheduled_booking_data', message);
+                generateLogFile('scheduled_booking_data', log_results);
+
+                const endTime = performance.now();
+                const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+                console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+                generateLogFile('scheduled_booking_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+
+                // (c) return to exit function
+                return;
+            }
+    
+            // LOGS
+            let message = getResults ? `\nMost recent created on time is within 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time\n`;
+
+            console.log(message);
+            generateLogFile('scheduled_booking_data', message);
+ 
+        } else {
+            // LOGS
+            let message = `\nSkipped STEP 1 due to toggle set to false.\n`;
+            console.log(message);
+            generateLogFile('scheduled_booking_data', message); 
+        }
+        
+        console.log('\n*************** END OF STEP 1 ***************\n');
+        // NEXT STEP
+        await step_1_get_booking_data(startTime);
+    } catch (error) {
+        console.error('Error executing Step #1:', error);
+        generateLogFile('scheduled_booking_data', `Error executing Step #1: ${error}`);
+        return; // Exit the function early
+    }
+
+}
+
+async function step_1_get_booking_data(startTime) {
+    // const startTime = performance.now();
+    // console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+    // generateLogFile('scheduled_booking_data', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
 
     try {
         // STEP #1: GET BOOKING DATA
@@ -159,4 +235,5 @@ async function step_4(startTime) {
     }
 }
 
-get_booking_data();
+check_most_recent_created_on_date();
+// get_booking_data();

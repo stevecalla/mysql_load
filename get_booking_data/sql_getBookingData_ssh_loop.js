@@ -6,6 +6,7 @@ const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utili
 const { queryBookingData } = require('./query_BookingData');
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming } = require('../utilities/getCurrentDate');
+const { query_most_recent_create_on_date} = require('./query_most_recent_created_on');
 
 // console.log('process env', process.env);
 // console.log('sshConfig', sshConfig);
