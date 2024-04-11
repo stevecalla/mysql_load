@@ -9,7 +9,7 @@ const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_get
 const run_step_1 = true; // get booking data
 const run_step_2 = true; // load booking data
 const run_step_3 = true; // create key metrics
-const run_step_4 = true; // create pacing metrics
+const run_step_4 = true; // create pacing metrics   
 
 async function get_booking_data() {
     const startTime = performance.now();
