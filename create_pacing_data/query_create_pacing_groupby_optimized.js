@@ -62,7 +62,7 @@ function query_pacing_groupby_optimized() {
                     pb.pickup_month_year,
                     pb.booking_date,  
                     pb.days_from_first_day_of_month
-                ORDER BY pb.pickup_month_year ASC
+                ORDER BY pb.pickup_month_year ASC, days_from_first_day_of_month ASC
                 -- LIMIT 1000
             ) AS subquery
             JOIN (SELECT 

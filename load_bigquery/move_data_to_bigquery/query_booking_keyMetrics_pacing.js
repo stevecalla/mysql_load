@@ -12,6 +12,11 @@ const bookingQuery = `
             WHEN booking_datetime IS NULL THEN ''
             ELSE DATE_FORMAT(CONVERT_TZ(booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC')
         END AS booking_datetime,
+
+        -- max_booking_datetime,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
+
+        today AS is_today,
         
         booking_year,booking_quarter,booking_month,booking_day_of_month,booking_week_of_year,booking_day_of_week,booking_day_of_week_v2,booking_time_bucket,booking_count,booking_count_excluding_cancel,
 
@@ -90,7 +95,12 @@ const keyMetricsQuery = `
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at,
         DATE_FORMAT(STR_TO_DATE(calendar_date, '%Y-%m-%d'), '%Y-%m-%d') AS calendar_date,
 
-        year,quarter,month,week,day,days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,country_on_rent_serbia,country_on_rent_united_arab_emirates
+        year,quarter,month,week,day,
+        
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        is_today,
+        
+        days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,country_on_rent_serbia,country_on_rent_united_arab_emirates
     FROM ezhire_key_metrics.key_metrics_data
     ORDER BY calendar_date ASC
     -- LIMIT 1;
@@ -98,8 +108,10 @@ const keyMetricsQuery = `
 
 const pacingQuery = `
     SELECT
-        pickup_month_year,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        is_before_today,
 
+        pickup_month_year,
         DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date,
 
         days_from_first_day_of_month,

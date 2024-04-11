@@ -28,6 +28,20 @@ const booking_schema = [
         "fields": []
     },
     {
+        "name": "max_booking_datetime",
+        "mode": "NULLABLE",
+        "type": "TIMESTAMP",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "is_today",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": null,
+        "fields": []
+    },
+    {
         "name": "booking_year",
         "mode": "NULLABLE",
         "type": "STRING",

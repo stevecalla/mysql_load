@@ -11,6 +11,7 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 const { generateLogFile } = require('../utilities/generateLogFile');
 // const { get_spinner, clear_spinner } = require('../utilities/spinner');
 
+// STEP #6 - ADD CREATED AT DATE
 async function executeInsertCreatedAtQuery(pool, table) {
     return new Promise((resolve, reject) => {
 
@@ -97,6 +98,7 @@ async function executeCreateBaseDataQuery(pool) {
         SELECT 
             booking_id,
             booking_date,
+            max_booking_datetime, -- ADDED
             DATE_FORMAT(pickup_date, '%Y-%m-01') AS pickup_first_day_of_month,
             TIMESTAMPDIFF(DAY, DATE_FORMAT(pickup_date, '%Y-%m-01'), booking_date) AS days_from_first_day_of_month,
         
@@ -167,6 +169,11 @@ async function executeCreateTableQuery(pool) {
 
         const query = `CREATE TABLE IF NOT EXISTS pacing_base_all_calendar_dates (
             grouping_id INT,
+            max_booking_datetime DATETIME,
+    
+            -- CALC IS_BEFORE_TODAY
+            is_before_today VARCHAR(3),
+
             pickup_month_year VARCHAR(10),
             first_day_of_month VARCHAR(10),
             last_day_of_month DATE,
@@ -212,6 +219,15 @@ async function executeInsertQuery(pool, pickup_month_year, index) {
         const insertQuery = `INSERT INTO pacing_base_all_calendar_dates
             SELECT
                 ${index} AS grouping_id,
+                pbg.max_booking_datetime,
+
+                -- CALC IS_BEFORE_TODAY
+                CASE
+                    WHEN days_from_first_day_of_month IS NULL THEN NULL
+                    WHEN days_from_first_day_of_month <= DATE_FORMAT(max_booking_datetime, '%d') + 2 THEN "yes"
+                    ELSE "no"
+                END AS is_before_today,
+
                 pbg.pickup_month_year,
                 CONCAT(pickup_month_year, '-01') AS first_day_of_month,
                 LAST_DAY(CONCAT(pickup_month_year, '-01')) AS last_day_of_month,
@@ -269,6 +285,30 @@ async function executeCreateFinalDataQuery(pool) {
         const query = `CREATE TABLE pacing_final_data AS
         SELECT
             CASE
+                WHEN max_booking_datetime IS NULL THEN (
+                    SELECT inner_table.max_booking_datetime
+                    FROM pacing_base_all_calendar_dates AS inner_table
+                    WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
+                    AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
+                    AND inner_table.max_booking_datetime IS NOT NULL
+                    ORDER BY inner_table.booking_date DESC
+                    LIMIT 1)
+                ELSE max_booking_datetime
+            END AS max_booking_datetime, -- ADDED
+
+            CASE
+                WHEN is_before_today IS NULL THEN (
+                    SELECT inner_table.is_before_today
+                    FROM pacing_base_all_calendar_dates AS inner_table
+                    WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
+                    AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
+                    AND inner_table.is_before_today IS NOT NULL
+                    ORDER BY inner_table.booking_date DESC
+                    LIMIT 1)
+                ELSE is_before_today
+            END AS is_before_today, -- ADDED
+
+            CASE
                 WHEN pickup_month_year IS NULL THEN (
                     SELECT inner_table.pickup_month_year
                     FROM pacing_base_all_calendar_dates AS inner_table
@@ -278,8 +318,9 @@ async function executeCreateFinalDataQuery(pool) {
                     ORDER BY inner_table.booking_date DESC
                     LIMIT 1)
                 ELSE pickup_month_year
-                END AS pickup_month_year,
-            booking_date,
+            END AS pickup_month_year,
+
+            booking_date, -- populated for all rows
             
             -- days_from_first_day_of_month
             CASE
@@ -292,14 +333,14 @@ async function executeCreateFinalDataQuery(pool) {
                     ORDER BY inner_table.booking_date DESC
                     LIMIT 1)
                 ELSE days_from_first_day_of_month
-                END AS days_from_first_day_of_month,
+            END AS days_from_first_day_of_month,
         
-                COALESCE(count, 0) AS count,
-                COALESCE(total_booking_charge_aed, 0) AS total_booking_charge_aed,
-                COALESCE(total_booking_charge_less_discount_aed, 0) AS total_booking_charge_less_discount_aed,
-                COALESCE(total_booking_charge_less_discount_extension_aed, 0) AS total_booking_charge_less_discount_extension_aed,
-                COALESCE(total_extension_charge_aed, 0) AS total_extension_charge_aed,
-            
+            COALESCE(count, 0) AS count,
+            COALESCE(total_booking_charge_aed, 0) AS total_booking_charge_aed,
+            COALESCE(total_booking_charge_less_discount_aed, 0) AS total_booking_charge_less_discount_aed,
+            COALESCE(total_booking_charge_less_discount_extension_aed, 0) AS total_booking_charge_less_discount_extension_aed,
+            COALESCE(total_extension_charge_aed, 0) AS total_extension_charge_aed,
+        
             -- running_count
             CASE
                 WHEN running_total_booking_count IS NULL THEN (
@@ -311,7 +352,7 @@ async function executeCreateFinalDataQuery(pool) {
                     ORDER BY inner_table.booking_date DESC
                     LIMIT 1)
                 ELSE running_total_booking_count
-                END AS running_count,
+            END AS running_count,
             
             -- running_total_booking_charge_aed
             CASE
@@ -324,7 +365,7 @@ async function executeCreateFinalDataQuery(pool) {
                     ORDER BY inner_table.booking_date DESC
                     LIMIT 1)
                 ELSE running_total_booking_charge_aed
-                END AS running_total_booking_charge_aed,
+            END AS running_total_booking_charge_aed,
             
             -- running_total_booking_charge_less_discount_aed
             CASE
@@ -337,32 +378,32 @@ async function executeCreateFinalDataQuery(pool) {
                     ORDER BY inner_table.booking_date DESC
                     LIMIT 1)
                 ELSE running_total_booking_charge_less_discount_aed
-                END AS running_total_booking_charge_less_discount_aed,
+            END AS running_total_booking_charge_less_discount_aed,
         
-        -- running_total_booking_charge_less_discount_extension_aed
-        CASE
-            WHEN running_total_booking_charge_less_discount_extension_aed IS NULL THEN (
-                SELECT inner_table.running_total_booking_charge_less_discount_extension_aed
-                FROM pacing_base_all_calendar_dates AS inner_table
-                WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
-                AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
-                AND inner_table.running_total_booking_charge_less_discount_extension_aed IS NOT NULL
-                ORDER BY inner_table.booking_date DESC
-                LIMIT 1)
-            ELSE running_total_booking_charge_less_discount_extension_aed
+            -- running_total_booking_charge_less_discount_extension_aed
+            CASE
+                WHEN running_total_booking_charge_less_discount_extension_aed IS NULL THEN (
+                    SELECT inner_table.running_total_booking_charge_less_discount_extension_aed
+                    FROM pacing_base_all_calendar_dates AS inner_table
+                    WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
+                    AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
+                    AND inner_table.running_total_booking_charge_less_discount_extension_aed IS NOT NULL
+                    ORDER BY inner_table.booking_date DESC
+                    LIMIT 1)
+                ELSE running_total_booking_charge_less_discount_extension_aed
             END AS running_total_booking_charge_less_discount_extension_aed,
         
-        -- running_total_extension_charge_aed
-        CASE
-            WHEN running_total_extension_charge_aed IS NULL THEN (
-                SELECT inner_table.running_total_extension_charge_aed
-                FROM pacing_base_all_calendar_dates AS inner_table
-                WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
-                AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
-                AND inner_table.running_total_extension_charge_aed IS NOT NULL
-                ORDER BY inner_table.booking_date DESC
-                LIMIT 1)
-            ELSE running_total_extension_charge_aed
+            -- running_total_extension_charge_aed
+            CASE
+                WHEN running_total_extension_charge_aed IS NULL THEN (
+                    SELECT inner_table.running_total_extension_charge_aed
+                    FROM pacing_base_all_calendar_dates AS inner_table
+                    WHERE inner_table.grouping_id = pacing_base_all_calendar_dates.grouping_id
+                    AND inner_table.booking_date < pacing_base_all_calendar_dates.booking_date
+                    AND inner_table.running_total_extension_charge_aed IS NOT NULL
+                    ORDER BY inner_table.booking_date DESC
+                    LIMIT 1)
+                ELSE running_total_extension_charge_aed
             END AS running_total_extension_charge_aed
                 
         FROM pacing_base_all_calendar_dates;
@@ -434,6 +475,8 @@ async function execute_create_pacing_metrics() {
         console.log(getCurrentDateTime());
         await executeDropTableQuery(pool, 'pacing_final_data;');
         await executeCreateFinalDataQuery(pool);
+
+        //STEP 6: ADD CREATED AT DATE
         await executeInsertCreatedAtQuery(pool, 'pacing_final_data');
 
         console.log('All queries executed successfully.');
