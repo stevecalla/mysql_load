@@ -7,7 +7,6 @@ const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_da
 const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
 
 //TODO:
-const run_step_0 = true; // if most recent / max created on date is not within 2 hours, error & send email
 const run_step_1 = false; // retrieve booking, key metrics, pacing data
 const run_step_2 = false; // load csv to google cloud bucket
 const run_step_3 = false; // create_dataset_table
