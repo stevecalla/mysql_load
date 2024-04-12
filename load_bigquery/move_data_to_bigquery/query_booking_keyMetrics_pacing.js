@@ -32,20 +32,93 @@ const bookingQuery = `
             ELSE DATE_FORMAT(CONVERT_TZ(pickup_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC')
         END AS pickup_datetime,
 
-        pickup_year,pickup_quarter,pickup_month,pickup_day_of_month,pickup_week_of_year,pickup_day_of_week,pickup_day_of_week_v2,pickup_time_bucket,
+        -- NOTE GOOGLE BQ ERRORING WITH NULL VALUE FOR INTEGER; NEEDS TO BE ''
+        CASE
+            WHEN pickup_year IS NULL THEN ''
+            ELSE pickup_year
+        END AS pickup_year,
+        
+        CASE
+            WHEN pickup_quarter IS NULL THEN ''
+            ELSE pickup_quarter
+        END AS pickup_quarter,
 
-        -- DATE_FORMAT(return_date, '%Y-%m-%d') AS return_date,
+        CASE
+            WHEN pickup_month IS NULL THEN ''
+            ELSE pickup_month
+        END AS pickup_month,
+
+        CASE
+            WHEN pickup_day_of_month IS NULL THEN ''
+            ELSE pickup_day_of_month
+        END AS pickup_day_of_month,
+        
+        CASE
+            WHEN pickup_week_of_year IS NULL THEN ''
+            ELSE pickup_week_of_year
+        END AS pickup_week_of_year,
+
+        CASE
+            WHEN pickup_day_of_week IS NULL THEN ''
+            ELSE pickup_day_of_week
+        END AS pickup_day_of_week,
+
+        pickup_day_of_week_v2,
+        CASE
+            WHEN pickup_time_bucket IS NULL THEN ''
+            ELSE pickup_time_bucket
+        END AS pickup_time_bucket,
+
         CASE
             WHEN return_date IS NULL THEN ''
             ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
         END AS return_date,
+
         -- DATE_FORMAT(CONVERT_TZ(return_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as return_datetime,
         CASE
             WHEN return_datetime IS NULL THEN ''
             ELSE DATE_FORMAT(CONVERT_TZ(return_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC')
         END AS return_datetime,
+
+        -- NOTE GOOGLE BQ ERRORING WITH NULL VALUE FOR INTEGER; NEEDS TO BE ''
+        CASE
+            WHEN return_year IS NULL THEN ''
+            ELSE return_year
+        END AS return_year,
+
+        CASE
+            WHEN return_quarter IS NULL THEN ''
+            ELSE return_quarter
+        END AS return_quarter,
+
+        CASE
+            WHEN return_month IS NULL THEN ''
+            ELSE return_month
+        END AS return_month,
+
+        CASE
+            WHEN return_day_of_month IS NULL THEN ''
+            ELSE return_day_of_month
+        END AS return_day_of_month,
+
+        CASE
+            WHEN return_week_of_year IS NULL THEN ''
+            ELSE return_week_of_year
+        END AS return_week_of_year,
+
+        CASE
+            WHEN return_day_of_week IS NULL THEN ''
+            ELSE return_day_of_week
+        END AS return_day_of_week,
+
+        return_day_of_week_v2,
         
-        return_year,return_quarter,return_month,return_day_of_month,return_week_of_year,return_day_of_week,return_day_of_week_v2,return_time_bucket,advance_category_day,advance_category_week,advance_category_month,advance_category_date_within_week,advance_pickup_booking_date_diff,comparison_28_days,comparison_period,
+        CASE
+            WHEN return_time_bucket IS NULL THEN ''
+            ELSE return_time_bucket
+        END AS return_time_bucket,
+        
+        advance_category_day,advance_category_week,advance_category_month,advance_category_date_within_week,advance_pickup_booking_date_diff,comparison_28_days,comparison_period,
 
         -- comparison_common_date,
         CASE
