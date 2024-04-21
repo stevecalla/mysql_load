@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
-const { queryBookingKeyStats } = require('./query_booking_key_stats');
+// const { queryBookingKeyStats } = require('./query_booking_key_stats');
+const { queryBookingKeyStats } = require('./create_keyMetrics_data/query_booking_key_stats');
 const { localBookingDbConfig } = require('./utilities/config');
 
 // MySQL configuration
