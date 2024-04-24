@@ -171,42 +171,42 @@ async function execute_get_booking_data() {
     try {
         const startTime = performance.now();
 
-        // deleteArchivedFiles();
-        // moveFilesToArchive();
+        deleteArchivedFiles();
+        moveFilesToArchive();
 
         const pool = await createSSHConnection();
 
         // Array of date ranges to loop through
         const dateRanges = [
-            // // 2024
-            // { startDate: '2024-10-01', endDate: '2024-12-31' }, // OKAY
-            // { startDate: '2024-07-01', endDate: '2024-09-30' }, // OKAY
-            // { startDate: '2024-04-01', endDate: '2024-06-30' }, // OKAY
+            // 2024
+            { startDate: '2024-10-01', endDate: '2024-12-31' }, // OKAY
+            { startDate: '2024-07-01', endDate: '2024-09-30' }, // OKAY
+            { startDate: '2024-04-01', endDate: '2024-06-30' }, // OKAY
             { startDate: '2024-01-01', endDate: '2024-03-31' }, // OKAY
 
-            // // 2023
-            // { startDate: '2023-10-01', endDate: '2023-12-31' }, // OKAY
-            // { startDate: '2023-07-01', endDate: '2023-09-30' }, // OKAY
-            // { startDate: '2023-04-01', endDate: '2023-06-30' }, // OKAY
-            // { startDate: '2023-01-01', endDate: '2023-03-31' }, // OKAY
+            // 2023
+            { startDate: '2023-10-01', endDate: '2023-12-31' }, // OKAY
+            { startDate: '2023-07-01', endDate: '2023-09-30' }, // OKAY
+            { startDate: '2023-04-01', endDate: '2023-06-30' }, // OKAY
+            { startDate: '2023-01-01', endDate: '2023-03-31' }, // OKAY
 
-            // // 2022
-            // { startDate: '2022-10-01', endDate: '2022-12-31' }, // OKAY
-            // { startDate: '2022-07-01', endDate: '2022-09-30' }, // OKAY
-            // { startDate: '2022-04-01', endDate: '2022-06-30' }, // OKAY
-            // { startDate: '2022-01-01', endDate: '2022-03-31' }, // OKAY
+            // 2022
+            { startDate: '2022-10-01', endDate: '2022-12-31' }, // OKAY
+            { startDate: '2022-07-01', endDate: '2022-09-30' }, // OKAY
+            { startDate: '2022-04-01', endDate: '2022-06-30' }, // OKAY
+            { startDate: '2022-01-01', endDate: '2022-03-31' }, // OKAY
 
-            // // 2021
-            // { startDate: '2021-07-01', endDate: '2021-12-31' }, // OKAY
-            // { startDate: '2021-01-01', endDate: '2021-06-30' }, // OKAY
+            // 2021
+            { startDate: '2021-07-01', endDate: '2021-12-31' }, // OKAY
+            { startDate: '2021-01-01', endDate: '2021-06-30' }, // OKAY
 
-            // // // 2017 - 2020
-            // { startDate: '2020-01-01', endDate: '2020-12-31' }, // 
-            // { startDate: '2019-01-01', endDate: '2019-12-31' }, // 
-            // { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
-            // { startDate: '2017-01-01', endDate: '2017-12-31' }, // 
-            // { startDate: '2015-01-01', endDate: '2016-12-31' }, // 
-            // // Add more date ranges as needed
+            // // 2017 - 2020
+            { startDate: '2020-01-01', endDate: '2020-12-31' }, // 
+            { startDate: '2019-01-01', endDate: '2019-12-31' }, // 
+            { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
+            { startDate: '2017-01-01', endDate: '2017-12-31' }, // 
+            { startDate: '2015-01-01', endDate: '2016-12-31' }, // 
+            // Add more date ranges as needed
         ];
 
         // Execute queries for each date range
@@ -254,7 +254,7 @@ async function execute_get_booking_data() {
 }
 
 // Run the main function
-execute_get_booking_data();
+// execute_get_booking_data();
 
 module.exports = {
     execute_get_booking_data,

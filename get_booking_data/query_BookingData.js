@@ -1,17 +1,12 @@
 const queryBookingData = `
+-- USE myproject;
 
--- SET @str_date = '2024-01-01',@end_date = '2024-01-01';
+-- SET @str_date = '2024-04-01', @end_date = '2024-12-31';
 
 -- ********* START ************ CHANGE LOG
--- 04/08/24 - update extension definition to (extension days (ED) * customer rate) + (ED * insurance rate) + (ED * additional driver rate) less discount
--- add additional driver rate line 193 and @531
-    -- decided to divide additonal driver charge by days
-    -- given logic attempt resulted in reconcilation errors
--- adjusted insurance rate to be used in extension charge calc (insurance rate = 0 when insurance charge null/0)
--- added baby seat, GPS and other add ons
--- adjusted is_extended definition since original def didn't match extended days
--- 4/10/24 = added max created on field = line 323 & 36
--- 4/10/24 = added today yes / no field = line 38
+-- 042324 Query was running many times slower for some reason starting ~4/15/24
+-- Team replaced several inline queries with joins
+-- Added LIMIT 1 to subqueries given error returning more than 1 row; error only seemed to occured on 4/23/24
 -- ********* END *************** CHANGE LOG
 
 SELECT 
@@ -33,10 +28,11 @@ SELECT
     DATE_FORMAT(max_booking_datetime, '%Y-%m-%d %H:%i:%s') AS max_booking_datetime,
 
     CASE
-        WHEN DATE_FORMAT(booking_datetime, '%Y-%m-%d') = DATE_FORMAT(max_booking_datetime, '%Y-%m-%d') THEN 'yes'
+        WHEN DATE_FORMAT(booking_datetime, '%Y-%m-%d') = DATE_FORMAT(max_booking_datetime, '%Y-%m-%d') 
+            THEN 'yes'
         ELSE 'no'
     END AS today,
-        
+
     booking_year,
     booking_quarter,
     booking_month,
@@ -188,7 +184,7 @@ SELECT
     IFNULL(millage_cap_km, 0) AS millage_cap_km,
 
     IFNULL(rent_charge, 0) AS rent_charge,
-
+    -- RENT CHARGE FOR INITIAL BOOKING (TO EXCLUDE EXTENSION AND DISCOUNT)
     IFNULL((((days - extension_days) * customer_rate) - (discount_charge)) * tb.conversion_rate, 0) AS rent_charge_less_discount_extension_aed,
 
     IFNULL(extra_day_charge, 0) AS extra_day_charge,
@@ -234,8 +230,10 @@ SELECT
     
     -- EXTENSION CHARGE CALC --
     (((customer_rate + insurance_rate + additional_driver_rate + pai_rate + baby_seat_rate) * extension_days) - discount_extension_charge) AS extension_charge,
+    
     (((customer_rate + insurance_rate + additional_driver_rate + pai_rate + baby_seat_rate) * extension_days) - discount_extension_charge) * tb.conversion_rate AS extension_charge_aed,
 
+    -- REVISED is_extension DEFINITION
     CASE
         WHEN extension_days >= 1 THEN "YES"
         ELSE "NO"
@@ -307,14 +305,14 @@ FROM
             b.deliver_date_string,
             
             DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS booking_datetime,
-            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%Y') booking_year,
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%Y') AS booking_year,
             QUARTER(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) AS booking_quarter,
-            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%m') booking_month,
-            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%d') booking_day_of_month,
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%m') AS booking_month,
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%d') AS booking_day_of_month,
             WEEKOFYEAR(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) AS booking_week_of_year,
             DAYOFWEEK(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) AS booking_day_of_week,
-            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%W') booking_day_of_week_v2,
-            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%H') booking_time_bucket,
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%W') AS booking_day_of_week_v2,
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%H') AS booking_time_bucket,
             
             (SELECT 
                     MAX(DATE_ADD(created_on, INTERVAL 4 HOUR))
@@ -347,7 +345,8 @@ FROM
                 FROM
                     myproject.rental_status rs
                 WHERE
-                    rs.id = b.status) AS status,
+                    rs.id = b.status
+                LIMIT 1) AS status, -- CHANGE LIMIT
                     
             (CASE
                 WHEN b.days < 7 THEN 'daily'
@@ -356,7 +355,7 @@ FROM
                 ELSE 'Weekly'
             END) AS booking_type,
 
-            (CASE
+            (CASE   
                 WHEN b.vendor_id = 234555 THEN 'Dispatch'
                 WHEN b.vendor_id <> 234555 THEN 'MarketPlace'
                 ELSE 'N/A'
@@ -367,22 +366,27 @@ FROM
                     myproject.rental_vendors rv
                 WHERE
                     rv.owner_id = b.vendor_id
-                        AND b.vendor_id <> 234555) AS marketplace_partner,
+                        AND b.vendor_id <> 234555
+                LIMIT 1) AS marketplace_partner, -- CHANGE LIMIT
 
             (SELECT 
                     name
                 FROM
                     myproject.rental_vendors rv
                 WHERE
-                    rv.owner_id = b.vendor_id) AS marketplace_partner_summary,
+                    rv.owner_id = b.vendor_id
+                LIMIT 1) AS marketplace_partner_summary, -- CHANGE LIMIT
+
             b.platform_generated AS booking_channel,
 
-            (SELECT 
-                    name
-                FROM
-                    myproject.rental_car_booking_source bs
-                WHERE
-                    bs.id = b.car_booking_source_id) AS booking_source,
+            -- (SELECT 
+            --         name
+            --     FROM
+            --         myproject.rental_car_booking_source bs
+            --     WHERE
+            --         bs.id = b.car_booking_source_id 
+            --     LIMIT 1) AS booking_source, -- CHANGE LIMIT
+            bs.name AS booking_source,  -- CHANGE
 
             '' total_lifetime_booking_revenue,
 
@@ -444,7 +448,8 @@ FROM
                 FROM
                     myproject.rental_country ct
                 WHERE
-                    ct.code = dl_country), 0) AS customer_driving_country,
+                    ct.code = dl_country
+                LIMIT 1), 0) AS customer_driving_country, -- CHANGE LIMIT
 
             IFNULL((CASE
                 WHEN f.is_verified > 0 THEN 'YES'
@@ -516,13 +521,15 @@ FROM
                 WHERE
                     ad.car_available_id = b.car_available_id
                         AND ad.millage_id = b.millage_id
-                        AND ad.month_id = b.contract_id), 0) AS millage_rate,
+                        AND ad.month_id = b.contract_id
+                LIMIT 1), 0) AS millage_rate, -- CHANGE LIMIT
            IFNULL((SELECT 
                     name
                 FROM
                     myproject.Allowed_Millage am
                 WHERE
-                    am.id = b.millage_id), 0) AS millage_cap_km,
+                    am.id = b.millage_id
+                LIMIT 1), 0) AS millage_cap_km, -- CHANGE LIMIT
 
             IFNULL((SELECT 
                     SUM(total_charge)
@@ -682,6 +689,9 @@ FROM
                     AND rc.charge_type_id IN (14)), 0) AS discount_charge, -- total discount charge
                     
             -- ROLLUP = RETURN ONLY THE EXTENSION DISCOUNT
+            -- EXTENTION DISCOUNT ONLY (NOT PERFECT)
+            -- BASICALLY LOOKS FOR A DISCOUNT CHARGE ID 14 THAT APPLIED AFTER THE BOOKING CREATED DATE
+            -- ATTEMPTED TO USE THE COMMENTS WITH %EXTENSION% BUT WAS LESS ACCURATE DUE TO INCONSISTENT USE OF COMMENTS
             IFNULL((CASE
                 -- WHEN is_extension THEN calc extension discount
                 WHEN (SELECT 
@@ -810,31 +820,35 @@ FROM
             b.return_location_lat collection_lat,
             b.return_location_lng collection_lng,
 
-            (SELECT 
-                    ct.conversion_rate
-                FROM
-                    myproject.country_conversion_rate ct, myproject.rental_city c
-                WHERE
-                    ct.country_id = c.CountryID
-                        AND c.id = b.city_id) AS conversion_rate,
+            -- (SELECT 
+            --         ct.conversion_rate
+            --     FROM
+            --         myproject.country_conversion_rate ct, myproject.rental_city c
+            --     WHERE
+            --         ct.country_id = c.CountryID
+            --             AND c.id = b.city_id
+            --     LIMIT 1) AS conversion_rate, -- CHANGE LIMIT
+            ct.conversion_rate AS conversion_rate, -- CHANGE
 
-            (SELECT 
-                    rate
-                FROM
-                    myproject.rental_rentalfeedback rf
-                WHERE
-                    rf.booking_id = b.id
-                ORDER BY rf.id DESC
-                LIMIT 1) nps_score,
+            -- (SELECT 
+            --         rate
+            --     FROM
+            --         myproject.rental_rentalfeedback rf
+            --     WHERE
+            --         rf.booking_id = b.id
+            --     ORDER BY rf.id DESC
+            --     LIMIT 1) nps_score,
+            ff.rate nps_score, -- CHANGE
 
-            (SELECT 
-                    comments
-                FROM
-                    myproject.rental_rentalfeedback rf
-                WHERE
-                    rf.booking_id = b.id
-                ORDER BY rf.id DESC
-                LIMIT 1) nps_comment
+            -- (SELECT 
+            --         comments
+            --     FROM
+            --         myproject.rental_rentalfeedback rf
+            --     WHERE
+            --         rf.booking_id = b.id
+            --     ORDER BY rf.id DESC
+            --     LIMIT 1) nps_comment
+            ff.comments nps_comment -- CHANGE
                 
     FROM myproject.rental_car_booking2 b
     
@@ -845,20 +859,23 @@ FROM
     
     LEFT JOIN myproject.rental_car c ON c.id = b.car_id
     LEFT JOIN myproject.rental_cars_available ca ON ca.id = b.car_available_id
-    LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id -- ADDITION
-
-    -- LEFT JOIN (SELECT id, car_name,cat_id FROM rental_cars_available) AS car ON r.car_available_id = car.id
-    -- left join ( select id,cat_name from rental_cat) as cat on car.cat_id = cat.id
+    LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id
     
     LEFT JOIN myproject.rental_add_promo_codes pc ON pc.id = b.Promo_Code_id
     LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
 
+    -- NEW JOINS ADDED ON 4/23/24
+    LEFT JOIN (SELECT MAX(id),rate,comments,booking_id FROM myproject.rental_rentalfeedback rf GROUP BY booking_id) ff ON ff.booking_id = b.id -- CHANGE
+    LEFT JOIN rental_car_booking_source bs ON bs.id = b.car_booking_source_id -- CHANGE
+    LEFT JOIN rental_city ci ON ci.id = b.city_id -- CHANGE
+    LEFT JOIN country_conversion_rate ct ON ci.CountryID = ct.country_id -- CHANGE
+
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
 	-- WHERE 
-    --     DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
-	-- 	AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-	-- 	AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
-    
+        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+		-- AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
+		-- AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+
 	-- FOR TESTING / AUDITING ******* START *********
     -- HAVING booking_charge_less_discount < 0
     -- HAVING additional_driver_charge > 0
