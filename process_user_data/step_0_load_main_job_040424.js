@@ -1,43 +1,43 @@
-const { generateLogFile } = require('../../utilities/generateLogFile');
-const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
+const { generateLogFile } = require('../utilities/generateLogFile');
+const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
-const { execute_retrieve_data } = require('./step_1_retrieve_data_process'); //step_1
-const { execute_upload_csv_to_cloud } = require('./step_2_upload_csv_to_cloud'); //step_2
-const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset'); //step_3
-const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
+const { execute_get_user_data } = require('./step_1_get_user_data/step_1_sql_getUserData_ssh_loop'); //step_1
+const { execute_load_user_data } = require('./step_2_load_user_data/step_2_sql_load_user_data'); //step_2
+// const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset'); //step_3
+// const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
 
 //TODO:
-const run_step_1 = true; // retrieve booking, key metrics, pacing data
-const run_step_2 = true; // load csv to google cloud bucket
-const run_step_3 = true; // create_dataset_table
-const run_step_4 = true; // load csv file to bigquery
+const run_step_1 = true; // retrieve user_data
+const run_step_2 = true; // load user_data
+const run_step_3 = false; // tbd
+const run_step_4 = false; // tbd
 
-// STEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA
-async function execute_process() {
+// STEP #1: GET USER DATA
+async function execute_process_user_data() {
     const startTime = performance.now();
     console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
-    generateLogFile('load_big_query', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+    generateLogFile('process_user_data', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
 
     try {
-        // STEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA
+        // STEP #1: GET USER DATA
         console.log('\n*************** STARTING STEP 1 ***************\n');
 
         if (run_step_1) {
             // EXECUTE QUERIES
             let getResults;
-            getResults = await execute_retrieve_data();
+            getResults = await execute_get_user_data();
     
             // LOGS
-            let message = getResults ? `\nRetrieve booking, key metric, pacing data successfully. Elapsed Time: ${getResults}`: `Opps error getting elapsed time\n`;
+            let message = getResults ? `\nRetrieve user_data successfully. Elapsed Time: ${getResults}`: `Opps error getting elapsed time\n`;
 
             console.log(message);
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
  
         } else {
             // LOGS
             let message = `\nSkipped STEP 1 due to toggle set to false.\n`;
             console.log(message);
-            generateLogFile('load_big_query', message); 
+            generateLogFile('process_user_data', message); 
         }
         
         console.log('\n*************** END OF STEP 1 ***************\n');
@@ -45,12 +45,12 @@ async function execute_process() {
         await step_2(startTime);
     } catch (error) {
         console.error('Error executing Step #1:', error);
-        generateLogFile('load_big_query', `Error executing Step #1: ${error}`);
+        generateLogFile('process_user_data', `Error executing Step #1: ${error}`);
         return; // Exit the function early
     }
 }
 
-// STEP #2: load csv to google cloud bucket
+// STEP #2: LOAD USER DATA TO MYSQL
 async function step_2(startTime) {
     try {
         console.log('\n*************** STARTING STEP 2 ***************\n');
@@ -58,19 +58,19 @@ async function step_2(startTime) {
         if (run_step_2) {
             // EXECUTE QUERIES
             let getResults;
-            getResults = await execute_upload_csv_to_cloud();
+            getResults = await execute_load_user_data();
     
             // LOGS
-            let message = getResults ? `\nLoad csv to google cloud bucket executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
+            let message = getResults ? `\nLoad user data to mysql executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
 
             console.log(message);
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
     
         } else {
             // LOGS
             let message = `\nSkipped STEP 2 due to toggle set to false.\n`;
             console.log(message);
-            generateLogFile('load_big_query', message);   
+            generateLogFile('process_user_data', message);   
         }
         
         console.log('\n*************** END OF STEP 2 ***************\n');
@@ -78,7 +78,7 @@ async function step_2(startTime) {
         await step_3(startTime);
     } catch (error) {
         console.error('Error executing Step #2:', error);
-        generateLogFile('load_big_query', `Error executing Step #2: ${error}`);
+        generateLogFile('process_user_data', `Error executing Step #2: ${error}`);
         return; // Exit the function early
     }
 }
@@ -97,14 +97,14 @@ async function step_3(startTime) {
             let message = getResults ? `\nCreate bigquery dataset executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
 
             console.log(message);
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
     
             
         } else {
             // LOGS
             let message = `\nSkipped STEP 3 due to toggle set to false.\n`;
             console.log(message);
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
         }
         
         console.log('\n*************** END OF STEP 3 ***************\n');
@@ -112,7 +112,7 @@ async function step_3(startTime) {
         await step_4(startTime);
     } catch (error) {
         console.error('Error executing Step #3:', error);
-        generateLogFile('load_big_query', `Error executing Step #3: ${error}`);
+        generateLogFile('process_user_data', `Error executing Step #3: ${error}`);
         return; // Exit the function early
     }
 }
@@ -131,7 +131,7 @@ async function step_4(startTime) {
             let message = getResults ? `Load csv to bigquery executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
 
             console.log(message);
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
             
         } else {
             // LOGS
@@ -139,7 +139,7 @@ async function step_4(startTime) {
             
             console.log(message);
             console.log('\n*************** END OF STEP 4 ***************\n');
-            generateLogFile('load_big_query', message);
+            generateLogFile('process_user_data', message);
         }
         
         const endTime = performance.now();
@@ -147,7 +147,7 @@ async function step_4(startTime) {
 
         console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
 
-        generateLogFile('load_big_query', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+        generateLogFile('process_user_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
 
         console.log('*************** END OF STEP 4 ***************\n');
         
@@ -155,7 +155,7 @@ async function step_4(startTime) {
 
     } catch (error) {
         console.error('Error executing Step #4:', error);
-        generateLogFile('load_big_query', `Error executing Step #4: ${error}`);
+        generateLogFile('process_user_data', `Error executing Step #4: ${error}`);
         return; // Exit the function early
     }
 }
