@@ -1,7 +1,7 @@
 function load_user_data_query(filePath) {
   return `
   LOAD DATA INFILE '${filePath}'
-  INTO TABLE user_data
+  INTO TABLE user_data_base
   FIELDS TERMINATED BY ','
   ENCLOSED BY '"'
   LINES TERMINATED BY '\\n'
@@ -18,9 +18,14 @@ function load_user_data_query(filePath) {
     
     -- USER FIELDS FROM rental_fuser
     user_ptr_id,
+
     @date_join_gst,
+    @date_join_formatted_gst,
+    date_join_cohort,
+    date_join_year,
+    date_join_month,
+
     is_verified,
-    -- date_of_birth,
     @date_of_birth,
     is_resident,
     renting_in,
@@ -69,6 +74,7 @@ function load_user_data_query(filePath) {
   SET 
     last_login_gst = STR_TO_DATE(@last_login_gst, "%Y-%m-%d %H:%i:%s"),
     date_join_gst = STR_TO_DATE(@date_join_gst, "%Y-%m-%d %H:%i:%s"),
+    date_join_formatted_gst = STR_TO_DATE(@date_join_formatted_gst, "%Y-%m-%d"),
     date_of_birth = STR_TO_DATE(@date_of_birth, "%Y-%m-%d"),
     dl_exp_date = STR_TO_DATE(@dl_exp_date, "%Y-%m-%d"),
     int_dl_exp_date = STR_TO_DATE(@int_dl_exp_date, "%Y-%m-%d"),

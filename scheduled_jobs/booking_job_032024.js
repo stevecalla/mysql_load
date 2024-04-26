@@ -6,7 +6,7 @@ const { execute_get_booking_data } = require('../get_booking_data/sql_getBooking
 const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData'); //step_2
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
-const { execute_load_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery/step_0_load_main_job_040424');
+const { execute_load_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery/step_0_load_main_job_040424'); //step_5
 
 let run_step_0 = true; // get most recent created on / updated on datetime
 let run_step_1 = true; // get booking data

@@ -1,5 +1,5 @@
-const schema_user_data_table = `
-  CREATE TABLE user_data (
+const schema_user_data_base_table = `
+  CREATE TABLE user_data_base (
     -- USER FIELDS FROM auth_user
     auth_user_id INT NOT NULL DEFAULT 0,
 
@@ -15,7 +15,13 @@ const schema_user_data_table = `
     
     -- USER FIELDS FROM rental_fuser
     user_ptr_id INT NOT NULL DEFAULT 0,
+
     date_join_gst DATETIME,
+    date_join_formatted_gst DATE,
+    date_join_cohort VARCHAR(10),
+    date_join_year INT,
+    date_join_month INT,
+
     is_verified INT,
     date_of_birth DATE,
     is_resident VARCHAR(200),
@@ -63,4 +69,4 @@ const schema_user_data_table = `
   );
 `;
 
-module.exports = { schema_user_data_table };
+module.exports = { schema_user_data_base_table };

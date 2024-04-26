@@ -31,7 +31,13 @@ const queryUserData = `
 
         -- USER FIELDS FROM rental_fuser
         fuser.user_ptr_id,
+
         DATE_FORMAT(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS date_join_gst,
+        DATE_FORMAT(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR), '%Y-%m-%d') AS date_join_formatted_gst,
+        DATE_FORMAT(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR), '%Y-%m') AS date_join_cohort,
+        DATE_FORMAT(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR), '%Y') AS date_join_year,
+        DATE_FORMAT(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR), '%m') AS date_join_month,
+
         fuser.is_verified,
         -- fuser.date_of_birth,
         CASE
@@ -128,7 +134,7 @@ const queryUserData = `
         -- AND COALESCE(rcb.vendor_id,'') NOT IN (5, 33, 218, 23086)
 
     GROUP BY fuser.user_ptr_id
-    -- LIMIT 100000;
+    -- LIMIT 100;
 `;
 
 module.exports = { queryUserData };

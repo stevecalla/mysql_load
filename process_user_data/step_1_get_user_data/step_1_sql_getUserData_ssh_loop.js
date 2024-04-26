@@ -10,7 +10,6 @@ const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../../ut
 const { queryUserData } = require('./query_get_all_user_data_excludng_test');
 const { generateLogFile } = require('../../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
-const { query_most_recent_create_on_date } = require('./query_most_recent_created_on');
 
 // console.log('process env', process.env);
 // console.log('sshConfig', sshConfig);
@@ -50,7 +49,7 @@ function createSSHConnection() {
 // STEP #1 - DELETE ARCHIVED FILES
 async function deleteArchivedFiles() {
     console.log('Deleting files from archive');
-    
+
     // List all files in the directory
     const files = fs.readdirSync(`${csvExportPath}user_data_archive`);
     console.log(files);

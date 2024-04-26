@@ -6,7 +6,7 @@ dotenv.config({ path: "../../.env" }); // adding the path ensures each folder wi
 const { localUserDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
-const { schema_user_data_table } = require('./schema_user_data_table');
+const { schema_user_data_base_table } = require('./schema_user_data_base_table');
 const { load_user_data_query } = require('./query_load_user_data');
 
 const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
@@ -100,13 +100,13 @@ async function execute_drop_table_query(pool, table) {
   });
 }
 
-// STEP #3 - CREATE "user_data" TABLE
+// STEP #3 - CREATE "user_data_base" TABLE
 async function execute_create_user_data_table(pool) {
   return new Promise((resolve, reject) => {
 
     const startTime = performance.now();
 
-    const query = schema_user_data_table;
+    const query = schema_user_data_base_table;
 
     pool.query(query, (queryError, results) => {
       const endTime = performance.now();
@@ -126,6 +126,7 @@ async function execute_create_user_data_table(pool) {
   });
 }
 
+// STEP STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "user_data_base" TABLE
 async function read_data(filePath) {
   console.log('read data');
   console.log(filePath);
@@ -142,8 +143,6 @@ async function read_data(filePath) {
   }
 }
 
-
-// STEP STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "USER DATA" TABLE
 async function execute_insert_user_data_query(pool, filePath, rowsAdded) {
 
   // console.log(filePath);        
@@ -155,7 +154,6 @@ async function execute_insert_user_data_query(pool, filePath, rowsAdded) {
     const query = load_user_data_query(filePath);
 
     // console.log(filePath);
-
     // console.log(query);
 
     pool.query(query, (queryError, results) => {
@@ -225,19 +223,19 @@ async function execute_load_user_data() {
     console.log(getCurrentDateTime());
     await execute_create_user_database(pool);
     
-    // STEP 2: DROP THE "USER DATA" TABLE
-    let table = 'user_data';
-    console.log(`STEP 2: DROP THE "USER DATA" TABLE`);
+    // STEP 2: DROP THE "user_data_base" TABLE
+    let table = 'user_data_base';
+    console.log(`STEP 2: DROP THE "user_data_base" TABLE`);
     // console.log(getCurrentDateTime());
     await execute_drop_table_query(pool, `${table};`);
 
     // STEP #3 - CREATE "USER DATA" TABLE
-    console.log(`STEP #3 - CREATE "USER DATA" TABLE`);
+    console.log(`STEP #3 - CREATE "user_data_base" TABLE`);
     // console.log(getCurrentDateTime());
     await execute_create_user_data_table(pool);
 
     // STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "USER DATA" TABLE
-    console.log(`STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "USER DATA" TABLE`);
+    console.log(`STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "user_data_base" TABLE`);
     // console.log(getCurrentDateTime());
     let rowsAdded = 0;
     const directory = `${csvExportPath}user_data`; // Directory containing your CSV files
@@ -299,7 +297,7 @@ async function execute_load_user_data() {
 }
 
 // Call the function
-// execute_load_user_data();
+execute_load_user_data();
 
 module.exports = {
   execute_load_user_data,

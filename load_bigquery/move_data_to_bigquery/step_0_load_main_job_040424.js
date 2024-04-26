@@ -13,7 +13,7 @@ const run_step_3 = true; // create_dataset_table
 const run_step_4 = true; // load csv file to bigquery
 
 // STEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA
-async function execute_process() {
+async function execute_load_data_to_bigquery() {
     const startTime = performance.now();
     console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
     generateLogFile('load_big_query', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
@@ -160,8 +160,8 @@ async function step_4(startTime) {
     }
 }
 
-execute_process_user_data();
+// execute_load_data_to_bigquery();
 
 module.exports = {
-    execute_process_user_data,
+    execute_load_data_to_bigquery,
 }

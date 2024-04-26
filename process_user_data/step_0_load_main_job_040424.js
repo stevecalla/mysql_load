@@ -3,14 +3,15 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
 const { execute_get_user_data } = require('./step_1_get_user_data/step_1_sql_getUserData_ssh_loop'); //step_1
 const { execute_load_user_data } = require('./step_2_load_user_data/step_2_sql_load_user_data'); //step_2
-// const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset'); //step_3
+const { execute_create_user_data } = require('./step_3_combine_user_booking_data/step_3_sql_combine_user_booking_data_ssh_loop'); //step_3
 // const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
 
 //TODO:
 const run_step_1 = true; // retrieve user_data
 const run_step_2 = true; // load user_data
-const run_step_3 = false; // tbd
-const run_step_4 = false; // tbd
+const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
+const run_step_4 = false; // create key metrics rollup of user & booking data
+const run_step_5 = false; // create user profile data set
 
 // STEP #1: GET USER DATA
 async function execute_process_user_data() {
@@ -83,7 +84,7 @@ async function step_2(startTime) {
     }
 }
 
-// STEP #3: create_dataset_table
+// STEP #3: create key metrics rollup of user & booking data
 async function step_3(startTime) {
     try {
         console.log('\n*************** STARTING STEP 3 ***************\n');
@@ -91,10 +92,10 @@ async function step_3(startTime) {
         if (run_step_3) {
             // EXECUTE QUERIES
             let getResults;
-            getResults = await execute_create_bigquery_dataset();
+            getResults = await execute_create_user_data();
     
             // LOGS
-            let message = getResults ? `\nCreate bigquery dataset executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
+            let message = getResults ? `\nCreate key metrics rollup of user & booking data executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
 
             console.log(message);
             generateLogFile('process_user_data', message);
