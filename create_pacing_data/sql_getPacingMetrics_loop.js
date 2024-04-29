@@ -17,9 +17,7 @@ async function executeInsertCreatedAtQuery(pool, table) {
 
         const startTime = performance.now();
 
-        const addCreateAtDate = `
-            ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        `;
+        const addCreateAtDate = `ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`;
 
         pool.query(addCreateAtDate, (queryError, results) => {
             const endTime = performance.now();

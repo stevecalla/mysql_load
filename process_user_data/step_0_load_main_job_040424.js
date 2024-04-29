@@ -4,14 +4,14 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 const { execute_get_user_data } = require('./step_1_get_user_data/step_1_sql_getUserData_ssh_loop'); //step_1
 const { execute_load_user_data } = require('./step_2_load_user_data/step_2_sql_load_user_data'); //step_2
 const { execute_create_user_data } = require('./step_3_combine_user_booking_data/step_3_sql_combine_user_booking_data_ssh_loop'); //step_3
-// const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
+const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/step_4_sql_create_cohort_data_loop'); //step_4
 
 //TODO:
 const run_step_1 = true; // retrieve user_data
 const run_step_2 = true; // load user_data
 const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
-const run_step_4 = false; // create key metrics rollup of user & booking data
-const run_step_5 = false; // create user profile data set
+const run_step_4 = true; // create cohort base and stats
+const run_step_5 = false; // tbd
 
 // STEP #1: GET USER DATA
 async function execute_process_user_data() {
@@ -84,7 +84,7 @@ async function step_2(startTime) {
     }
 }
 
-// STEP #3: create key metrics rollup of user & booking data
+// STEP #3: CREATE KEY METRICS ROLLUP OF USER & BOOKING DATA; CREATE USER PROFILE
 async function step_3(startTime) {
     try {
         console.log('\n*************** STARTING STEP 3 ***************\n');
@@ -118,7 +118,7 @@ async function step_3(startTime) {
     }
 }
 
-// STEP #4: load csv file to bigquery
+// STEP #4: CREATE COHORT STATS
 async function step_4(startTime) {
     try {
         console.log('\n*************** STARTING STEP 4 ***************\n');
@@ -126,10 +126,10 @@ async function step_4(startTime) {
         if (run_step_4) {
             // EXECUTE QUERIES
             let getResults;
-            getResults = await execute_load_big_query_database();
+            getResults = await execute_create_cohort_stats();
     
             // LOGS
-            let message = getResults ? `Load csv to bigquery executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
+            let message = getResults ? `Cohort stats created successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
 
             console.log(message);
             generateLogFile('process_user_data', message);
@@ -153,7 +153,6 @@ async function step_4(startTime) {
         console.log('*************** END OF STEP 4 ***************\n');
         
         //NEXT STEP = NONE
-
     } catch (error) {
         console.error('Error executing Step #4:', error);
         generateLogFile('process_user_data', `Error executing Step #4: ${error}`);

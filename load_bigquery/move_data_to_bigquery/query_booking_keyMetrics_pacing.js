@@ -142,7 +142,9 @@ const bookingQuery = `
         -- currently all null values
         promocode_created_date, 
         
-        promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
+        promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
+        
+        delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
         
         -- DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s UTC') as created_at
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
@@ -173,7 +175,26 @@ const keyMetricsQuery = `
         DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
         is_today,
         
-        days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,country_on_rent_serbia,country_on_rent_united_arab_emirates
+        days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,
+        
+        vendor_on_rent_dispatch,
+        vendor_on_rent_marketplace,
+        booking_type_on_rent_daily,
+        booking_type_on_rent_monthly,
+        booking_type_on_rent_subscription,
+        booking_type_on_rent_weekly,
+        is_repeat_on_rent_no,
+        is_repeat_on_rent_yes,
+        country_on_rent_bahrain,
+        country_on_rent_georgia,
+        country_on_rent_kuwait,
+        country_on_rent_oman,
+        country_on_rent_pakistan,
+        country_on_rent_qatar,
+        country_on_rent_saudia_arabia,
+        country_on_rent_serbia,
+        country_on_rent_united_arab_emirates
+        
     FROM ezhire_key_metrics.key_metrics_data
     ORDER BY calendar_date ASC
     -- LIMIT 1;

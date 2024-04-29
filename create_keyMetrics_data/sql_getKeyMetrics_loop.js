@@ -1,7 +1,9 @@
 const fs = require('fs');
 const mysql = require('mysql2');
+
 const { localKeyMetricsDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
+
 const { get_distinct } = require('./sql_getDistinct_fields_loop');
 const { generateRepeatCode } = require('./generateOnRentSQL_031624');
 const { generateLogFile } = require('../utilities/generateLogFile');
@@ -155,9 +157,7 @@ async function executeInsertCreatedAtQuery(pool, table) {
 
         const startTime = performance.now();
 
-        const addCreateAtDate = `
-            ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        `;
+        const addCreateAtDate = `ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`;
         
         console.log(addCreateAtDate);
 

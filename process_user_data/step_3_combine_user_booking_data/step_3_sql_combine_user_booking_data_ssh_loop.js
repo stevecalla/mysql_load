@@ -5,25 +5,19 @@ dotenv.config({ path: "../../.env" }); // adding the path ensures each folder wi
 
 const { localUserDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
+const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
+const { generateLogFile } = require('../../utilities/generateLogFile');
 
 const { query_combine_user_and_booking_data } = require('./query_combine_user_and_booking_data');
 const { query_create_key_metrics_rollup } = require('./query_create_key_metrics_rollup');
 const { query_create_user_profile_data } = require('./query_create_user_profile_data');
 
-const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
-
-const { generateLogFile } = require('../../utilities/generateLogFile');
-// const { get_spinner, clear_spinner } = require('../utilities/spinner');
-
-// STEP #6 - ADD CREATED AT DATE
 async function execute_insert_createdAt_query(pool, table) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
 
-        const addCreateAtDate = `
-            ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        `;
+        const addCreateAtDate = `ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`;
 
         pool.query(addCreateAtDate, (queryError, results) => {
             const endTime = performance.now();
@@ -66,29 +60,6 @@ async function execute_drop_table_query(pool, table) {
         })
     });
 }
-
-// Get distinct list of pickup_month_year
-// async function executeDistinctQuery(pool) {
-//     return new Promise((resolve, reject) => {
-
-//         const startTime = performance.now();
-        
-//         const distinctQuery = generate_distinct_list();
-
-//         pool.query(distinctQuery, (queryError, results) => {
-//             const endTime = performance.now();
-//             const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-//             if (queryError) {
-//                 console.error('Error executing select query:', queryError);
-//                 reject(queryError);
-//             } else {
-//                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
-//                 resolve(results);
-//             }
-//         })
-//     });
-// }
 
 // STEP #3.1 - CREATE USER BASE DATA
 async function execute_create_combined_data_query(pool) {
@@ -166,12 +137,12 @@ async function execute_create_user_profile_data_query(pool) {
     });
 }
 
-
 // Main function to handle SSH connection and execute queries
 async function execute_create_user_data() { 
     try {
 
         const startTime = performance.now();
+
         const pool = await createLocalDBConnection(localUserDbConfig);
         // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
@@ -210,10 +181,11 @@ async function execute_create_user_data() {
           }
         });
 
+        // LOGS
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
         // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
-        console.log(`\nAll create pacing data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        console.log(`\nAll combine user/booking queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
         return elapsedTime;
 
     } catch (error) {

@@ -183,9 +183,7 @@ async function execute_insert_createdAt_query(pool, table) {
 
     const startTime = performance.now();
 
-    const addCreateAtDate = `
-          ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-      `;
+    const addCreateAtDate = `ALTER TABLE ${table} ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`;
 
     pool.query(addCreateAtDate, (queryError, results) => {
       const endTime = performance.now();
@@ -214,18 +212,18 @@ async function execute_load_user_data() {
     // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
     // STEP 0: SHOW PERMISSIONS
-    console.log(`STEP 0: SHOW PERMISSIONS`);
+    console.log(`\nSTEP 0: SHOW PERMISSIONS`);
     console.log(getCurrentDateTime());
     // await execute_show_permissions(pool);
 
     // STEP 1: CREATE THE "ezhire_user_data" DB IF DOESN'T EXIST
-    console.log(`STEP 1: CREATE THE "ezhire_user_data" DB IF DOESN'T EXIST`);
+    console.log(`\nSTEP 1: CREATE THE "ezhire_user_data" DB IF DOESN'T EXIST`);
     console.log(getCurrentDateTime());
     await execute_create_user_database(pool);
     
     // STEP 2: DROP THE "user_data_base" TABLE
     let table = 'user_data_base';
-    console.log(`STEP 2: DROP THE "user_data_base" TABLE`);
+    console.log(`\nSTEP 2: DROP THE "user_data_base" TABLE`);
     // console.log(getCurrentDateTime());
     await execute_drop_table_query(pool, `${table};`);
 
@@ -297,7 +295,7 @@ async function execute_load_user_data() {
 }
 
 // Call the function
-execute_load_user_data();
+// execute_load_user_data();
 
 module.exports = {
   execute_load_user_data,

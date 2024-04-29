@@ -7,10 +7,10 @@ const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_da
 const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
 
 //TODO:
-const run_step_1 = true; // retrieve booking, key metrics, pacing data
+const run_step_1 = false; // retrieve booking, key metrics, pacing data
 const run_step_2 = true; // load csv to google cloud bucket
-const run_step_3 = true; // create_dataset_table
-const run_step_4 = true; // load csv file to bigquery
+const run_step_3 = false; // create_dataset_table
+const run_step_4 = false; // load csv file to bigquery
 
 // STEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA
 async function execute_load_data_to_bigquery() {
@@ -20,7 +20,8 @@ async function execute_load_data_to_bigquery() {
 
     try {
         // STEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA
-        console.log('\n*************** STARTING STEP 1 ***************\n');
+        console.log('\nSTEP #1: RETRIEVE BOOKING, KEY METRICS AND PACING DATA');
+        console.log('*************** STARTING STEP 1 ***************\n');
 
         if (run_step_1) {
             // EXECUTE QUERIES
