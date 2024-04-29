@@ -14,14 +14,16 @@ const destinationPath = `gs://${bucketName}/`;
 
 // ASYNC FUNCTION TO UPLOAD CSV FILES TO GOOGLE CLOUD STORAGE
 async function execute_upload_csv_to_cloud() {
-  const startTime = performance.now();
-  const directory = `${csvExportPath}bigquery`; // DIRECTORY CONTAINING CSV FILES
-
-  // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
-  await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");
-  await execute_google_cloud_command("set_property_id", "Project Id set successfully.", "set_project_id_for_google_cloud");
   
   try {
+    const startTime = performance.now();
+
+    const directory = `${csvExportPath}bigquery`; // DIRECTORY CONTAINING CSV FILES
+    
+    // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
+    await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");
+    await execute_google_cloud_command("set_property_id", "Project Id set successfully.", "set_project_id_for_google_cloud");
+    
     const files = await fs.readdir(directory); // LIST ALL FILES IN THE DIRECTORY
     let numberOfFiles = 0;
 
@@ -62,7 +64,7 @@ async function execute_upload_csv_to_cloud() {
   }
 }
 
-execute_upload_csv_to_cloud();
+// execute_upload_csv_to_cloud();
 
 module.exports = {
   execute_upload_csv_to_cloud,

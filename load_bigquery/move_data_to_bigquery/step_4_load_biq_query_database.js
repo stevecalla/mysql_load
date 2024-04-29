@@ -5,27 +5,32 @@ const fs = require('fs').promises;
 const { BigQuery } = require('@google-cloud/bigquery');
 const { Storage } = require('@google-cloud/storage');
 
-const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
+const dotenv = require('dotenv');
+dotenv.config({ path: "../../.env" }); // add path to read.env file
+
+const { generateLogFile } = require('../../utilities/generateLogFile');
+const { execute_google_cloud_command } = require('../../utilities/google_cloud_execute_command');
+
+const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 const { csvExportPath } = require('../../utilities/config');
 
 const { booking_schema } = require('./schema_booking_data');
-
 const datasetId = "ezhire_metrics";
 
 //TODO:
 const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
-// const tableIds = ["key_metrics_data", "pacing_data"];
-// const tableIds = ["booking_data",];
-// const tableIds = ["key_metrics_data",];
-// const tableIds = ["pacing_data"];
 
 // Import a GCS file into a table with manually defined schema.
 async function execute_load_big_query_database() {
     const startTime = performance.now();
     let elapsedTime;
+        
+    // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
+    await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");
+    await execute_google_cloud_command("set_property_id", "Project Id set successfully.", "set_project_id_for_google_cloud");
     
     // Instantiate clients
-    const bigqueryClient = new BigQuery({ credentials: BQ_CREDENTIALS_PATH, });
+    const bigqueryClient = new BigQuery({ credentials: GOOGLE_SERVICE_ACCOUNT });
     const storageClient = new Storage();
     
     /**
@@ -97,6 +102,8 @@ async function execute_load_big_query_database() {
     elapsedTime = ((endTime - startTime) / 1000).toFixed(2); // CONVERT MS TO SEC
     return elapsedTime; // RETURN ELAPSED TIME AFTER ALL UPLOADS COMPLETE
 }
+
+// execute_load_big_query_database();
 
 module.exports = {
     execute_load_big_query_database,
