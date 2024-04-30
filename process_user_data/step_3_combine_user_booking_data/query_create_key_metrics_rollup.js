@@ -32,17 +32,42 @@ const query_create_key_metrics_rollup = `
             SUM(CASE WHEN status NOT LIKE '%cancelled%' THEN days ELSE 0 END) AS booking_days_total,
             SUM(CASE WHEN status NOT LIKE '%cancelled%' THEN (days - extension_days) ELSE 0 END) AS booking_days_initial_only,
             SUM(CASE WHEN status NOT LIKE '%cancelled%' THEN extension_days ELSE 0 END) AS booking_days_extension_only,
-            
+	
             -- MOST RECENT DATES
-            IFNULL(MIN(booking_date), '') AS booking_first_created_date,
-            IFNULL(MAX(booking_date), '') AS booking_most_recent_created_on,
-            IFNULL(MAX(pickup_date), '') AS booking_most_recent_pickup_date,
-            IFNULL(MAX(return_date), '') AS booking_most_recent_return_date,
+            CASE
+                WHEN MIN(booking_date) IS NULL THEN NULL
+                ELSE CAST(IFNULL(MIN(booking_date), '') AS DATE)
+            END AS booking_first_created_date,
+            CASE
+                WHEN MAX(booking_date) IS NULL THEN NULL
+                ELSE CAST(IFNULL(MAX(booking_date), '') AS DATE)
+            END AS booking_most_recent_created_on,
+            CASE
+                WHEN MAX(pickup_date) IS NULL THEN NULL
+                ELSE CAST(IFNULL(MAX(pickup_date), '') AS DATE)
+            END AS booking_most_recent_pickup_date,
+            CASE
+                WHEN MAX(return_date) IS NULL THEN NULL
+                ELSE CAST(IFNULL(MAX(return_date), '') AS DATE)
+            END AS booking_most_recent_return_date,
             
             -- DATE COMPARISONS
-            IFNULL(TIMESTAMPDIFF(DAY, MIN(date_join_formatted_gst), MIN(booking_date)), '') AS booking_join_vs_first_created, 
-            IFNULL(TIMESTAMPDIFF(DAY, DATE_FORMAT(MAX(booking_date), '%Y-%m-%d'), DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR), '%Y-%m-%d')), '') AS booking_most_recent_created_on_vs_now,
-            IFNULL(TIMESTAMPDIFF(DAY, DATE_FORMAT(MAX(return_date), '%Y-%m-%d'), DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR), '%Y-%m-%d')), '') AS booking_most_recent_return_vs_now,
+            CAST(
+                IFNULL(TIMESTAMPDIFF(DAY, MIN(date_join_formatted_gst), MIN(booking_date)), '') 
+                AS DOUBLE
+            ) AS booking_join_vs_first_created,
+            CAST(
+                IFNULL(TIMESTAMPDIFF(DAY, MIN(booking_date), MIN(pickup_date)), '') 
+                AS DOUBLE
+            ) AS booking_first_created_vs_first_pickup,
+            CAST(
+                IFNULL(TIMESTAMPDIFF(DAY, DATE_FORMAT(MAX(booking_date), '%Y-%m-%d'), DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR), '%Y-%m-%d')), '')
+                AS DOUBLE
+            ) AS booking_most_recent_created_on_vs_now,
+            CAST(
+                IFNULL(TIMESTAMPDIFF(DAY, DATE_FORMAT(MAX(return_date), '%Y-%m-%d'), DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR), '%Y-%m-%d')), '')
+                AS DOUBLE
+            ) AS booking_most_recent_return_vs_now,
 
             -- UTC NOW CONVERTED TO GST
             DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR) AS date_now_gst

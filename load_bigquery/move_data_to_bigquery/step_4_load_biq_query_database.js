@@ -1,5 +1,4 @@
 'use strict';
-
 // Import the Google Cloud client libraries
 const fs = require('fs').promises;
 const { BigQuery } = require('@google-cloud/bigquery');
@@ -16,7 +15,6 @@ const { csvExportPath } = require('../../utilities/config');
 
 const { booking_schema } = require('./schema_booking_data');
 const datasetId = "ezhire_metrics";
-
 //TODO:
 const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
 
