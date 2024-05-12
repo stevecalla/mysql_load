@@ -65,7 +65,7 @@ async function execute_query_most_recent_created_on(pool, startDate, endDate) {
                 let log_results = `LAST UPDATED: ${last_updated}, EXECUTION TIMESTAMP:${execution_timestamp}, TIME STAMP DIFFERENCE: ${time_stamp_difference}, IS WITHIN 2 HOURS: ${is_within_2_hours}`;
 
                 // console.log(log_message);
-                // console.log(results);
+                console.log(results);
 
                 generateLogFile('booking_data', log_message, csvExportPath);
                 generateLogFile('booking_data', log_results, csvExportPath);

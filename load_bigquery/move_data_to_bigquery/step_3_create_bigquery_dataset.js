@@ -1,24 +1,28 @@
 'use strict';
 const { BigQuery } = require('@google-cloud/bigquery'); // Import the Google Cloud client libraries
 
-const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
+const dotenv = require('dotenv');
+dotenv.config({ path: "../../.env" }); // add path to read.env file
+
+const { generateLogFile } = require('../../utilities/generateLogFile');
+const { execute_google_cloud_command } = require('../../utilities/google_cloud_execute_command');
+
+const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 const datasetId = "ezhire_metrics";
 
 //TODO:
 const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
-// const tableIds = ["key_metrics_data", "pacing_data"];
-// const tableIds = ["booking_data",];
-// const tableIds = ["key_metrics_data",];
-// const tableIds = ["pacing_data"];
 
 async function execute_create_bigquery_dataset() {
-    const startTime = performance.now();
-
     try {
+        const startTime = performance.now();
+        
+        // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
+        await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");
+        await execute_google_cloud_command("set_property_id", "Project Id set successfully.", "set_project_id_for_google_cloud");
+
         // Create a client with custom credentials
-        const bigqueryClient = new BigQuery({
-            credentials: BQ_CREDENTIALS_PATH,
-        });
+        const bigqueryClient = new BigQuery({ credentials: GOOGLE_SERVICE_ACCOUNT });
 
         // Create the dataset if it doesn't exist
         const [dataset] = await bigqueryClient.dataset(datasetId).get({ autoCreate: true });
@@ -63,6 +67,8 @@ async function execute_create_bigquery_dataset() {
         // reject(error); // Reject the promise if there's an error
     }
 }
+
+// execute_create_bigquery_dataset();
 
 module.exports = {
     execute_create_bigquery_dataset,

@@ -32,20 +32,93 @@ const bookingQuery = `
             ELSE DATE_FORMAT(CONVERT_TZ(pickup_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC')
         END AS pickup_datetime,
 
-        pickup_year,pickup_quarter,pickup_month,pickup_day_of_month,pickup_week_of_year,pickup_day_of_week,pickup_day_of_week_v2,pickup_time_bucket,
+        -- NOTE GOOGLE BQ ERRORING WITH NULL VALUE FOR INTEGER; NEEDS TO BE ''
+        CASE
+            WHEN pickup_year IS NULL THEN ''
+            ELSE pickup_year
+        END AS pickup_year,
+        
+        CASE
+            WHEN pickup_quarter IS NULL THEN ''
+            ELSE pickup_quarter
+        END AS pickup_quarter,
 
-        -- DATE_FORMAT(return_date, '%Y-%m-%d') AS return_date,
+        CASE
+            WHEN pickup_month IS NULL THEN ''
+            ELSE pickup_month
+        END AS pickup_month,
+
+        CASE
+            WHEN pickup_day_of_month IS NULL THEN ''
+            ELSE pickup_day_of_month
+        END AS pickup_day_of_month,
+        
+        CASE
+            WHEN pickup_week_of_year IS NULL THEN ''
+            ELSE pickup_week_of_year
+        END AS pickup_week_of_year,
+
+        CASE
+            WHEN pickup_day_of_week IS NULL THEN ''
+            ELSE pickup_day_of_week
+        END AS pickup_day_of_week,
+
+        pickup_day_of_week_v2,
+        CASE
+            WHEN pickup_time_bucket IS NULL THEN ''
+            ELSE pickup_time_bucket
+        END AS pickup_time_bucket,
+
         CASE
             WHEN return_date IS NULL THEN ''
             ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
         END AS return_date,
+
         -- DATE_FORMAT(CONVERT_TZ(return_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as return_datetime,
         CASE
             WHEN return_datetime IS NULL THEN ''
             ELSE DATE_FORMAT(CONVERT_TZ(return_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC')
         END AS return_datetime,
+
+        -- NOTE GOOGLE BQ ERRORING WITH NULL VALUE FOR INTEGER; NEEDS TO BE ''
+        CASE
+            WHEN return_year IS NULL THEN ''
+            ELSE return_year
+        END AS return_year,
+
+        CASE
+            WHEN return_quarter IS NULL THEN ''
+            ELSE return_quarter
+        END AS return_quarter,
+
+        CASE
+            WHEN return_month IS NULL THEN ''
+            ELSE return_month
+        END AS return_month,
+
+        CASE
+            WHEN return_day_of_month IS NULL THEN ''
+            ELSE return_day_of_month
+        END AS return_day_of_month,
+
+        CASE
+            WHEN return_week_of_year IS NULL THEN ''
+            ELSE return_week_of_year
+        END AS return_week_of_year,
+
+        CASE
+            WHEN return_day_of_week IS NULL THEN ''
+            ELSE return_day_of_week
+        END AS return_day_of_week,
+
+        return_day_of_week_v2,
         
-        return_year,return_quarter,return_month,return_day_of_month,return_week_of_year,return_day_of_week,return_day_of_week_v2,return_time_bucket,advance_category_day,advance_category_week,advance_category_month,advance_category_date_within_week,advance_pickup_booking_date_diff,comparison_28_days,comparison_period,
+        CASE
+            WHEN return_time_bucket IS NULL THEN ''
+            ELSE return_time_bucket
+        END AS return_time_bucket,
+        
+        advance_category_day,advance_category_week,advance_category_month,advance_category_date_within_week,advance_pickup_booking_date_diff,comparison_28_days,comparison_period,
 
         -- comparison_common_date,
         CASE
@@ -69,7 +142,9 @@ const bookingQuery = `
         -- currently all null values
         promocode_created_date, 
         
-        promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
+        promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
+        
+        delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
         
         -- DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s UTC') as created_at
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
@@ -100,7 +175,26 @@ const keyMetricsQuery = `
         DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
         is_today,
         
-        days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,country_on_rent_serbia,country_on_rent_united_arab_emirates
+        days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,
+        
+        vendor_on_rent_dispatch,
+        vendor_on_rent_marketplace,
+        booking_type_on_rent_daily,
+        booking_type_on_rent_monthly,
+        booking_type_on_rent_subscription,
+        booking_type_on_rent_weekly,
+        is_repeat_on_rent_no,
+        is_repeat_on_rent_yes,
+        country_on_rent_bahrain,
+        country_on_rent_georgia,
+        country_on_rent_kuwait,
+        country_on_rent_oman,
+        country_on_rent_pakistan,
+        country_on_rent_qatar,
+        country_on_rent_saudia_arabia,
+        country_on_rent_serbia,
+        country_on_rent_united_arab_emirates
+        
     FROM ezhire_key_metrics.key_metrics_data
     ORDER BY calendar_date ASC
     -- LIMIT 1;

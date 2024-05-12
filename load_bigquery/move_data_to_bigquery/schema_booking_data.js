@@ -44,42 +44,42 @@ const booking_schema = [
     {
         "name": "booking_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "booking_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "booking_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "booking_day_of_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "booking_week_of_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "booking_day_of_week",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -93,7 +93,7 @@ const booking_schema = [
     {
         "name": "booking_time_bucket",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -128,42 +128,42 @@ const booking_schema = [
     {
         "name": "pickup_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "pickup_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "pickup_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "pickup_day_of_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "pickup_week_of_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "pickup_day_of_week",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -177,7 +177,7 @@ const booking_schema = [
     {
         "name": "pickup_time_bucket",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -198,42 +198,42 @@ const booking_schema = [
     {
         "name": "return_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "return_quarter",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "return_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "return_day_of_month",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "return_week_of_year",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
     {
         "name": "return_day_of_week",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },
@@ -247,7 +247,7 @@ const booking_schema = [
     {
         "name": "return_time_bucket",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "INTEGER",
         "description": null,
         "fields": []
     },

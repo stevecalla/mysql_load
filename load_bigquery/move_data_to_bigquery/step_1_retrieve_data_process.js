@@ -1,12 +1,13 @@
 const fs = require('fs');
 const mysql = require('mysql2');
-const dotenv = require('dotenv');
-dotenv.config({ path: "../../.env" }); // adding the path ensures each folder will read the .env file as necessary
 
-const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, csvExportPath, } = require('../../utilities/config');
+const dotenv = require('dotenv');
+dotenv.config({ path: "../../.env" }); // add path to read.env file
+
+const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
-const { bookingQuery, keyMetricsQuery, pacingQuery} = require('./query_booking_keyMetrics_pacing');
+const { bookingQuery, keyMetricsQuery, pacingQuery } = require('./query_booking_keyMetrics_pacing');
 
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');

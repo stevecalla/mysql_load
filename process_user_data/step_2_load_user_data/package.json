@@ -1,8 +1,8 @@
 {
-  "name": "load_bigquery",
+  "name": "programs",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "sql.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/bigquery": "^7.5.2",
-    "@google-cloud/storage": "^7.9.0"
+    "dayjs": "^1.11.10",
+    "mysql2": "^3.9.2",
+    "ssh2": "^1.15.0"
   }
 }

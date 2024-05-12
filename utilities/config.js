@@ -62,6 +62,24 @@ const localPacingDbConfig = {
     //https://stackoverflow.com/questions/46756829/node-application-how-to-increase-timeout-for-mysql2-when-debbuging
 };
 
+const local_mock_rfm_db_config = {
+    host: process.env.LOCAL_HOST,
+    port: 3306,
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    // database: process.env.LOCAL_ATTENDANCE_DB,
+    connectionLimit: 20,
+};
+
+const localUserDbConfig = {
+    host: process.env.LOCAL_HOST,
+    port: 3306,
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    database: process.env.LOCAL_EZHIRE_USER_DB,
+    connectionLimit: 20,
+};
+
 const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;
 // csvExportPath: './output/results.csv', // Update this path accordingly
 // csvExportPath: 'C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/data',
@@ -73,5 +91,7 @@ module.exports = {
     localBookingDbConfig,
     localKeyMetricsDbConfig,
     localPacingDbConfig,
+    localUserDbConfig,
+    local_mock_rfm_db_config,
     csvExportPath,
 };
