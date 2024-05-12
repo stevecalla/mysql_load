@@ -1,0 +1,175 @@
+﻿table_name,customer_id,date_of_transaction,order_value,days_since_last_transaction
+rfm_data,Panorm,2023-10-01,432,221
+rfm_data,Magnus 2.0,2023-10-02,189,220
+rfm_data,Wather,2023-10-03,731,219
+rfm_data,Zlada,2023-10-04,592,218
+rfm_data,Dustoff,2023-10-05,264,217
+rfm_data,Merilo,2023-10-06,803,216
+rfm_data,Zlada,2023-10-07,147,215
+rfm_data,BeFrost,2023-10-08,638,214
+rfm_data,Wather,2023-10-09,395,213
+rfm_data,Zlada,2023-10-10,777,212
+rfm_data,Panorm,2023-10-11,221,211
+rfm_data,Wather,2023-10-12,512,210
+rfm_data,Zlada,2023-10-13,356,209
+rfm_data,Merilo,2023-10-14,691,208
+rfm_data,Dustoff,2023-10-15,126,207
+rfm_data,Wather,2023-10-16,840,206
+rfm_data,Panorm,2023-10-17,304,205
+rfm_data,ERPU,2023-10-01,555,221
+rfm_data,PLYM,2023-10-02,976,220
+rfm_data,Mashes Mash,2023-10-03,479,219
+rfm_data,Zhatko,2023-10-04,123,218
+rfm_data,Zhatko,2023-10-05,712,217
+rfm_data,Mashes Mash,2023-10-06,257,216
+rfm_data,ERPU,2023-10-07,681,215
+rfm_data,Mashes Mash,2023-10-08,419,214
+rfm_data,Magnus 2.0,2023-10-09,862,213
+rfm_data,BeFrost,2023-10-10,589,212
+rfm_data,Merilo,2023-10-11,193,211
+rfm_data,ERPU,2023-10-12,637,210
+rfm_data,Panorm,2023-10-01,432,221
+rfm_data,Magnus 2.0,2023-10-02,189,220
+rfm_data,Wather,2023-10-03,731,219
+rfm_data,Zlada,2023-10-04,592,218
+rfm_data,Dustoff,2023-10-05,264,217
+rfm_data,Merilo,2023-10-06,803,216
+rfm_data,Zlada,2023-10-07,147,215
+rfm_data,BeFrost,2023-10-08,638,214
+rfm_data,Wather,2023-10-09,395,213
+rfm_data,Zlada,2023-10-10,777,212
+rfm_data,Panorm,2023-10-11,221,211
+rfm_data,Wather,2023-10-12,512,210
+rfm_data,Zlada,2023-10-13,356,209
+rfm_data,Merilo,2023-10-14,691,208
+rfm_data,Dustoff,2023-10-15,126,207
+rfm_data,Wather,2023-10-16,840,206
+rfm_data,Panorm,2023-10-17,304,205
+rfm_data,ERPU,2023-10-01,555,221
+rfm_data,PLYM,2023-10-02,976,220
+rfm_data,Mashes Mash,2023-10-03,479,219
+rfm_data,Zhatko,2023-10-04,123,218
+rfm_data,Zhatko,2023-10-05,712,217
+rfm_data,Mashes Mash,2023-10-06,257,216
+rfm_data,ERPU,2023-10-07,681,215
+rfm_data,Mashes Mash,2023-10-08,419,214
+rfm_data,Magnus 2.0,2023-10-09,862,213
+rfm_data,BeFrost,2023-10-10,589,212
+rfm_data,Merilo,2023-10-11,193,211
+rfm_data,ERPU,2023-10-12,637,210
+rfm_data,Panorm,2023-10-01,432,221
+rfm_data,Magnus 2.0,2023-10-02,189,220
+rfm_data,Wather,2023-10-03,731,219
+rfm_data,Zlada,2023-10-04,592,218
+rfm_data,Dustoff,2023-10-05,264,217
+rfm_data,Merilo,2023-10-06,803,216
+rfm_data,Zlada,2023-10-07,147,215
+rfm_data,BeFrost,2023-10-08,638,214
+rfm_data,Wather,2023-10-09,395,213
+rfm_data,Zlada,2023-10-10,777,212
+rfm_data,Panorm,2023-10-11,221,211
+rfm_data,Wather,2023-10-12,512,210
+rfm_data,Zlada,2023-10-13,356,209
+rfm_data,Merilo,2023-10-14,691,208
+rfm_data,Dustoff,2023-10-15,126,207
+rfm_data,Wather,2023-10-16,840,206
+rfm_data,Panorm,2023-10-17,304,205
+rfm_data,ERPU,2023-10-01,555,221
+rfm_data,PLYM,2023-10-02,976,220
+rfm_data,Mashes Mash,2023-10-03,479,219
+rfm_data,Zhatko,2023-10-04,123,218
+rfm_data,Zhatko,2023-10-05,712,217
+rfm_data,Mashes Mash,2023-10-06,257,216
+rfm_data,ERPU,2023-10-07,681,215
+rfm_data,Mashes Mash,2023-10-08,419,214
+rfm_data,Magnus 2.0,2023-10-09,862,213
+rfm_data,BeFrost,2023-10-10,589,212
+rfm_data,Merilo,2023-10-11,193,211
+rfm_data,ERPU,2023-10-12,637,210
+rfm_data,Panorm,2023-10-01,432,221
+rfm_data,Magnus 2.0,2023-10-02,189,220
+rfm_data,Wather,2023-10-03,731,219
+rfm_data,Zlada,2023-10-04,592,218
+rfm_data,Dustoff,2023-10-05,264,217
+rfm_data,Merilo,2023-10-06,803,216
+rfm_data,Zlada,2023-10-07,147,215
+rfm_data,BeFrost,2023-10-08,638,214
+rfm_data,Wather,2023-10-09,395,213
+rfm_data,Zlada,2023-10-10,777,212
+rfm_data,Panorm,2023-10-11,221,211
+rfm_data,Wather,2023-10-12,512,210
+rfm_data,Zlada,2023-10-13,356,209
+rfm_data,Merilo,2023-10-14,691,208
+rfm_data,Dustoff,2023-10-15,126,207
+rfm_data,Wather,2023-10-16,840,206
+rfm_data,Panorm,2023-10-17,304,205
+rfm_data,ERPU,2023-10-01,555,221
+rfm_data,PLYM,2023-10-02,976,220
+rfm_data,Mashes Mash,2023-10-03,479,219
+rfm_data,Zhatko,2023-10-04,123,218
+rfm_data,Zhatko,2023-10-05,712,217
+rfm_data,Mashes Mash,2023-10-06,257,216
+rfm_data,ERPU,2023-10-07,681,215
+rfm_data,Mashes Mash,2023-10-08,419,214
+rfm_data,Magnus 2.0,2023-10-09,862,213
+rfm_data,BeFrost,2023-10-10,589,212
+rfm_data,Merilo,2023-10-11,193,211
+rfm_data,ERPU,2023-10-12,637,210
+rfm_data,Panorm,2023-10-01,432,221
+rfm_data,Magnus 2.0,2023-10-02,189,220
+rfm_data,Wather,2023-10-03,731,219
+rfm_data,Zlada,2023-10-04,592,218
+rfm_data,Dustoff,2023-10-05,264,217
+rfm_data,Merilo,2023-10-06,803,216
+rfm_data,Zlada,2023-10-07,147,215
+rfm_data,BeFrost,2023-10-08,638,214
+rfm_data,Wather,2023-10-09,395,213
+rfm_data,Zlada,2023-10-10,777,212
+rfm_data,Panorm,2023-10-11,221,211
+rfm_data,Wather,2023-10-12,512,210
+rfm_data,Zlada,2023-10-13,356,209
+rfm_data,Merilo,2023-10-14,691,208
+rfm_data,Dustoff,2023-10-15,126,207
+rfm_data,Wather,2023-10-16,840,206
+rfm_data,Panorm,2023-10-17,304,205
+rfm_data,ERPU,2023-10-01,555,221
+rfm_data,PLYM,2023-10-02,432,220
+rfm_data,Mashes Mash,2023-10-03,189,219
+rfm_data,Zhatko,2023-10-04,731,218
+rfm_data,Zhatko,2023-10-05,592,217
+rfm_data,Mashes Mash,2023-10-06,264,216
+rfm_data,ERPU,2023-10-07,803,215
+rfm_data,Mashes Mash,2023-10-08,147,214
+rfm_data,Magnus 2.0,2023-10-09,638,213
+rfm_data,BeFrost,2023-10-10,395,212
+rfm_data,Merilo,2023-10-11,777,211
+rfm_data,ERPU,2023-10-12,221,210
+rfm_data,Panorm,2023-10-01,512,221
+rfm_data,Magnus 2.0,2023-10-02,356,220
+rfm_data,Wather,2023-10-03,691,219
+rfm_data,Zlada,2023-10-04,126,218
+rfm_data,Dustoff,2023-10-05,432,217
+rfm_data,Merilo,2023-10-06,189,216
+rfm_data,Zlada,2023-10-07,731,215
+rfm_data,BeFrost,2023-10-08,592,214
+rfm_data,Wather,2023-10-09,264,213
+rfm_data,Zlada,2023-10-10,803,212
+rfm_data,Panorm,2023-10-11,147,211
+rfm_data,Wather,2023-10-12,638,210
+rfm_data,Zlada,2023-10-13,395,209
+rfm_data,Merilo,2023-10-14,777,208
+rfm_data,Dustoff,2023-10-15,221,207
+rfm_data,Wather,2023-10-16,512,206
+rfm_data,Panorm,2023-10-17,356,205
+rfm_data,ERPU,2023-10-01,691,221
+rfm_data,PLYM,2023-10-02,126,220
+rfm_data,Mashes Mash,2023-10-03,840,219
+rfm_data,Zhatko,2023-10-04,304,218
+rfm_data,Zhatko,2023-10-05,555,217
+rfm_data,Mashes Mash,2023-10-06,976,216
+rfm_data,ERPU,2023-10-07,479,215
+rfm_data,Mashes Mash,2023-10-08,123,214
+rfm_data,Magnus 2.0,2023-10-09,712,213
+rfm_data,BeFrost,2023-10-10,257,212
+rfm_data,Merilo,2023-10-11,681,211
+rfm_data,ERPU,2023-10-12,419,210

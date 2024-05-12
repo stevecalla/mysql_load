@@ -1,9 +1,9 @@
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
-dotenv.config({ path: "../.env" }); // add path to read.env file
+dotenv.config({ path: "../../.env" }); // add path to read.env file
 
-const { local_mock_attendance_db_config } = require('../utilities/config');
-const { create_local_db_connection } = require('../utilities/connectionLocalDB');
+const { local_mock_rfm_db_config } = require('../../utilities/config');
+const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
 const { query_create_database } = require('../queries/queries_create_db');
 const { query_drop_database } = require('../queries/queries_drop_db_tables');
@@ -11,16 +11,14 @@ const { tables_library } = require('../queries/queries_create_tables');
 const { query_insert_seed_data } = require('../queries/queries_insert_seed_data');
 const { seed_data } = require('../queries/queries_seed_data');
 
-const db_name = `mock_attendance_db`;
-
 // Connect to MySQL
 async function create_connection() {
     try {
         // Create a connection to MySQL
-        const config_details = local_mock_attendance_db_config;
+        const config_details = local_mock_rfm_db_config;
         // console.log(config_details);
 
-        const pool = create_local_db_connection(config_details);
+        const pool = createLocalDBConnection(config_details);
         // console.log(pool);
 
         return (pool);
@@ -157,13 +155,15 @@ async function execute_insert_createdAt_query(pool, db_name, table, step) {
 }
 
 async function main() {
+    let pool; // Declare the pool variable outside the try block to close connection in finally block
+    const startTime = performance.now();
+
     try {
-        const startTime = performance.now();
 
         // STEP #0: CREATE CONNECTION
-        const pool = await create_connection();
+        pool = await create_connection();
 
-        const db_name = `mock_attendance_db`;
+        const db_name = `mock_rfm_db`;
 
         // STEP #1: CREATE DATABASE
         await execute_mysql_working_query(pool, db_name, query_drop_database(db_name), `STEP #1.0: DROP DB`);
@@ -182,7 +182,7 @@ async function main() {
             await execute_mysql_working_query(pool, db_name, create_query, create_info);
         }
 
-        // STEP #3: SEED TABLES
+        // // STEP #3: SEED TABLES
         for (const data of seed_data) { 
             const { table_name, ...filtered_data } = data; // Destructure the object to exclude the table_name
 
@@ -204,7 +204,23 @@ async function main() {
             await execute_insert_createdAt_query(pool, db_name, table_name, `STEP #5: INSERT CREATED/UPDATED AT DATE IN ${table_name.toUpperCase()} TABLE`);
         }
 
-        // STEP #5: CLOSE CONNECTION/POOL
+        // STEP #5a: Log results
+        console.log('STEP #5A: All queries executed successfully.');
+
+    } catch (error) {
+        // STEP #5b: Log results
+        console.log('STEP #5B: All queries NOT executed successfully.');
+
+        console.error('Error:', error);
+
+    } finally {
+        // STEP #5c: Log results
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        console.log(`\nSTEP #5C = TIME LOG. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        // return elapsedTime;
+
+        // STEP #6: CLOSE CONNECTION/POOL
         await pool.end(err => {
             if (err) {
                 console.error('Error closing connection pool:', err.message);
@@ -212,16 +228,6 @@ async function main() {
                 console.log('Connection pool closed successfully.');
             }
         });
-        // STEP #5: Log results
-        console.log('All queries executed successfully.');
-
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-        console.log(`\nAll create db & tables executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
-        return elapsedTime;
-
-    } catch (error) {
-        console.error('Error:', error);
     }
 }
 
