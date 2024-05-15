@@ -119,6 +119,7 @@ const schema_booking_table = `
     other_rental_charge DOUBLE,
 
     discount_charge DOUBLE,
+    discount_charge_aed DOUBLE,
     discount_extension_charge DOUBLE,
 
     total_vat DOUBLE,

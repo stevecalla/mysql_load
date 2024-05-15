@@ -126,6 +126,7 @@ function createLoadBookingDataQuery(filePath) {
       other_rental_charge,
 
       discount_charge,
+      discount_charge_aed,
       discount_extension_charge,
 
       total_vat,

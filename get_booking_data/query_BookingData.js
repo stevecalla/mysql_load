@@ -207,6 +207,7 @@ SELECT
     IFNULL(other_rental_charge, 0) AS other_rental_charge,
 
     IFNULL(discount_charge, 0) AS discount_charge,
+    IFNULL(discount_charge * tb.conversion_rate, 0) AS discount_charge_aed,
     IFNULL(discount_extension_charge, 0) AS discount_extension_charge,
 
     IFNULL(total_vat, 0) AS total_vat,
