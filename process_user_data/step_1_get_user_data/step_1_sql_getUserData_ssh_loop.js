@@ -232,7 +232,6 @@ async function execute_get_user_data() {
 
     } catch (error) {
         console.error('Error:', error);
-
     }
 }
 
