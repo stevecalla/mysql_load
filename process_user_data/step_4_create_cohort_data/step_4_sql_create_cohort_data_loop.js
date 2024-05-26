@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // adding the path to read the .env file
 
-const { localUserDbConfig } = require('../../utilities/config');
+const { localUserDbConfig, csvExportPath} = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 const { generateLogFile } = require('../../utilities/generateLogFile');
 const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
@@ -141,10 +141,11 @@ async function execute_create_user_data_cohort_stats(pool, distinctList) {
 
 // Main function to handle SSH connection and execute queries
 async function execute_create_cohort_stats() {
+    let pool;
+    const startTime = performance.now();
+
     try {
-        const startTime = performance.now();
-        
-        const pool = await createLocalDBConnection(localUserDbConfig);
+        pool = await createLocalDBConnection(localUserDbConfig);
 
         // STEP 4.0: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
 
@@ -171,28 +172,30 @@ async function execute_create_cohort_stats() {
         await execute_drop_table_query(pool, 'user_data_cohort_stats');
         await execute_create_user_data_cohort_stats(pool, distinctList);
 
-        // generateLogFile('onrent_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);
-        
-        await pool.end(err => {
-            if (err) {
-                console.error('Error closing connection pool:', err.message);
-            } else {
-                console.log('Connection pool closed successfully.');
-            }
-        });
+        generateLogFile('loading_user_data', `Query for CREATE USER COHORT DATA executed successfully.`, csvExportPath);
         
         console.log('All queries executed successfully.');
-
-        // LOGS
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-        console.log(`\nAll create key metrics queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
-        return elapsedTime;
         
     } catch (error) {
         console.error('Error:', error);
+        generateLogFile('loading_user_data', `Error loading user data: ${error}`, csvExportPath);
+
     } finally {
-        // End the pool
+        // CLOSE CONNECTION/POOL
+        await pool.end(err => {
+            if (err) {
+              console.error('Error closing connection pool:', err.message);
+            } else {
+              console.log('Connection pool closed successfully.');
+            }
+        });
+
+        // LOG RESULTS
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        console.log(`\nAll create key metrics queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+
+        return elapsedTime;
     }
 }
 

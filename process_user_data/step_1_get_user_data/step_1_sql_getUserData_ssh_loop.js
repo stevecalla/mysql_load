@@ -134,7 +134,7 @@ async function execute_query_get_user_data(pool) {
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
                 generateLogFile('get_user_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
-                
+
                 resolve(results);
             }
         });
@@ -209,6 +209,8 @@ async function execute_get_user_data() {
 
     } catch (error) {
         console.error('Error:', error);
+        generateLogFile('loading_user_data', `Error loading user data: ${error}`, csvExportPath);
+        
     } finally {
         // CLOSE CONNECTION
         sshClient.end(err => {
@@ -220,22 +222,21 @@ async function execute_get_user_data() {
           });
   
         await pool.end(err => {
-        if (err) {
-            console.error('Error closing connection pool:', err.message);
-        } else {
-            console.log('Connection pool closed successfully.');
-        }
+            if (err) {
+                console.error('Error closing connection pool:', err.message);
+            } else {
+                console.log('Connection pool closed successfully.');
+            }
         });
 
         // LOG RESULTS
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
-        // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
         console.log(`\nAll get user data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
 
         return elapsedTime;
-}
+    }
 }
 
 // Run the main function
