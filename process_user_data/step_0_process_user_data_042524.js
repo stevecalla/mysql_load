@@ -7,9 +7,9 @@ const { execute_create_user_data } = require('./step_3_combine_user_booking_data
 const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/step_4_sql_create_cohort_data_loop'); //step_4
 
 //TODO:
-const run_step_1 = false; // retrieve user_data
+const run_step_1 = true; // retrieve user_data
 const run_step_2 = false; // load user_data
-const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
+const run_step_3 = false; // create combined user/booking, user key metrics rollup, user profile
 const run_step_4 = false; // create cohort base and stats
 
 // STEP #1: GET USER DATA

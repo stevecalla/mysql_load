@@ -134,6 +134,7 @@ async function execute_query_get_user_data(pool) {
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
                 generateLogFile('get_user_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
+                
                 resolve(results);
             }
         });
@@ -182,30 +183,34 @@ async function export_results_to_csv(results) {
 
 // Main function to handle SSH connection and execute queries
 async function execute_get_user_data() {
-    try {
-        const startTime = performance.now();
+    let pool;
+    const startTime = performance.now();
 
+    try {
         // STEP #0: ENSURE FILE WAS UPDATED RECENTLY
 
         // STEP #1: DELETE PRIOR FILES
-        await deleteArchivedFiles();
+        // await deleteArchivedFiles();
 
         // STEP #2 - MOVE FILES TO ARCHIVE
         await moveFilesToArchive();
 
         // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
-        const pool = await createSSHConnection();
+        pool = await createSSHConnection();
         const results = await execute_query_get_user_data(pool);
 
-        // console.log(`File ${i + 1} of ${dateRangesLength} complete.\n`);      
-        // generateLogFile('get_user_data', `Query for ${startDate} to ${endDate} executed successfully.`, csvExportPath);  
+        // console.log(`File ${i + 1} of ${dateRangesLength} complete.\n`);   
+        // console.log(results);
+        console.log(results.length);
+        generateLogFile('get_user_data', `Query for  execute_query_get_user_data executed successfully.`, csvExportPath);  
         
         // STEP #4: EXPORT RESULTS TO CSV
         await export_results_to_csv(results);
 
-        // STEP #5: LOAD DATA INTO MYSQL
-
-        // Close the SSH connection after all queries are executed
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        // CLOSE CONNECTION
         sshClient.end(err => {
             if (err) {
               console.error('Error closing SSH connection pool:', err.message);
@@ -214,25 +219,23 @@ async function execute_get_user_data() {
             }
           });
   
-          await pool.end(err => {
-            if (err) {
-              console.error('Error closing connection pool:', err.message);
-            } else {
-              console.log('Connection pool closed successfully.');
-            }
-          });
+        await pool.end(err => {
+        if (err) {
+            console.error('Error closing connection pool:', err.message);
+        } else {
+            console.log('Connection pool closed successfully.');
+        }
+        });
 
-          const endTime = performance.now();
-          const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+        // LOG RESULTS
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
-          // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
-          console.log(`\nAll get booking data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
+        console.log(`\nAll get user data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
 
-          return elapsedTime;
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
+        return elapsedTime;
+}
 }
 
 // Run the main function

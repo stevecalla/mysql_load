@@ -109,9 +109,11 @@ const queryUserData = `
         rental_fuser AS fuser
         LEFT JOIN myproject.auth_user AS auth_user ON auth_user.id = fuser.user_ptr_id
     WHERE
-        -- DATE FILTER
-        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
-        -- DATE(fuser.date_join) = '2024-01-01' -- GET SAMPLE DATA
+        -- DATE FILTER 
+        -- DATE(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+        
+        -- USE IN JS SQL BECAUSE SET DOESN'T WORK
+        -- DATE(DATE_ADD(fuser.date_join, INTERVAL 4 HOUR)) BETWEEN '2024-01-01' AND '2024-01-01'
         -- AND
 
         -- auth_user.id IN ('109711', '232623', '495776') -- first or last name contains arabic characters & errors
@@ -120,8 +122,8 @@ const queryUserData = `
         -- auth_user.id IN ('364173') -- bad date = 0000-00-00 & errors
         -- -- auth_user.id IN ('97967') -- bad date of birth 2020-11-00
         -- auth_user.id IN ('476528', '478349') -- email address includes \n
-        -- AND
 
+        -- AND
         -- LOGIC EXCLUDE TEST USERS FROM auth_user
         LOWER(auth_user.first_name) NOT LIKE '%test%'
         AND LOWER(auth_user.last_name) NOT LIKE '%test%'
