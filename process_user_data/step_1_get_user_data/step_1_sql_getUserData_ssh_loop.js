@@ -190,7 +190,7 @@ async function execute_get_user_data() {
         // STEP #0: ENSURE FILE WAS UPDATED RECENTLY
 
         // STEP #1: DELETE PRIOR FILES
-        // await deleteArchivedFiles();
+        await deleteArchivedFiles();
 
         // STEP #2 - MOVE FILES TO ARCHIVE
         await moveFilesToArchive();
