@@ -122,33 +122,33 @@ async function execute_create_rfm_ranking_data() {
         // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
         // STEP 6.1: CREATE RANKING DATA
-        // console.log(`STEP 6.1: CREATE RFM RANKING DATA`);
-        // console.log(getCurrentDateTime());
+        console.log(`STEP 6.1: CREATE RFM RANKING DATA`);
+        console.log(getCurrentDateTime());
 
-        // const rfm_table_library = [
-        //     {
-        //         table: "rfm_score_recency_data",
-        //         metric: "recency",
-        //         metric_as: "booking_most_recent_return_vs_now"
-        //     },
-        //     {
-        //         table: "rfm_score_frequency_data",
-        //         metric: "frequency",
-        //         metric_as: "total_days_per_completed_and_started_bookings"
-        //     },
-        //     {
-        //         table: "rfm_score_monetary_data",
-        //         metric: "monetary",
-        //         metric_as: "booking_charge__less_discount_aed_per_completed_started_bookings"
-        //     }
-        // ];
+        const rfm_table_library = [
+            {
+                table: "rfm_score_recency_data",
+                metric: "recency",
+                metric_as: "booking_most_recent_return_vs_now"
+            },
+            {
+                table: "rfm_score_frequency_data",
+                metric: "frequency",
+                metric_as: "total_days_per_completed_and_started_bookings"
+            },
+            {
+                table: "rfm_score_monetary_data",
+                metric: "monetary",
+                metric_as: "booking_charge__less_discount_aed_per_completed_started_bookings"
+            }
+        ];
         
-        // for(let i = 0; i < rfm_table_library.length; i++) {
-        //     let {table, metric, metric_as} = rfm_table_library[i];
-        //     await execute_drop_table_query(pool, table);
-        //     await execute_create_rfm_ranking(pool, table, metric, metric_as);
-        //     await execute_insert_createdAt_query(pool, table); 
-        // }
+        for(let i = 0; i < rfm_table_library.length; i++) {
+            let {table, metric, metric_as} = rfm_table_library[i];
+            await execute_drop_table_query(pool, table);
+            await execute_create_rfm_ranking(pool, table, metric, metric_as);
+            await execute_insert_createdAt_query(pool, table); 
+        }
         
         // STEP #6.2 - CREATE RFM SCORE SUMMARY DATA
         console.log(`STEP #6.2 - CREATE RFM SCORE SUMMARY DATA`);

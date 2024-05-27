@@ -39,6 +39,7 @@ function createLoadBookingDataQuery(filePath) {
       pickup_day_of_week_v2,
       pickup_time_bucket,
 
+      early_return,
       @return_date,
       @return_datetime, -- Variable to capture return_datetime as string
       return_year,
