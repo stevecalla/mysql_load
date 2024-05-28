@@ -708,7 +708,7 @@ FROM
                 WHEN b.early_return = 0 THEN
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            SUM(total_charge) / days
                         FROM
                             myproject.rental_charges cc
                         WHERE
@@ -717,7 +717,7 @@ FROM
                 ELSE 
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            SUM(total_charge) / days
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
