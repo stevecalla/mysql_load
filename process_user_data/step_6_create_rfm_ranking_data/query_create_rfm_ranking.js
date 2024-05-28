@@ -28,27 +28,16 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 				ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) AS row_number_id,
 				COUNT(*) OVER () AS total_rows,
 				ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () AS row_percent,
+
+				CASE
+					WHEN '${metric}' = 'recency' THEN NTILE(3) OVER (ORDER BY rfm_${metric}_metric DESC) 
+					ELSE NTILE(3) OVER (ORDER BY rfm_${metric}_metric ASC) 
+				END AS ${metric}_score_three_parts,
 		
-				NTILE(3) OVER (ORDER BY rfm_${metric}_metric ASC) AS ${metric}_score_three_parts,
-				-- CASE
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.33 THEN 1
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.66 THEN 2
-				--     ELSE 3
-				-- END AS ${metric}_score_three_parts,
-		
-				NTILE(5) OVER (ORDER BY rfm_${metric}_metric ASC) AS ${metric}_score_five_parts
-				-- CASE
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.20 THEN 1
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.40 THEN 2
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.60 THEN 3
-				-- 	WHEN ROW_NUMBER() OVER (ORDER BY rfm_${metric}_metric, booking_most_recent_return_date) / COUNT(*) OVER () < 0.80 THEN 4
-				--     ELSE 5
-				-- END AS ${metric}_score_five_parts, -- scoring dividing the data into three equal parts
-				-- CASE
-				-- 	WHEN rfm_${metric}_metric BETWEEN 205 AND 208 THEN 3
-				--     WHEN rfm_${metric}_metric BETWEEN 209 and 213 THEN 2
-				--     ELSE 1
-				-- END AS ${metric}_score_custom_parts
+				CASE
+					WHEN '${metric}' = 'recency' THEN NTILE(5) OVER (ORDER BY rfm_${metric}_metric DESC)
+					ELSE NTILE(5) OVER (ORDER BY rfm_${metric}_metric ASC)
+				END  AS ${metric}_score_five_parts
 		
 			FROM user_data_profile
 
