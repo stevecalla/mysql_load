@@ -139,11 +139,11 @@ async function execute_create_user_profile_data_query(pool) {
 
 // Main function to handle SSH connection and execute queries
 async function execute_create_user_data() { 
+    let pool;
+    const startTime = performance.now();
+
     try {
-
-        const startTime = performance.now();
-
-        const pool = await createLocalDBConnection(localUserDbConfig);
+        pool = await createLocalDBConnection(localUserDbConfig);
         // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
         // STEP 3.1: COMBINE USER AND BOOKING DATA
@@ -158,7 +158,7 @@ async function execute_create_user_data() {
         console.log(getCurrentDateTime());
 
         await execute_drop_table_query(pool, 'user_data_key_metrics_rollup;');
-        console.log(`Executing create rollup by id`);
+        console.log(`Executing user_data_key_metrics_rollup user by id`);
         await execute_create_rollup_data_query(pool);
         await execute_insert_createdAt_query(pool, 'user_data_key_metrics_rollup');   
         
@@ -167,31 +167,32 @@ async function execute_create_user_data() {
         console.log(getCurrentDateTime());
 
         await execute_drop_table_query(pool, 'user_data_profile;');
-        console.log(`Executing create user profile data`);
+        console.log(`Executing create user_data_profile`);
         await execute_create_user_profile_data_query(pool);
         await execute_insert_createdAt_query(pool, 'user_data_profile');   
 
         console.log('All queries executed successfully.');
 
+    } catch (error) {
+        console.error('Error:', error);
+        generateLogFile('loading_user_data', `Error loading user data: ${error}`, csvExportPath);
+
+    } finally {
+        // CLOSE CONNECTION/POOL
         await pool.end(err => {
-          if (err) {
-            console.error('Error closing connection pool:', err.message);
-          } else {
-            console.log('Connection pool closed successfully.');
-          }
+            if (err) {
+              console.error('Error closing connection pool:', err.message);
+            } else {
+              console.log('Connection pool closed successfully.');
+            }
         });
 
-        // LOGS
+        // LOG RESULTS
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
         // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
         console.log(`\nAll combine user/booking queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
         return elapsedTime;
-
-    } catch (error) {
-        console.error('Error:', error);
-    } finally {
-        // End the pool
     }
 }
 

@@ -679,6 +679,13 @@ const booking_schema = [
         "fields": []
     },
     {
+        "name": "discount_charge_aed",
+        "mode": "NULLABLE",
+        "type": "FLOAT",
+        "description": null,
+        "fields": []
+    },
+    {
         "name": "discount_extension_charge",
         "mode": "NULLABLE",
         "type": "FLOAT",

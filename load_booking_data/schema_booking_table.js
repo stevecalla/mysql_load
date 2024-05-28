@@ -32,6 +32,7 @@ const schema_booking_table = `
     pickup_day_of_week_v2 VARCHAR(64),
     pickup_time_bucket VARCHAR(7),
 
+    early_return INT,
     return_date DATE,
     return_datetime DATETIME,
     return_year VARCHAR(4),
@@ -119,6 +120,7 @@ const schema_booking_table = `
     other_rental_charge DOUBLE,
 
     discount_charge DOUBLE,
+    discount_charge_aed DOUBLE,
     discount_extension_charge DOUBLE,
 
     total_vat DOUBLE,

@@ -137,7 +137,9 @@ const bookingQuery = `
             ELSE DATE_FORMAT(STR_TO_DATE(date_of_birth, '%m/%d/%Y'), '%Y-%m-%d')
         END AS date_of_birth,
   
-        age,customer_driving_country,customer_doc_vertification_status,days,extension_days,extra_day_calc,customer_rate,insurance_rate,additional_driver_rate,pai_rate,baby_seat_rate,insurance_type,millage_rate,millage_cap_km,rent_charge,rent_charge_less_discount_extension_aed,extra_day_charge,delivery_charge,collection_charge,additional_driver_charge,insurance_charge,pai_charge,baby_charge,long_distance,premium_delivery,airport_delivery,gps_charge,delivery_update,intercity_charge,millage_charge,other_rental_charge,discount_charge,discount_extension_charge,total_vat,other_charge,booking_charge,booking_charge_less_discount,booking_charge_aed,booking_charge_less_discount_aed,booking_charge_less_extension,booking_charge_less_discount_extension,booking_charge_less_extension_aed,booking_charge_less_discount_extension_aed,base_rental_revenue,non_rental_charge,extension_charge,extension_charge_aed,is_extended,promo_code,promo_code_discount_amount,
+        age,customer_driving_country,customer_doc_vertification_status,days,extension_days,extra_day_calc,customer_rate,insurance_rate,additional_driver_rate,pai_rate,baby_seat_rate,insurance_type,millage_rate,millage_cap_km,rent_charge,rent_charge_less_discount_extension_aed,extra_day_charge,delivery_charge,collection_charge,additional_driver_charge,insurance_charge,pai_charge,baby_charge,long_distance,premium_delivery,airport_delivery,gps_charge,delivery_update,intercity_charge,millage_charge,other_rental_charge,discount_charge,discount_charge_aed,
+        
+        discount_extension_charge,total_vat,other_charge,booking_charge,booking_charge_less_discount,booking_charge_aed,booking_charge_less_discount_aed,booking_charge_less_extension,booking_charge_less_discount_extension,booking_charge_less_extension_aed,booking_charge_less_discount_extension_aed,base_rental_revenue,non_rental_charge,extension_charge,extension_charge_aed,is_extended,promo_code,promo_code_discount_amount,
         
         -- currently all null values
         promocode_created_date, 

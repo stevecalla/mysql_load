@@ -178,6 +178,7 @@ async function execute_get_booking_data() {
 
         // Array of date ranges to loop through
         const dateRanges = [
+            // { startDate: '2023-01-01', endDate: '2023-01-01' }, // OKAY
             // 2024
             { startDate: '2024-10-01', endDate: '2024-12-31' }, // OKAY
             { startDate: '2024-07-01', endDate: '2024-09-30' }, // OKAY
@@ -206,7 +207,6 @@ async function execute_get_booking_data() {
             { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
             { startDate: '2017-01-01', endDate: '2017-12-31' }, // 
             { startDate: '2015-01-01', endDate: '2016-12-31' }, // 
-            // Add more date ranges as needed
         ];
 
         // Execute queries for each date range

@@ -205,10 +205,11 @@ async function execute_insert_createdAt_query(pool, table) {
 
 // Main function to handle SSH connection and execute queries
 async function execute_load_user_data() {
+  let pool;
+  const startTime = performance.now();
+
   try {
-    const startTime = performance.now();
-    
-    const pool = await createLocalDBConnection(localUserDbConfig);
+    pool = await createLocalDBConnection(localUserDbConfig);
     // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
     // STEP 0: SHOW PERMISSIONS
@@ -224,17 +225,17 @@ async function execute_load_user_data() {
     // STEP 2: DROP THE "user_data_base" TABLE
     let table = 'user_data_base';
     console.log(`\nSTEP 2: DROP THE "user_data_base" TABLE`);
-    // console.log(getCurrentDateTime());
+    console.log(getCurrentDateTime());
     await execute_drop_table_query(pool, `${table};`);
 
     // STEP #3 - CREATE "USER DATA" TABLE
     console.log(`STEP #3 - CREATE "user_data_base" TABLE`);
-    // console.log(getCurrentDateTime());
+    console.log(getCurrentDateTime());
     await execute_create_user_data_table(pool);
 
     // STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "USER DATA" TABLE
     console.log(`STEP #4 - GET FILES IN DIRECTORY / LOAD INTO "user_data_base" TABLE`);
-    // console.log(getCurrentDateTime());
+    console.log(getCurrentDateTime());
     let rowsAdded = 0;
     const directory = `${csvExportPath}user_data`; // Directory containing your CSV files
     console.log(directory);
@@ -272,25 +273,27 @@ async function execute_load_user_data() {
     console.log(`STEP #5 - INSERT "CREATED AT" DATE`);
     await execute_insert_createdAt_query(pool, `${table}`);
 
-    await pool.end(err => {
-      if (err) {
-        console.error('Error closing connection pool:', err.message);
-      } else {
-        console.log('Connection pool closed successfully.');
-      }
-    });
-
-    const endTime = performance.now();
-    const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-    // MOVED THE MESSAGE BELOW TO THE BOOKING_JOB_032024 PROCESS
-    console.log(`\nAll loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
-    return elapsedTime;
-
   } catch (error) {
     console.error('Catch error:', error);
     generateLogFile('loading_user_data', `Error loading user data: ${error}`, csvExportPath);
+
   } finally {
-    // TODO
+      // CLOSE CONNECTION
+      await pool.end(err => {
+        if (err) {
+            console.error('Error closing connection pool:', err.message);
+        } else {
+            console.log('Connection pool closed successfully.');
+        }
+      });
+
+      // LOG RESULTS
+    const endTime = performance.now();
+    const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+    console.log(`\nAll loading data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+
+    return elapsedTime;  
   }
 }
 
