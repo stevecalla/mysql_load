@@ -155,8 +155,10 @@ async function execute_create_rfm_ranking_data() {
         console.log(getCurrentDateTime());
 
         await execute_drop_table_query(pool, 'rfm_score_summary_data;');
+
         console.log(`Creating rfm_score_summary_data`);
         await execute_create_rfm_score_summary_data(pool);
+
         // await execute_insert_createdAt_query(pool, 'rfm_score_summary_data');   
 
         console.log('All queries executed successfully.');

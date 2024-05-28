@@ -3,7 +3,21 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 		CREATE TABLE ${table}
 			SELECT 
 				user_ptr_id,
+				date_join_cohort,
+        
+				-- COUNTRY / CITY
+				all_countries_distinct,
+				all_cities_distinct,
+		
+				booking_count_total,
+				booking_count_cancel,
+				booking_count_completed,
+				booking_count_started,
+				booking_count_future,
+				booking_count_other,
+		
 				is_currently_started,
+				is_repeat_new_first,
 				is_renter,
 				is_looker,
 				is_canceller,
@@ -37,6 +51,7 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 				-- END AS ${metric}_score_custom_parts
 		
 			FROM user_data_profile
+
 			--  TOTAL WITH NO FILTER = 594,998
 			WHERE 
 				is_renter = "yes" -- 95,129 row(s) IN ('repeat', 'first', 'new')
