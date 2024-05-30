@@ -8,9 +8,9 @@ const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_ge
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 const { execute_load_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery/step_0_load_main_job_040424'); //step_5
 
-let run_step_0 = true;     // get most recent created on / updated on datetime
-let run_step_1 = true;     // get booking data
-let run_step_2 = true;     // load booking data
+let run_step_0 = false;     // get most recent created on / updated on datetime
+let run_step_1 = false;     // get booking data
+let run_step_2 = false;     // load booking data
 let run_step_3 = true;     // create key metrics
 let run_step_4 = true;     // create pacing metrics   
 let run_step_5 = true;      // upload data to google cloud / bigquery
