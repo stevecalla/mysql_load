@@ -13,7 +13,7 @@ const { queryAllPayments } = require('../query_AllPayments'); // Import the sele
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
-            console.log('SSH tunnel established.');
+            console.log('SSH tunnel established.\n');
 
             sshClient.forwardOut(
                 config.forwardConfig.srcHost,

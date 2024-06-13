@@ -8,10 +8,10 @@ const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/ste
 const { execute_create_rfm_ranking_data } = require('./step_6_create_rfm_ranking_data/step_6_sql_create_rfm_ranking_data_ssh_loop');
 
 //TODO:
-const run_step_1 = false; // retrieve user_data
-const run_step_2 = false; // load user_data
-const run_step_3 = false; // create combined user/booking, user key metrics rollup, user profile
-const run_step_4 = false; // create cohort base and stats
+const run_step_1 = true; // retrieve user_data
+const run_step_2 = true; // load user_data
+const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
+const run_step_4 = true; // create cohort base and stats
 const run_step_6 = true; // create rfm scores & summary
 
 // STEP #1: GET USER DATA

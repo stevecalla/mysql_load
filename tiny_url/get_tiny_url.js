@@ -1,10 +1,11 @@
 // https://tinyurl.com/app/dev
-const urlsArray = require('./url_list');
-const { urls_array } = require('./url_list');
 
 // setup .env file
 const dotenv = require('dotenv');
 dotenv.config({path: "../.env"}); 
+
+const urlsArray = require('./url_list');
+const { urls_array } = require('./url_list');
 
 // set tinyURL path
 const TINY_URL_PATH_CREATE = `https://api.tinyurl.com/create?api_token=${process.env.TINY_URL_KEY}`;
