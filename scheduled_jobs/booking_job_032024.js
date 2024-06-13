@@ -1,5 +1,7 @@
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
+const { slack_message_development_channel } = require('../schedule_slack/slack_development_channel');
+const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel');
 
 const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
 const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop'); //step_1
@@ -8,9 +10,9 @@ const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_ge
 const { execute_create_pacing_metrics } = require('../create_pacing_data/sql_getPacingMetrics_loop'); //step_4
 const { execute_load_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery/step_0_load_main_job_040424'); //step_5
 
-let run_step_0 = false;     // get most recent created on / updated on datetime
-let run_step_1 = false;     // get booking data
-let run_step_2 = false;     // load booking data
+let run_step_0 = true;     // get most recent created on / updated on datetime
+let run_step_1 = true;     // get booking data
+let run_step_2 = true;     // load booking data
 let run_step_3 = true;     // create key metrics
 let run_step_4 = true;     // create pacing metrics   
 let run_step_5 = true;      // upload data to google cloud / bigquery
@@ -31,29 +33,32 @@ async function check_most_recent_created_on_date() {
             
             // let { results } = getResults;
 
-            let { last_updated, execution_timestamp, time_stamp_difference, is_within_2_hours } = getResults.results[0];
+            let { last_updated_utc, execution_timestamp_utc, time_stamp_difference, is_within_2_hours } = getResults.results[0];
 
             // console.log(is_within_2_hours);
 
             // if false then 
             if (is_within_2_hours === 'false') {
                 // (a) adjust variables to false to prevent running next steps
+                // not 100% necessary given return below; used as backup
                 run_step_1 = false; // get booking data
                 run_step_2 = false; // load booking data
                 run_step_3 = false; // create key metrics
                 run_step_4 = false; // create pacing metrics 
+                run_step_5 = false; // upload data to google cloud / bigquery
 
-                // (b) send email with warning
-
-                // (b.1) LOGS
-                let message = getResults ? `\nMost recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
+                // (b) LOGS
+                let fail_message = getResults ? `\nMyproject rental_car_booking2 most recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
                 
-                let log_results = getResults ? `LAST UPDATED: ${last_updated}, EXECUTION TIMESTAMP:${execution_timestamp}, TIME STAMP DIFFERENCE: ${time_stamp_difference}, IS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results\n`;
+                let log_results = getResults ? `LAST UPDATED: ${last_updated_utc}, EXECUTION TIMESTAMP:${execution_timestamp_utc}, TIME STAMP DIFFERENCE: ${time_stamp_difference}, SOURCE FIELD: ${source_field}, IS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results\n`;
 
-                console.log(message);
+                // (c) send slack with warning
+                await slack_message_development_channel(fail_message, log_results);
+
+                console.log(fail_message);
                 console.log(getResults);
 
-                generateLogFile('scheduled_booking_data', message);
+                generateLogFile('scheduled_booking_data', fail_message);
                 generateLogFile('scheduled_booking_data', log_results);
 
                 const endTime = performance.now();
@@ -66,16 +71,16 @@ async function check_most_recent_created_on_date() {
             }
     
             // LOGS
-            let message = getResults ? `\nMost recent created on time is within 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time\n`;
+            let success_message = getResults ? `\nMost recent created on time is within 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time\n`;
 
-            console.log(message);
-            generateLogFile('scheduled_booking_data', message);
+            console.log(success_message);
+            generateLogFile('scheduled_booking_data', success_message);
  
         } else {
             // LOGS
-            let message = `\nSkipped STEP 1 due to toggle set to false.\n`;
-            console.log(message);
-            generateLogFile('scheduled_booking_data', message); 
+            let skip_message = `\nSkipped STEP 1 due to toggle set to false.\n`;
+            console.log(skip_message);
+            generateLogFile('scheduled_booking_data', skip_message); 
         }
         
         console.log('\n*************** END OF STEP 1 ***************\n');
@@ -239,7 +244,6 @@ async function step_4(startTime) {
 }
 
 async function step_5(startTime) {
-
     try {
         // STEP #5: LOAD DATA TO BIGQUERY
         console.log('\n*************** STARTING STEP 5 ***************\n');
@@ -271,11 +275,15 @@ async function step_5(startTime) {
 
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-        console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
-        generateLogFile('scheduled_booking_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+
+        let message = `\nBOOKING JOB: PROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`;
+
+        console.log(`\n${message}\n`);
+        generateLogFile('scheduled_booking_data', `${message}\n`);
+        await slack_message_steve_calla_channel(message);
 
     } catch (error) {
-        console.error('Error executing Step #4:', error);
+        console.error('Error executing Step #5:', error);
         generateLogFile('scheduled_booking_data', `Error executing Step #4: ${error}`);
         return; // Exit the function early
     }

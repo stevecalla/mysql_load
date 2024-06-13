@@ -5,6 +5,7 @@ const queryBookingData = `
 
 -- ********* START ************ CHANGE LOG
 -- 5/21/24 adjust for early return  
+-- adjust additional_driver_rate, additional_driver_charge, insurance_charge, other_rental_charge
 -- ********* END *************** CHANGE LOG
 
 SELECT 
@@ -376,7 +377,7 @@ FROM
                         WHEN b.days > 29 THEN 'Monthly'
                         ELSE 'Weekly'
                     END
-                ELSE
+                ELSE 
                     CASE
                         WHEN erb.new_days < 7 THEN 'daily'
                         WHEN erb.new_days > 29 AND is_subscription = 1 THEN 'Subscription'
@@ -749,7 +750,8 @@ FROM
                 ELSE 
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            -- SUM(total_charge) 
+                            SUM(charge)
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
@@ -794,7 +796,7 @@ FROM
                 ELSE 
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            SUM(charge)
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
@@ -1034,7 +1036,7 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id IN (15, 18, 23, 26, 37, 38, 39, 48, 49, 50, 51, 52, 57)), 0)
+                                AND cc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
                 ELSE 
                     IFNULL((
                         SELECT 
@@ -1043,7 +1045,7 @@ FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
                             erc.booking_id = b.id
-                                AND erc.charge_type_id IN (15, 18, 23, 26, 37, 38, 39, 48, 49, 50, 51, 52, 57)), 0)
+                                AND erc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
             END AS other_rental_charge,
 
             -- (SELECT 
@@ -1174,7 +1176,12 @@ FROM
                 ELSE 
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            -- SUM(total_charge)
+                            SUM(CASE
+                                    WHEN charge_type_id IN (21, 40) THEN (charge)
+                                    WHEN charge_type_id IN (15, 36) THEN (charge)
+                                    ELSE (total_charge)
+                                END)
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
@@ -1201,6 +1208,8 @@ FROM
                         SELECT 
                             SUM(CASE
                                     WHEN charge_type_id IN (14) THEN -(total_charge)
+                                    WHEN charge_type_id IN (21, 40) THEN (charge)
+                                    WHEN charge_type_id IN (15, 36) THEN (charge)
                                     ELSE (total_charge)
                                 END)
                         FROM
@@ -1224,7 +1233,12 @@ FROM
                 ELSE 
                     IFNULL((
                         SELECT 
-                            SUM(total_charge)
+                            -- SUM(total_charge)
+                            SUM(CASE
+                                    WHEN charge_type_id IN (21, 40) THEN (charge)
+                                    WHEN charge_type_id IN (15, 36) THEN (charge)
+                                    ELSE (total_charge)
+                                END)
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
@@ -1351,10 +1365,12 @@ FROM
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
 	-- WHERE 
-        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
-		-- AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-		-- AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+    --     DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+	-- 	AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
+	-- 	AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
 
+    -- WHERE b.id IN ('21899') -- additional driver rate & charge adjustment
+    -- WHERE b.id IN ('21899', '36872', '121894', '86817', '68985') -- additional driver or insurance charge rate & charge adjustment
     -- WHERE b.id IN ('182520', '182582', '178575')
     -- WHERE b.id IN ('240709', '240727', '240755', '277097') -- adjusted early return extension days
     -- WHERE 
