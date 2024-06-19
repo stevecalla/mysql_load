@@ -4,10 +4,10 @@ const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // add path to read.env file
 
-const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, csvExportPath } = require('../../utilities/config');
+const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, localUserDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
-const { bookingQuery, keyMetricsQuery, pacingQuery } = require('./query_booking_keyMetrics_pacing');
+const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery } = require('./query_booking_keyMetrics_pacing');
 
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');
@@ -121,27 +121,44 @@ function export_results_to_csv(results, file_name) {
 // MAIN FUNCTION TO EXECUTE THE PROCESS
 //TODO:
 async function execute_retrieve_data() {
+    let pool = "";
+    const startTime = performance.now();
+
     try {
-        const startTime = performance.now();
 
         // SET DATA OBJECT
         //TODO:
         const getData = [
+            // {
+            //     poolName: localBookingDbConfig,
+            //     fileName: 'booking_data',
+            //     query: bookingQuery,
+            // },
+            // {
+            //     poolName: localKeyMetricsDbConfig,
+            //     fileName: 'key_metrics_data',
+            //     query: keyMetricsQuery,
+            // },
+            // {
+            //     poolName: localPacingDbConfig,
+            //     fileName: 'pacing_data',
+            //     query: pacingQuery,
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'profile_data',
+            //     query: profileQuery,
+            // },
             {
-                poolName: localBookingDbConfig,
-                fileName: 'booking_data',
-                query: bookingQuery,
+                poolName: localUserDbConfig,
+                fileName: 'cohort_data',
+                query: cohortQuery,
             },
-            {
-                poolName: localKeyMetricsDbConfig,
-                fileName: 'key_metrics_data',
-                query: keyMetricsQuery,
-            },
-            {
-                poolName: localPacingDbConfig,
-                fileName: 'pacing_data',
-                query: pacingQuery,
-            },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_data',
+            //     query: rfmQuery,
+            // },
         ];
 
         // STEP 1.0 ARCHIVE FILES
@@ -156,9 +173,10 @@ async function execute_retrieve_data() {
         for (let i = 0; i < getData.length; i++) {
             const { poolName, fileName, query } = getData[i];
 
-            const pool = await createLocalDBConnection(poolName);
+            pool = await createLocalDBConnection(poolName);
 
             let results = await execute_get_data(pool, fileName, query);
+            console.log(results); //fix
 
             // STEP 1.1a SAVE DATA TO CSV FILE
             console.log(`STEP 1.1a SAVE ${fileName} TO CSV FILE`);
@@ -177,15 +195,28 @@ async function execute_retrieve_data() {
 
         console.log('All queries executed successfully.');
 
+        // const endTime = performance.now();
+        // const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+        // return elapsedTime;
+
+    } catch (error) {
+        console.error('Error:', error);
+
+    } finally {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
         return elapsedTime;
 
-    } catch (error) {
-        console.error('Error:', error);
-    } finally {
-        // End the pool
+        // CLOSE POOL
+        await pool.end(err => {
+            if (err) {
+                console.error('Error closing connection pool:', err.message);
+            } else {
+                console.log('Connection pool closed successfully.\n');
+            }
+        });
     }
 }
 

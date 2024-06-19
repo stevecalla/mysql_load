@@ -25,6 +25,7 @@ async function execute_upload_csv_to_cloud() {
     
     const files = await fs.readdir(directory); // LIST ALL FILES IN THE DIRECTORY
     let numberOfFiles = 0;
+  
 
     // ITERATE THROUGH EACH FILE USING A FOR...OF LOOP
     for (const file of files) {

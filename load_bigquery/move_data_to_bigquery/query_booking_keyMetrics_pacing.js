@@ -228,10 +228,75 @@ const pacingQuery = `
     -- LIMIT 1;
 `;
 
+const profileQuery = `
+    SELECT
+        user_ptr_id, first_name, last_name, email,
+
+        DATE_FORMAT(date_of_birth, '%Y-%m-%d') AS date_of_birth,
+
+        age,
+
+        DATE_FORMAT(date_join_formatted_gst, '%Y-%m-%d') AS date_join_formatted_gst,
+
+        date_join_cohort, 
+        date_join_year, 
+        
+        date_join_quarter, date_join_month, date_join_week_of_year, date_join_day_of_year,
+
+        last_login_gst, 
+        
+        has_last_login_date, is_resident, user_is_verified, is_repeat_user, is_repeat_new_first, 
+        booking_count_total, booking_count_cancel, booking_count_completed, booking_count_started,
+        booking_count_future, booking_count_other, booking_count_not_cancel, 
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        booking_charge_total_less_discount_aed, booking_charge_total_less_discount_extension_aed,
+        booking_charge_extension_only_aed, booking_days_total, booking_days_initial_only, booking_days_extension_only, 
+        
+        DATE_FORMAT(booking_first_created_date, '%Y-%m-%d') AS booking_first_created_date,
+        DATE_FORMAT(booking_most_recent_created_date, '%Y-%m-%d') AS booking_most_recent_created_date,
+        DATE_FORMAT(booking_most_recent_pickup_date, '%Y-%m-%d') AS booking_most_recent_pickup_date,
+        DATE_FORMAT(booking_most_recent_return_date, '%Y-%m-%d') AS booking_most_recent_return_date,
+        
+        booking_join_vs_first_created, booking_first_created_vs_first_pickup, booking_most_recent_created_on_vs_now, 
+        booking_most_recent_return_vs_now, 
+        total_days_per_completed_and_started_bookings, booking_charge__less_discount_aed_per_completed_started_bookings, 
+
+        DATE_FORMAT(CONVERT_TZ(date_now_gst, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as date_now_gst_v2,
+        
+        is_currently_started, is_canceller, is_renter, is_looker, is_other,
+        rfm_recency_metric, rfm_frequency_metric, rfm_monetary_metric,
+
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+
+    FROM ezhire_user_data.user_data_profile
+    -- original testing example
+    -- WHERE user_ptr_id = 40
+    -- for 161 needed to fix the distinct city / country to wrap with quotes to escape the comma
+    -- WHERE user_ptr_id = 161
+    -- LIMIT 500000;
+`;
+
+const cohortQuery = `
+    SELECT 
+        *
+    FROM ezhire_user_data.user_data_cohort_stats 
+    LIMIT 1;
+`;
+
+const rfmQuery = `
+`;
+
 module.exports = {
     bookingQuery,
     keyMetricsQuery,
     pacingQuery,
+    profileQuery,
+    cohortQuery,
+    rfmQuery,
 }
 
 //NOTE: Need to fix date formats so biqquery would convert properly; BQ saves all timestamps in UTC thus need to convert for analysis/Looker queries 
@@ -254,3 +319,6 @@ module.exports = {
 
 // DATE_FORMAT(STR_TO_DATE(date_of_birth, '%m/%d/%Y'), '%Y-%m-%d') AS date_of_birth
     // converts string '01/1/1995' to '1995-01-01' 
+
+
+    

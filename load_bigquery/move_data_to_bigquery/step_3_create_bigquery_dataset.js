@@ -11,7 +11,8 @@ const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 const datasetId = "ezhire_metrics";
 
 //TODO:
-const tableIds = ["booking_data", "key_metrics_data", "pacing_data"];
+// const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data"];
+const tableIds = ["profile_data"];
 
 async function execute_create_bigquery_dataset() {
     try {

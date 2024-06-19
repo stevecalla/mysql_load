@@ -161,7 +161,7 @@ async function step_4(startTime) {
     }
 }
 
-// execute_load_data_to_bigquery();
+execute_load_data_to_bigquery();
 
 module.exports = {
     execute_load_data_to_bigquery,
