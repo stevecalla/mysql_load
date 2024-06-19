@@ -147,8 +147,7 @@ const bookingQuery = `
         promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
         
         delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
-        
-        -- DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s UTC') as created_at
+
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_booking_data.booking_data 
@@ -169,7 +168,7 @@ const bookingQuery = `
 
 const keyMetricsQuery = `
     SELECT
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at,
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at,
         DATE_FORMAT(STR_TO_DATE(calendar_date, '%Y-%m-%d'), '%Y-%m-%d') AS calendar_date,
 
         year,quarter,month,week,day,
@@ -221,7 +220,7 @@ const pacingQuery = `
         running_total_booking_charge_less_discount_extension_aed,
         running_total_extension_charge_aed,
 
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_pacing_metrics.pacing_final_data
     ORDER BY pickup_month_year ASC, booking_date ASC
@@ -270,7 +269,7 @@ const profileQuery = `
         is_currently_started, is_canceller, is_renter, is_looker, is_other,
         rfm_recency_metric, rfm_frequency_metric, rfm_monetary_metric,
 
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_user_data.user_data_profile
     -- original testing example
@@ -282,8 +281,6 @@ const profileQuery = `
 
 const cohortQuery = `
     SELECT 
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at,
-
         DATE_FORMAT(calendar_date, '%Y-%m-%d') AS calendar_date,
         
         calendar_year_month,calendar_year,calendar_quarter,calendar_month,calendar_week,
@@ -299,7 +296,9 @@ const cohortQuery = `
         booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,
         is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,
         country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,
-        country_on_rent_serbia,country_on_rent_united_arab_emirates
+        country_on_rent_serbia,country_on_rent_united_arab_emirates,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_user_data.user_data_cohort_stats 
     -- LIMIT 200000;
@@ -329,7 +328,7 @@ const rfmQuery = `
         five_parts_last_recency_amount,five_parts_first_frequency_amount,five_parts_last_frequency_amount,
         five_parts_first_monetary_amount,five_parts_last_monetary_amount,
 
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
     
     FROM ezhire_user_data.rfm_score_summary_data 
     -- LIMIT 200000;
