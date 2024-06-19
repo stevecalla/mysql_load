@@ -129,31 +129,31 @@ async function execute_retrieve_data() {
         // SET DATA OBJECT
         //TODO:
         const getData = [
-            // {
-            //     poolName: localBookingDbConfig,
-            //     fileName: 'booking_data',
-            //     query: bookingQuery,
-            // },
-            // {
-            //     poolName: localKeyMetricsDbConfig,
-            //     fileName: 'key_metrics_data',
-            //     query: keyMetricsQuery,
-            // },
-            // {
-            //     poolName: localPacingDbConfig,
-            //     fileName: 'pacing_data',
-            //     query: pacingQuery,
-            // },
-            // {
-            //     poolName: localUserDbConfig,
-            //     fileName: 'profile_data',
-            //     query: profileQuery,
-            // },
-            // {
-            //     poolName: localUserDbConfig,
-            //     fileName: 'cohort_data',
-            //     query: cohortQuery,
-            // },
+            {
+                poolName: localBookingDbConfig,
+                fileName: 'booking_data',
+                query: bookingQuery,
+            },
+            {
+                poolName: localKeyMetricsDbConfig,
+                fileName: 'key_metrics_data',
+                query: keyMetricsQuery,
+            },
+            {
+                poolName: localPacingDbConfig,
+                fileName: 'pacing_data',
+                query: pacingQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'profile_data',
+                query: profileQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'cohort_data',
+                query: cohortQuery,
+            },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_data',

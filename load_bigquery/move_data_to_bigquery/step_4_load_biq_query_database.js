@@ -16,8 +16,8 @@ const { csvExportPath } = require('../../utilities/config');
 const { booking_schema } = require('./schema_booking_data');
 const datasetId = "ezhire_metrics";
 //TODO:
-// const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data"];
-const tableIds = ["rfm_data"];
+const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data"];
+// const tableIds = ["rfm_data"];
 
 // Import a GCS file into a table with manually defined schema.
 async function execute_load_big_query_database() {
