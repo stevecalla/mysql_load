@@ -5,7 +5,7 @@ const query_most_recent_create_on_date = `
         DATE_FORMAT(CONVERT_TZ(last_updated, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') AS last_updated_utc,
         source_field, 
         CURRENT_TIMESTAMP AS execution_timestamp,
-        DATE_FORMAT(CONVERT_TZ(CURRENT_TIMESTAMP, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') AS execution_timestampa_utc,
+        DATE_FORMAT(CONVERT_TZ(CURRENT_TIMESTAMP, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') AS execution_timestamp_utc,
         TIMESTAMPDIFF(HOUR, last_updated, CURRENT_TIMESTAMP()) as time_stamp_difference,
         CASE
             WHEN TIMESTAMPDIFF(HOUR, last_updated, CURRENT_TIMESTAMP()) <= 2 THEN "true"

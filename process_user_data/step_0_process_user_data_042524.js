@@ -204,7 +204,7 @@ async function step_6(startTime) {
     }
 }
 
-execute_process_user_data();
+// execute_process_user_data();
 
 module.exports = {
     execute_process_user_data,

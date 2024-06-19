@@ -7,7 +7,7 @@
 const dotenv = require('dotenv');
 dotenv.config({path: "../.env"}); 
 
-console.log(process.env.SLACK_WEBHOOK_DEVELOPMENT_CHANNEL_URL);
+// console.log(process.env.SLACK_WEBHOOK_DEVELOPMENT_CHANNEL_URL);
 
 async function sendSlackMessage(fail_message, log_results) {
   const message = `${fail_message} \n ${log_results}`;
