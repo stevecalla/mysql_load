@@ -174,7 +174,7 @@ const keyMetricsQuery = `
 
         year,quarter,month,week,day,
         
-        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
         is_today,
         
         days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,
@@ -204,7 +204,7 @@ const keyMetricsQuery = `
 
 const pacingQuery = `
     SELECT
-        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
         is_before_today,
 
         pickup_month_year,
@@ -282,12 +282,57 @@ const profileQuery = `
 
 const cohortQuery = `
     SELECT 
-        *
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at,
+
+        DATE_FORMAT(calendar_date, '%Y-%m-%d') AS calendar_date,
+        
+        calendar_year_month,calendar_year,calendar_quarter,calendar_month,calendar_week,
+        calendar_day,
+        
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
+        
+        cohort_join_year_month,cohort_join_year,cohort_join_quarter,cohort_join_month,
+        cohort_month_start,calendar_month_start,months_diff,is_today,days_on_rent_whole_day,days_on_rent_fraction,
+        trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,
+        booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,
+        rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,
+        booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,
+        is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,
+        country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,
+        country_on_rent_serbia,country_on_rent_united_arab_emirates
+
     FROM ezhire_user_data.user_data_cohort_stats 
-    LIMIT 1;
+    -- LIMIT 200000;
 `;
 
 const rfmQuery = `
+    SELECT 
+        user_ptr_id,date_join_cohort,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        booking_count_total,booking_count_cancel,
+        booking_count_completed,booking_count_started,booking_count_future,booking_count_other,is_currently_started,
+        is_repeat_new_first,is_renter,is_looker,is_canceller,
+        
+        DATE_FORMAT(booking_most_recent_return_date, '%Y-%m-%d') AS booking_most_recent_return_date,
+
+        booking_most_recent_return_vs_now,recency_rank,row_number_id,total_rows,row_percent,recency_score_three_parts,
+        recency_score_five_parts,
+    
+        total_days_per_completed_and_started_bookings,
+        booking_charge__less_discount_aed_per_completed_started_bookings,score_three_parts,three_parts_first_recency_amount,
+        three_parts_last_recency_amount,three_parts_first_frequency_amount,three_parts_last_frequency_amount,
+        three_parts_first_monetary_amount,three_parts_last_monetary_amount,score_five_parts,five_parts_first_recency_amount,
+        five_parts_last_recency_amount,five_parts_first_frequency_amount,five_parts_last_frequency_amount,
+        five_parts_first_monetary_amount,five_parts_last_monetary_amount,
+
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+    
+    FROM ezhire_user_data.rfm_score_summary_data 
+    -- LIMIT 200000;
 `;
 
 module.exports = {

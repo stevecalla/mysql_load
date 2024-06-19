@@ -149,16 +149,16 @@ async function execute_retrieve_data() {
             //     fileName: 'profile_data',
             //     query: profileQuery,
             // },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'cohort_data',
-                query: cohortQuery,
-            },
             // {
             //     poolName: localUserDbConfig,
-            //     fileName: 'rfm_data',
-            //     query: rfmQuery,
+            //     fileName: 'cohort_data',
+            //     query: cohortQuery,
             // },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_data',
+                query: rfmQuery,
+            },
         ];
 
         // STEP 1.0 ARCHIVE FILES
@@ -176,7 +176,7 @@ async function execute_retrieve_data() {
             pool = await createLocalDBConnection(poolName);
 
             let results = await execute_get_data(pool, fileName, query);
-            console.log(results); //fix
+            // console.log(results); //fix
 
             // STEP 1.1a SAVE DATA TO CSV FILE
             console.log(`STEP 1.1a SAVE ${fileName} TO CSV FILE`);
