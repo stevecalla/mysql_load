@@ -381,7 +381,7 @@ async function step_6(startTime) {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
-        let message = `\nLOAD DATA TO BIGQUERY: PROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`;
+        let message = `\nSTEP 6 - LOAD DATA TO BIGQUERY: PROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`;
 
         console.log(`\n${message}\n`);
         generateLogFile('scheduled_booking_data', `${message}\n`);

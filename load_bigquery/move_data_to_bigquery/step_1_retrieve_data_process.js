@@ -195,20 +195,10 @@ async function execute_retrieve_data() {
 
         console.log('All queries executed successfully.');
 
-        // const endTime = performance.now();
-        // const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-        // return elapsedTime;
-
     } catch (error) {
         console.error('Error:', error);
 
     } finally {
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-        return elapsedTime;
-
         // CLOSE POOL
         await pool.end(err => {
             if (err) {
@@ -217,6 +207,11 @@ async function execute_retrieve_data() {
                 console.log('Connection pool closed successfully.\n');
             }
         });
+
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+        return elapsedTime;
     }
 }
 
