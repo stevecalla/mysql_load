@@ -43,7 +43,7 @@ async function check_most_recent_created_on_date() {
 
             let { last_updated_utc, execution_timestamp_utc, time_stamp_difference, source_field, is_within_2_hours } = getResults.results[0];
             
-            log_results = getResults ? `LAST UPDATED: ${last_updated_utc}, EXECUTION TIMESTAMP:${execution_timestamp_utc}, TIME STAMP DIFFERENCE: ${time_stamp_difference}\nSOURCE FIELD: ${source_field}, IS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
+            log_results = getResults ? `\nLAST UPDATED: ${last_updated_utc}\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nTIME STAMP DIFFERENCE: ${time_stamp_difference}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
 
             // console.log(is_within_2_hours);
 
@@ -59,10 +59,10 @@ async function check_most_recent_created_on_date() {
                 run_step_6 = false; // upload data to google cloud / bigquery
 
                 // (b) LOGS
-                let fail_message = getResults ? `\nMyproject rental_car_booking2 most recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
+                let fail_message = getResults ? `\nHello - Myproject db needs some attention please. DB rental_car_booking2 most recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
 
                 // (c) send slack with warning
-                slackMessage = `${message}${fail_message}\n${log_results}`;
+                slackMessage = `${fail_message}\n${log_results}`;
                 await slack_message_development_channel(slackMessage);
                 await slack_message_steve_calla_channel(slackMessage);
 
