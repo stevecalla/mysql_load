@@ -229,7 +229,7 @@ const pacingQuery = `
 
 const profileQuery = `
     SELECT
-        user_ptr_id, first_name, last_name, email,
+        user_ptr_id, first_name, last_name, email, mobile, telephone,
 
         DATE_FORMAT(date_of_birth, '%Y-%m-%d') AS date_of_birth,
 
@@ -306,7 +306,7 @@ const cohortQuery = `
 
 const rfmQuery = `
     SELECT 
-        user_ptr_id,date_join_cohort,
+        user_ptr_id,date_join_cohort,email,mobile,telephone,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,

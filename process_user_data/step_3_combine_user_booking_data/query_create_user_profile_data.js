@@ -6,7 +6,6 @@ CREATE TABLE user_data_profile AS
 		ubd.first_name,
 		ubd.last_name,
 		ubd.email,
-		ubd.email,
 		ubd.mobile,
 		ubd.telephone,
 
