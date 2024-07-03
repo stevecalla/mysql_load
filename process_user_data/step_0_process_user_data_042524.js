@@ -15,7 +15,7 @@ const run_step_2 = true; // load user_data
 const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
 const run_step_4 = true; // create cohort base and stats
 const run_step_5 = true; // create rfm scores & summary
-const run_step_6 = true; // inserted from rfm summary data into history table
+const run_step_6 = false; // inserted from rfm summary data into history table
 
 // STEP #1: GET USER DATA
 async function execute_process_user_data() {

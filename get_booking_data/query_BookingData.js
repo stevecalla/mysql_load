@@ -539,8 +539,13 @@ FROM
                         FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
+                            -- AND erc.charge_type_id IN (4)), 0)
+                        
                             erc.booking_id = b.id
-                                AND erc.charge_type_id IN (4)), 0)
+                                AND erc.charge_type_id IN (4)
+                        -- ****************************
+                        LIMIT 1), 0) -- FIX 07/03/24
+                        -- ****************************    
             END AS customer_rate, -- in local currency
 
             -- adjusted for early return
