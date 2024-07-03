@@ -53,7 +53,9 @@ function query_create_rfm_score_summary_data() {
 				PARTITION BY m.monetary_score_five_parts 
 				ORDER BY m.booking_charge__less_discount_aed_per_completed_started_bookings DESC
 				ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-			) AS five_parts_last_monetary_amount
+			) AS five_parts_last_monetary_amount,
+
+			CASE WHEN RAND() < 0.2 THEN 'Control' ELSE 'Experiment' END AS test_group
 	
 			-- -- FIRST & LAST VALUE - CUSTOM PARTS
 			-- CONCAT(r.recency_score_custom_parts, f.frequency_score_custom_parts, m.monetary_score_custom_parts) AS score_custom_parts,

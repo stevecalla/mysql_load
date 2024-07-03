@@ -327,6 +327,8 @@ const rfmQuery = `
         three_parts_first_monetary_amount,three_parts_last_monetary_amount,score_five_parts,five_parts_first_recency_amount,
         five_parts_last_recency_amount,five_parts_first_frequency_amount,five_parts_last_frequency_amount,
         five_parts_first_monetary_amount,five_parts_last_monetary_amount,
+        
+        test_group,
 
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
     

@@ -1,6 +1,6 @@
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
-const { slack_message_development_channel } = require('../schedule_slack/slack_development_channel');
+const { slack_message_drissues_channel } = require('../schedule_slack/slack_drissues_channel');
 const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel');
 
 const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
@@ -63,7 +63,7 @@ async function check_most_recent_created_on_date() {
 
                 // (c) send slack with warning
                 slackMessage = `${fail_message}\n${log_results}`;
-                await slack_message_development_channel(slackMessage);
+                await slack_message_drissues_channel(slackMessage);
                 await slack_message_steve_calla_channel(slackMessage);
 
                 console.log(fail_message);
