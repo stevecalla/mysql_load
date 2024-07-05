@@ -8,6 +8,7 @@ const { execute_create_user_data } = require('./step_3_combine_user_booking_data
 const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/step_4_sql_create_cohort_data_loop'); //step_4
 const { execute_create_rfm_ranking_data } = require('./step_5_create_rfm_ranking_data/step_5_sql_create_rfm_ranking_data_ssh_loop'); //step_5
 const { execute_create_rfm_history_data } = require('./step_6_create_rfm_history_data/step_6_sql_create_rfm_history_data_ssh_loop'); //step_6
+const { execute_create_rfm_tracking } = require('./step_7_create_rfm_tracking/step_7_sql_create_rfm_tracking_ssh_loop'); //step 7
 
 //TODO:
 const run_step_1 = true; // retrieve user_data
@@ -16,6 +17,7 @@ const run_step_3 = true; // create combined user/booking, user key metrics rollu
 const run_step_4 = true; // create cohort base and stats
 const run_step_5 = true; // create rfm scores & summary
 const run_step_6 = false; // inserted from rfm summary data into history table
+const run_step_7 = false; // create rfm tracking
 
 // STEP #1: GET USER DATA
 async function execute_process_user_data() {
@@ -245,12 +247,56 @@ async function step_6(startTime) {
 
         generateLogFile('process_user_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
 
-        console.log('*************** END OF STEP 5 ***************\n');
+        console.log('*************** END OF STEP 6 ***************\n');
+        
+        //NEXT STEP = NONE
+        await step_6(startTime);
+    } catch (error) {
+        console.error('Error executing Step #6:', error);
+        generateLogFile('process_user_data', `Error executing Step #6: ${error}`);
+        return; // Exit the function early
+    }
+}
+
+// STEP #7: CREATE RFM TRACKING
+async function step_7(startTime) {
+    try {
+        console.log('\n*************** STARTING STEP 7 ***************\n');
+
+        if (run_step_7) {
+            // EXECUTE QUERIES
+            let getResults;
+            getResults = await execute_create_rfm_tracking();
+    
+            // LOGS
+            let message = getResults ? `User Data - Step 7: RFM tracking created successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
+
+            console.log(message);
+            generateLogFile('process_user_data', message);
+            await slack_message_steve_calla_channel(message);
+            
+        } else {
+            // LOGS
+            let message = `\nSkipped STEP 7 due to toggle set to false.\n`;
+            
+            console.log(message);
+            console.log('\n*************** END OF STEP 7 ***************\n');
+            generateLogFile('process_user_data', message);
+        }
+        
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+        console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+
+        generateLogFile('process_user_data', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+
+        console.log('*************** END OF STEP 7 ***************\n');
         
         //NEXT STEP = NONE
     } catch (error) {
-        console.error('Error executing Step #5:', error);
-        generateLogFile('process_user_data', `Error executing Step #5: ${error}`);
+        console.error('Error executing Step #7:', error);
+        generateLogFile('process_user_data', `Error executing Step #7: ${error}`);
         return; // Exit the function early
     }
 }

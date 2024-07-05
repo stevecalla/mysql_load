@@ -32,6 +32,14 @@ function getCurrentDateForFileNaming() {
     return createdAtFormatted;
 }
 
+//takes 2024-07-01T06:00:00.000Z; returns "2024-03-10"
+function getFormattedDate(date) {
+    date = dayjs(date);
+    const createdAtFormatted = date.format('YYYY-MM-DD');
+    // console.log('Current date = ', createdAtFormatted);
+    return createdAtFormatted;
+}
+
 // Function to convert Unix timestamp 1712179121648 to 2024-04-03 15:18:41
 function convertTimestampToDateTime(timestamp) {
     // Ensure the timestamp is parsed as a number (if it's a string)
@@ -59,4 +67,5 @@ module.exports = {
     getCurrentDateTime,
     getCurrentTime,
     convertTimestampToDateTime,
+    getFormattedDate,
 }

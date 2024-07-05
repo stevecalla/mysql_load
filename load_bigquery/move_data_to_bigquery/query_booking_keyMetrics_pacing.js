@@ -336,6 +336,12 @@ const rfmQuery = `
     -- LIMIT 200000;
 `;
 
+const rfmTracking = ``;
+
+const rfmTrackingMostRecent = ``;
+
+const rfmTrackingOffers = ``;
+
 module.exports = {
     bookingQuery,
     keyMetricsQuery,
