@@ -250,7 +250,7 @@ async function step_6(startTime) {
         console.log('*************** END OF STEP 6 ***************\n');
         
         //NEXT STEP = NONE
-        await step_6(startTime);
+        await step_7(startTime);
     } catch (error) {
         console.error('Error executing Step #6:', error);
         generateLogFile('process_user_data', `Error executing Step #6: ${error}`);

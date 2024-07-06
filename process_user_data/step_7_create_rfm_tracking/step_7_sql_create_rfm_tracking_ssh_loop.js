@@ -83,7 +83,8 @@ async function execute_create_rfm_tracking() {
         
         const tableList = [
             `rfm_score_summary_history_data_tracking`, 
-            `rfm_score_summary_history_data_tracking_most_recent`
+            `rfm_score_summary_history_data_tracking_offer`, 
+            `rfm_score_summary_history_data_tracking_most_recent`,
         ];
 
         // STEP 7.1: CREATE RFM TRACKING SEGMENTS BACKUP
@@ -108,28 +109,29 @@ async function execute_create_rfm_tracking() {
         console.log(getCurrentDateTime());
 
         for (let i = 0; i < tableList.length; i++) {
+            table = tableList[i];
 
-            console.log(`Drop RFM rfm_score_summary_history_data_tracking`);
-            await execute_query(pool, query_drop_rfm_score_summary_history_data_tracking, tableList[i]);
+            console.log(`Drop ${table}`);
+            
+            await execute_query(pool, query_drop_rfm_score_summary_history_data_tracking, table);
     
             console.log(`Get min & max dates for rfm segments`);
             let dates = "";
             
-            if (i === 0) {
-                dates = await execute_query(pool, query_get_min_and_max_created_at_dates, tableList[i]);
+            if (i <= 1) {
+                dates = await execute_query(pool, query_get_min_and_max_created_at_dates, table);
             } else {
-                dates = await execute_query(pool, query_get_most_recent_min_and_max_created_at_dates, tableList[i]);
+                dates = await execute_query(pool, query_get_most_recent_min_and_max_created_at_dates, table);
             }
 
-            // console.log(dates);
             const { min_created_at_date, max_created_at_date } = dates[0];
             let { min_created_at_date_formatted } = dates[0];
             min_created_at_date_formatted = await getFormattedDate(min_created_at_date_formatted);
     
             console.log(`Create rfm_score_summary_history_data_tracking`);
-            await execute_query(pool, query_create_rfm_score_summary_history_data_tracking, tableList[i], min_created_at_date, min_created_at_date_formatted, max_created_at_date);
+            await execute_query(pool, query_create_rfm_score_summary_history_data_tracking, table, min_created_at_date, min_created_at_date_formatted, max_created_at_date);
 
-            await execute_insert_createdAt_query(pool, tableList[i]);
+            await execute_insert_createdAt_query(pool, table);
         }
 
         // *******************
@@ -160,7 +162,7 @@ async function execute_create_rfm_tracking() {
 }
 
 // Run the main function
-execute_create_rfm_tracking();
+// execute_create_rfm_tracking();
 
 module.exports = {
     execute_create_rfm_tracking

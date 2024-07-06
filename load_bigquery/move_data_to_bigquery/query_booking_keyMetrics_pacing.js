@@ -336,11 +336,149 @@ const rfmQuery = `
     -- LIMIT 200000;
 `;
 
-const rfmTracking = ``;
+const rfmTrackingQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
 
-const rfmTrackingMostRecent = ``;
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
 
-const rfmTrackingOffers = ``;
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+        
+        booking_charge_less_discount,booking_count,
+        
+        min_created_at_date,max_created_at_date,
+        
+        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking
+`;
+
+const rfmTrackingMostRecentQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+        
+        booking_charge_less_discount,booking_count,
+        
+        min_created_at_date,max_created_at_date,
+        
+        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking_most_recent
+`;
+
+const rfmTrackingOffersQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+        
+        booking_charge_less_discount,booking_count,
+        
+        min_created_at_date,max_created_at_date,
+        
+        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking_offer
+`;
 
 module.exports = {
     bookingQuery,
@@ -349,6 +487,9 @@ module.exports = {
     profileQuery,
     cohortQuery,
     rfmQuery,
+    rfmTrackingQuery,
+    rfmTrackingMostRecentQuery,
+    rfmTrackingOffersQuery,
 }
 
 //NOTE: Need to fix date formats so biqquery would convert properly; BQ saves all timestamps in UTC thus need to convert for analysis/Looker queries 

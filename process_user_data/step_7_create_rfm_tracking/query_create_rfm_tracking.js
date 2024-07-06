@@ -59,6 +59,18 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 				SELECT
 					rfm.user_ptr_id,
 					rfm.date_join_cohort,
+        
+					rfm.is_repeat_new_first,
+					rfm.all_cities_distinct,
+					rfm.all_countries_distinct, 
+					rfm.booking_count_total,
+					rfm.booking_count_cancel,
+					rfm.booking_count_completed,
+					rfm.booking_count_started,
+					rfm.booking_count_future,
+					rfm.booking_count_other,
+					rfm.is_currently_started,
+				
 					b.booking_id,
 					b.status,
 					b.booking_type,
@@ -66,6 +78,10 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 					b.car_cat_name,
 					b.marketplace_or_dispatch,
 					b.promo_code,
+					CASE
+						WHEN b.promo_code IS NULL THEN "no"
+						ELSE "yes"
+					END AS has_promo_code,
 					b.booking_date,
 					b.pickup_date,
 					b.return_date,
@@ -92,7 +108,7 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 					AND rfm.created_at_date = '${min_created_at_date}'
 					AND b.booking_date >= '${min_created_at_date_formatted}'
 					AND b.status NOT IN ('Cancelled by User')
-				GROUP BY rfm.user_ptr_id, rfm.date_join_cohort, b.booking_id, b.status, b.booking_type, b.deliver_method, b.car_cat_name, b.marketplace_or_dispatch, b.promo_code, b.booking_date, b.pickup_date, b.return_date, b.booking_charge_less_discount
+    			GROUP BY rfm.user_ptr_id, rfm.date_join_cohort, rfm.is_repeat_new_first, rfm.all_cities_distinct, rfm.all_countries_distinct, rfm.booking_count_total, rfm.booking_count_cancel, rfm.booking_count_completed, rfm.booking_count_started, rfm.booking_count_future, rfm.booking_count_other, rfm.is_currently_started, b.booking_id, b.status, b.booking_type, b.deliver_method, b.car_cat_name, b.marketplace_or_dispatch, b.promo_code, has_promo_code, b.booking_date, b.pickup_date, b.return_date, b.booking_charge_less_discount
 		) AS a;
 
 	`
