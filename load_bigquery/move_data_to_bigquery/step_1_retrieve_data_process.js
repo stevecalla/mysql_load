@@ -9,6 +9,7 @@ const { createLocalDBConnection } = require('../../utilities/connectionLocalDB')
 
 const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery, rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, } = require('./query_booking_keyMetrics_pacing');
 // const { rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, } = require('./query_booking_keyMetrics_pacing');
+// const { rfmTrackingQuery, } = require('./query_booking_keyMetrics_pacing');
 
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');

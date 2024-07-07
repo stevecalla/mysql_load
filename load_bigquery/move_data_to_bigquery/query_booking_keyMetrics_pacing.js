@@ -376,8 +376,23 @@ const rfmTrackingQuery = `
         booking_charge_less_discount,booking_count,
         
         min_created_at_date,max_created_at_date,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge__less_discount_aed_per_completed_started_bookings,
         
-        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
         
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
@@ -424,8 +439,23 @@ const rfmTrackingMostRecentQuery = `
         booking_charge_less_discount,booking_count,
         
         min_created_at_date,max_created_at_date,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge__less_discount_aed_per_completed_started_bookings,
         
-        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
         
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
@@ -472,8 +502,23 @@ const rfmTrackingOffersQuery = `
         booking_charge_less_discount,booking_count,
         
         min_created_at_date,max_created_at_date,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge__less_discount_aed_per_completed_started_bookings,
         
-        test_group_at_min_created_at_date,score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,rfm_segment_three_parts,rfm_segment_five_parts,
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
         
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 

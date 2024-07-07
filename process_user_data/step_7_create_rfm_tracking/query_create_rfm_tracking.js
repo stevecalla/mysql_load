@@ -41,6 +41,7 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 		CREATE TABLE ${table} AS
 			SELECT 
 				*,
+				-- RFM SEGMENTS
 				CASE
 					WHEN score_three_parts_as_of_initial_date = 0 THEN 'new'
 					WHEN booking_count > 0 THEN 'booker'
@@ -90,8 +91,14 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 					COUNT(b.booking_id) AS booking_count,
 					'${min_created_at_date}' AS min_created_at_date,
 					'${max_created_at_date}' AS max_created_at_date,
-					
+    
+					-- RFM TEST GROUPS
 					MIN(CASE WHEN rfm.created_at_date = '${min_created_at_date}' THEN rfm.test_group ELSE NULL END) AS test_group_at_min_created_at_date,
+
+					-- RFM SCORE METRICS
+					MIN(CASE WHEN rfm.created_at_date = '${min_created_at_date}' THEN rfm.booking_most_recent_return_vs_now ELSE NULL END) AS booking_most_recent_return_vs_now,
+					MIN(CASE WHEN rfm.created_at_date = '${min_created_at_date}' THEN rfm.total_days_per_completed_and_started_bookings ELSE NULL END) AS total_days_per_completed_and_started_bookings,
+					MIN(CASE WHEN rfm.created_at_date = '${min_created_at_date}' THEN rfm.booking_charge__less_discount_aed_per_completed_started_bookings ELSE NULL END) AS booking_charge__less_discount_aed_per_completed_started_bookings,
 					
 					-- SCORE THREE PART COMPARISON
 					MAX(CASE WHEN rfm.created_at_date = '${min_created_at_date}' THEN rfm.score_three_parts ELSE 0 END) AS score_three_parts_as_of_initial_date,
