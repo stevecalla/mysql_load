@@ -15,7 +15,7 @@ const { query_most_recent_create_on_date} = require('./query_most_recent_created
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
-            console.log('SSH tunnel established.');
+            console.log('\nSSH tunnel established.\n');
 
             const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
             sshClient.forwardOut(
@@ -105,7 +105,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 }
 
 function moveFilesToArchive() {
-    console.log('Moving files to archive');
+    console.log('\nMoving files to archive');
 
     try {
         // List all files in the directory
