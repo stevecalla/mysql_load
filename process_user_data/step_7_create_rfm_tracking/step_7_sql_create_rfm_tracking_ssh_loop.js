@@ -12,9 +12,10 @@ const {
     query_insert_rfm_score_summary_history_data_tracking_backup,
 } = require('./query_create_rfm_tracking_backup');
 const {
+	query_drop_rfm_score_summary_history_data_tracking,
 	query_get_min_and_max_created_at_dates,
 	query_get_most_recent_min_and_max_created_at_dates,
-	query_drop_rfm_score_summary_history_data_tracking,
+    query_get_offer_min_and_max_created_at_dates,
 	query_create_rfm_score_summary_history_data_tracking,
 } = require('./query_create_rfm_tracking');
 
@@ -83,8 +84,8 @@ async function execute_create_rfm_tracking() {
         
         const tableList = [
             `rfm_score_summary_history_data_tracking`, 
-            `rfm_score_summary_history_data_tracking_offer`, 
             `rfm_score_summary_history_data_tracking_most_recent`,
+            `rfm_score_summary_history_data_tracking_offer`, 
         ];
 
         // STEP 7.1: CREATE RFM TRACKING SEGMENTS BACKUP
@@ -118,19 +119,19 @@ async function execute_create_rfm_tracking() {
             // GET MIN & MAX DATES TO CREATE THE COMPARISON
             console.log(`Get min & max dates for rfm segments`);
             let dates = "";
-            if (table !== `rfm_score_summary_history_data_tracking_most_recent`) {
+            if (table === `rfm_score_summary_history_data_tracking`) {
                 dates = await execute_query(pool, query_get_min_and_max_created_at_dates, table);
+            } else if (table === `rfm_score_summary_history_data_tracking_offer`) {
+                dates = await execute_query(pool, query_get_offer_min_and_max_created_at_dates, table);
             } else {
                 dates = await execute_query(pool, query_get_most_recent_min_and_max_created_at_dates, table);
             }
 
-            const { min_created_at_date, max_created_at_date } = dates[0];
-            let { min_created_at_date_formatted } = dates[0];
-            min_created_at_date_formatted = await getFormattedDate(min_created_at_date_formatted);
+            const { min_created_at_date, max_created_at_date, max_created_at_date_plus_1 } = dates[0];
     
             // CREATE RFM TRACKING SEGMENTS
             console.log(`Create rfm_score_summary_history_data_tracking`);
-            await execute_query(pool, query_create_rfm_score_summary_history_data_tracking, table, min_created_at_date, min_created_at_date_formatted, max_created_at_date);
+            await execute_query(pool, query_create_rfm_score_summary_history_data_tracking, table, min_created_at_date, max_created_at_date, max_created_at_date_plus_1);
 
             await execute_insert_createdAt_query(pool, table);
         }

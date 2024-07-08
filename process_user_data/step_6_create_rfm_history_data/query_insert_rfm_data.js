@@ -3,7 +3,7 @@ function query_insert_rfm_data() {
 		
 		SELECT 
 			*,
-			DATE_FORMAT(created_at, '%m/%d/%Y') AS created_at_date
+			DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at_date
 		FROM rfm_score_summary_data;
 	`
 }

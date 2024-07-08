@@ -7,6 +7,8 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 				email,
 				mobile,
 				telephone,
+				first_name,
+				last_name,
         
 				-- COUNTRY / CITY
 				all_countries_distinct,

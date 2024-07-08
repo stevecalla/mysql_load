@@ -146,7 +146,16 @@ const bookingQuery = `
         
         promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
         
-        delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
+        -- delivery_lat,
+        SUBSTRING_INDEX(delivery_lat, ' ', 1) AS delivery_lat,
+
+        delivery_lng,collection_location,collection_method,
+        
+        -- collection_lat,
+        SUBSTRING_INDEX(collection_lat, ' ', 1) AS collection_lat,
+        collection_lng,
+        
+        nps_score,nps_comment,
 
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
@@ -307,6 +316,9 @@ const cohortQuery = `
 const rfmQuery = `
     SELECT 
         user_ptr_id,date_join_cohort,email,mobile,telephone,
+
+        first_name,
+        last_name,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
@@ -372,10 +384,8 @@ const rfmTrackingQuery = `
             WHEN return_date IS NULL THEN ''
             ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
         END AS return_date,
-        
-        booking_charge_less_discount,booking_count,
-        
-        min_created_at_date,max_created_at_date,
+
+        days,booking_charge_less_discount,
     
 		-- RFM TEST GROUPS
         test_group_at_min_created_at_date,
@@ -383,13 +393,24 @@ const rfmTrackingQuery = `
 		-- RFM SCORE METRICS
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
-        booking_charge__less_discount_aed_per_completed_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
         
         -- SCORE THREE PART COMPARISON
         score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
         
         -- SCORE FIVE PART COMPARISON
         score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+        
+        CASE
+            WHEN min_created_at_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN max_created_at_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
         
         -- SCORE SEGMENTS
         rfm_segment_three_parts,rfm_segment_five_parts,
@@ -404,7 +425,7 @@ const rfmTrackingMostRecentQuery = `
         user_ptr_id,date_join_cohort,
         
 		is_repeat_new_first,
-        
+
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
@@ -435,10 +456,8 @@ const rfmTrackingMostRecentQuery = `
             WHEN return_date IS NULL THEN ''
             ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
         END AS return_date,
-        
-        booking_charge_less_discount,booking_count,
-        
-        min_created_at_date,max_created_at_date,
+
+        days,booking_charge_less_discount,
     
 		-- RFM TEST GROUPS
         test_group_at_min_created_at_date,
@@ -446,13 +465,24 @@ const rfmTrackingMostRecentQuery = `
 		-- RFM SCORE METRICS
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
-        booking_charge__less_discount_aed_per_completed_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
         
         -- SCORE THREE PART COMPARISON
         score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
         
         -- SCORE FIVE PART COMPARISON
         score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+    
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
         
         -- SCORE SEGMENTS
         rfm_segment_three_parts,rfm_segment_five_parts,
@@ -467,11 +497,11 @@ const rfmTrackingOffersQuery = `
         user_ptr_id,date_join_cohort,
         
 		is_repeat_new_first,
-        
+
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
-        
+
 		booking_count_total,
 		booking_count_cancel,
 		booking_count_completed,
@@ -498,10 +528,8 @@ const rfmTrackingOffersQuery = `
             WHEN return_date IS NULL THEN ''
             ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
         END AS return_date,
-        
-        booking_charge_less_discount,booking_count,
-        
-        min_created_at_date,max_created_at_date,
+
+        days,booking_charge_less_discount,
     
 		-- RFM TEST GROUPS
         test_group_at_min_created_at_date,
@@ -509,13 +537,24 @@ const rfmTrackingOffersQuery = `
 		-- RFM SCORE METRICS
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
-        booking_charge__less_discount_aed_per_completed_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
         
         -- SCORE THREE PART COMPARISON
         score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
         
         -- SCORE FIVE PART COMPARISON
         score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
         
         -- SCORE SEGMENTS
         rfm_segment_three_parts,rfm_segment_five_parts,
