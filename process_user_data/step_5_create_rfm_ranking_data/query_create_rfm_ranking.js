@@ -4,6 +4,11 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 			SELECT 
 				user_ptr_id,
 				date_join_cohort,
+				email,
+				mobile,
+				telephone,
+				first_name,
+				last_name,
         
 				-- COUNTRY / CITY
 				all_countries_distinct,

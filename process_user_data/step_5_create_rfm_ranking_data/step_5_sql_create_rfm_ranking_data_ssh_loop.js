@@ -1,5 +1,3 @@
-const fs = require('fs');
-const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // adding the path ensures each folder will read the .env file as necessary
 
@@ -60,7 +58,7 @@ async function execute_drop_table_query(pool, table) {
     });
 }
 
-// STEP #6.1 - CREATE RFM RANKING
+// STEP #5.1 - CREATE RFM RANKING
 async function execute_create_rfm_ranking(pool, table, metric, metric_as) {
     return new Promise((resolve, reject) => {
 
@@ -87,7 +85,7 @@ async function execute_create_rfm_ranking(pool, table, metric, metric_as) {
     });
 }
 
-// STEP #6.2 - CREATE RFM SCORE SUMMARY DATA
+// STEP #5.2 - CREATE RFM SCORE SUMMARY DATA
 async function execute_create_rfm_score_summary_data(pool) {
     return new Promise((resolve, reject) => {
 
@@ -121,7 +119,7 @@ async function execute_create_rfm_ranking_data() {
         pool = await createLocalDBConnection(localUserDbConfig);
         // console.log(pool.config.connectionConfig.user, pool.config.connectionConfig.database);
 
-        // STEP 6.1: CREATE RANKING DATA
+        // STEP 5.1: CREATE RANKING DATA
         console.log(`STEP 6.1: CREATE RFM RANKING DATA`);
         console.log(getCurrentDateTime());
 
@@ -150,7 +148,7 @@ async function execute_create_rfm_ranking_data() {
             await execute_insert_createdAt_query(pool, table); 
         }
         
-        // STEP #6.2 - CREATE RFM SCORE SUMMARY DATA
+        // STEP #5.2 - CREATE RFM SCORE SUMMARY DATA
         console.log(`STEP #6.2 - CREATE RFM SCORE SUMMARY DATA`);
         console.log(getCurrentDateTime());
 

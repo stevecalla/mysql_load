@@ -13,7 +13,7 @@ const { queryAllPayments } = require('../query_AllPayments'); // Import the sele
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
-            console.log('SSH tunnel established.\n');
+            console.log('\nSSH tunnel established.\n');
 
             sshClient.forwardOut(
                 config.forwardConfig.srcHost,
@@ -104,7 +104,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 }
 
 function moveFilesToArchive() {
-    console.log('Moving files to archive');
+    console.log('\nMoving files to archive');
 
     try {
         // List all files in the directory

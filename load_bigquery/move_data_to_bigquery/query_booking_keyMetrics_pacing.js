@@ -146,9 +146,17 @@ const bookingQuery = `
         
         promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
         
-        delivery_lat,delivery_lng,collection_location,collection_method,collection_lat,collection_lng,nps_score,nps_comment,
+        -- delivery_lat,
+        SUBSTRING_INDEX(delivery_lat, ' ', 1) AS delivery_lat,
+
+        delivery_lng,collection_location,collection_method,
         
-        -- DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s UTC') as created_at
+        -- collection_lat,
+        SUBSTRING_INDEX(collection_lat, ' ', 1) AS collection_lat,
+        collection_lng,
+        
+        nps_score,nps_comment,
+
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_booking_data.booking_data 
@@ -169,12 +177,12 @@ const bookingQuery = `
 
 const keyMetricsQuery = `
     SELECT
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at,
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at,
         DATE_FORMAT(STR_TO_DATE(calendar_date, '%Y-%m-%d'), '%Y-%m-%d') AS calendar_date,
 
         year,quarter,month,week,day,
         
-        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
         is_today,
         
         days_on_rent_whole_day,days_on_rent_fraction,trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,rev_aed_in_extension_period,
@@ -204,7 +212,7 @@ const keyMetricsQuery = `
 
 const pacingQuery = `
     SELECT
-        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as max_booking_datetime,
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
         is_before_today,
 
         pickup_month_year,
@@ -221,17 +229,351 @@ const pacingQuery = `
         running_total_booking_charge_less_discount_extension_aed,
         running_total_extension_charge_aed,
 
-        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s MST') as created_at
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_pacing_metrics.pacing_final_data
     ORDER BY pickup_month_year ASC, booking_date ASC
     -- LIMIT 1;
 `;
 
+const profileQuery = `
+    SELECT
+        user_ptr_id, first_name, last_name, email, mobile, telephone,
+
+        DATE_FORMAT(date_of_birth, '%Y-%m-%d') AS date_of_birth,
+
+        age,
+
+        DATE_FORMAT(date_join_formatted_gst, '%Y-%m-%d') AS date_join_formatted_gst,
+
+        date_join_cohort, 
+        date_join_year, 
+        
+        date_join_quarter, date_join_month, date_join_week_of_year, date_join_day_of_year,
+
+        last_login_gst, 
+        
+        has_last_login_date, is_resident, user_is_verified, is_repeat_user, is_repeat_new_first, 
+        booking_count_total, booking_count_cancel, booking_count_completed, booking_count_started,
+        booking_count_future, booking_count_other, booking_count_not_cancel, 
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        booking_charge_total_less_discount_aed, booking_charge_total_less_discount_extension_aed,
+        booking_charge_extension_only_aed, booking_days_total, booking_days_initial_only, booking_days_extension_only, 
+        
+        DATE_FORMAT(booking_first_created_date, '%Y-%m-%d') AS booking_first_created_date,
+        DATE_FORMAT(booking_most_recent_created_date, '%Y-%m-%d') AS booking_most_recent_created_date,
+        DATE_FORMAT(booking_most_recent_pickup_date, '%Y-%m-%d') AS booking_most_recent_pickup_date,
+        DATE_FORMAT(booking_most_recent_return_date, '%Y-%m-%d') AS booking_most_recent_return_date,
+        
+        booking_join_vs_first_created, booking_first_created_vs_first_pickup, booking_most_recent_created_on_vs_now, 
+        booking_most_recent_return_vs_now, 
+        total_days_per_completed_and_started_bookings, booking_charge__less_discount_aed_per_completed_started_bookings, 
+
+        DATE_FORMAT(CONVERT_TZ(date_now_gst, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s Asia/Dubai') as date_now_gst_v2,
+        
+        is_currently_started, is_canceller, is_renter, is_looker, is_other,
+        rfm_recency_metric, rfm_frequency_metric, rfm_monetary_metric,
+
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.user_data_profile
+    -- original testing example
+    -- WHERE user_ptr_id = 40
+    -- for 161 needed to fix the distinct city / country to wrap with quotes to escape the comma
+    -- WHERE user_ptr_id = 161
+    -- LIMIT 500000;
+`;
+
+const cohortQuery = `
+    SELECT 
+        DATE_FORMAT(calendar_date, '%Y-%m-%d') AS calendar_date,
+        
+        calendar_year_month,calendar_year,calendar_quarter,calendar_month,calendar_week,
+        calendar_day,
+        
+        DATE_FORMAT(CONVERT_TZ(max_booking_datetime, '+00:00', '-04:00'), '%Y-%m-%d %H:%i:%s UTC') as max_booking_datetime,
+        
+        cohort_join_year_month,cohort_join_year,cohort_join_quarter,cohort_join_month,
+        cohort_month_start,calendar_month_start,months_diff,is_today,days_on_rent_whole_day,days_on_rent_fraction,
+        trans_on_rent_count,booking_count,pickup_count,return_count,day_in_initial_period,day_in_extension_period,
+        booking_charge_aed_rev_allocation,booking_charge_less_discount_aed_rev_allocation,rev_aed_in_initial_period,
+        rev_aed_in_extension_period,vendor_on_rent_dispatch,vendor_on_rent_marketplace,booking_type_on_rent_daily,
+        booking_type_on_rent_monthly,booking_type_on_rent_subscription,booking_type_on_rent_weekly,is_repeat_on_rent_no,
+        is_repeat_on_rent_yes,country_on_rent_bahrain,country_on_rent_georgia,country_on_rent_kuwait,
+        country_on_rent_oman,country_on_rent_pakistan,country_on_rent_qatar,country_on_rent_saudia_arabia,
+        country_on_rent_serbia,country_on_rent_united_arab_emirates,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.user_data_cohort_stats 
+    -- LIMIT 200000;
+`;
+
+const rfmQuery = `
+    SELECT 
+        user_ptr_id,date_join_cohort,email,mobile,telephone,
+
+        first_name,
+        last_name,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        booking_count_total,booking_count_cancel,
+        booking_count_completed,booking_count_started,booking_count_future,booking_count_other,is_currently_started,
+        is_repeat_new_first,is_renter,is_looker,is_canceller,
+        
+        DATE_FORMAT(booking_most_recent_return_date, '%Y-%m-%d') AS booking_most_recent_return_date,
+
+        booking_most_recent_return_vs_now,recency_rank,row_number_id,total_rows,row_percent,recency_score_three_parts,
+        recency_score_five_parts,
+    
+        total_days_per_completed_and_started_bookings,
+        booking_charge__less_discount_aed_per_completed_started_bookings,score_three_parts,three_parts_first_recency_amount,
+        three_parts_last_recency_amount,three_parts_first_frequency_amount,three_parts_last_frequency_amount,
+        three_parts_first_monetary_amount,three_parts_last_monetary_amount,score_five_parts,five_parts_first_recency_amount,
+        five_parts_last_recency_amount,five_parts_first_frequency_amount,five_parts_last_frequency_amount,
+        five_parts_first_monetary_amount,five_parts_last_monetary_amount,
+        
+        test_group,
+
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+    
+    FROM ezhire_user_data.rfm_score_summary_data 
+    -- LIMIT 200000;
+`;
+
+const rfmTrackingQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+
+        days,booking_charge_less_discount,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
+        
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+        
+        CASE
+            WHEN min_created_at_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN max_created_at_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking
+`;
+
+const rfmTrackingMostRecentQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+
+        days,booking_charge_less_discount,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
+        
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+    
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking_most_recent
+`;
+
+const rfmTrackingOffersQuery = `
+    SELECT
+        user_ptr_id,date_join_cohort,
+        
+		is_repeat_new_first,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+		booking_count_total,
+		booking_count_cancel,
+		booking_count_completed,
+		booking_count_started,
+		booking_count_future,
+		booking_count_other,
+		is_currently_started,
+        
+        booking_id,status,booking_type,deliver_method,car_cat_name,marketplace_or_dispatch,
+        
+        promo_code,has_promo_code,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(booking_date, '%Y-%m-%d')
+        END AS booking_date,
+
+        CASE
+            WHEN pickup_date IS NULL THEN ''
+            ELSE DATE_FORMAT(pickup_date, '%Y-%m-%d')
+        END AS pickup_date,
+
+        CASE
+            WHEN return_date IS NULL THEN ''
+            ELSE DATE_FORMAT(return_date, '%Y-%m-%d')
+        END AS return_date,
+
+        days,booking_charge_less_discount,
+    
+		-- RFM TEST GROUPS
+        test_group_at_min_created_at_date,
+    
+		-- RFM SCORE METRICS
+        booking_most_recent_return_vs_now,
+        total_days_per_completed_and_started_bookings,
+        booking_charge_less_discount_aed_per_completed_started_bookings,
+        
+        -- SCORE THREE PART COMPARISON
+        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
+        
+        -- SCORE FIVE PART COMPARISON
+        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        
+        booking_count,
+        
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
+        END AS min_created_at_date,
+        CASE
+            WHEN booking_date IS NULL THEN ''
+            ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
+        END AS max_created_at_date,
+        
+        -- SCORE SEGMENTS
+        rfm_segment_three_parts,rfm_segment_five_parts,
+        
+        DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
+
+    FROM ezhire_user_data.rfm_score_summary_history_data_tracking_offer
+`;
+
 module.exports = {
     bookingQuery,
     keyMetricsQuery,
     pacingQuery,
+    profileQuery,
+    cohortQuery,
+    rfmQuery,
+    rfmTrackingQuery,
+    rfmTrackingMostRecentQuery,
+    rfmTrackingOffersQuery,
 }
 
 //NOTE: Need to fix date formats so biqquery would convert properly; BQ saves all timestamps in UTC thus need to convert for analysis/Looker queries 
@@ -254,3 +596,6 @@ module.exports = {
 
 // DATE_FORMAT(STR_TO_DATE(date_of_birth, '%m/%d/%Y'), '%Y-%m-%d') AS date_of_birth
     // converts string '01/1/1995' to '1995-01-01' 
+
+
+    

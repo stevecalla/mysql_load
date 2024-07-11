@@ -15,7 +15,7 @@ const { query_most_recent_create_on_date} = require('./query_most_recent_created
 function createSSHConnection() {
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
-            console.log('SSH tunnel established.');
+            console.log('\nSSH tunnel established.\n');
 
             const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
             sshClient.forwardOut(
@@ -105,7 +105,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 }
 
 function moveFilesToArchive() {
-    console.log('Moving files to archive');
+    console.log('\nMoving files to archive');
 
     try {
         // List all files in the directory
@@ -178,31 +178,61 @@ async function execute_get_booking_data() {
 
         // Array of date ranges to loop through
         const dateRanges = [
-            // { startDate: '2023-01-01', endDate: '2023-01-01' }, // OKAY
+            // { startDate: '2024-01-01', endDate: '2024-01-01' }, // test date
+
             // 2024
-            { startDate: '2024-10-01', endDate: '2024-12-31' }, // OKAY
-            { startDate: '2024-07-01', endDate: '2024-09-30' }, // OKAY
-            { startDate: '2024-04-01', endDate: '2024-06-30' }, // OKAY
-            { startDate: '2024-01-01', endDate: '2024-03-31' }, // OKAY
+            { startDate: '2024-12-01', endDate: '2024-12-31' }, // OKAY
+            { startDate: '2024-11-01', endDate: '2024-11-30' }, // OKAY
+            { startDate: '2024-10-01', endDate: '2024-10-31' }, // OKAY
+            { startDate: '2024-09-01', endDate: '2024-09-30' }, // OKAY
+            { startDate: '2024-08-01', endDate: '2024-08-31' }, // OKAY
+            { startDate: '2024-07-01', endDate: '2024-07-31' }, // OKAY
+            { startDate: '2024-06-01', endDate: '2024-06-30' }, // OKAY
+            { startDate: '2024-05-01', endDate: '2024-05-31' }, // OKAY
+            { startDate: '2024-04-01', endDate: '2024-04-30' }, // OKAY
+            { startDate: '2024-03-01', endDate: '2024-03-31' }, // OKAY
+            { startDate: '2024-02-01', endDate: '2024-02-29' }, // OKAY
+            { startDate: '2024-01-01', endDate: '2024-01-31' }, // OKAY
 
             // 2023
-            { startDate: '2023-10-01', endDate: '2023-12-31' }, // OKAY
-            { startDate: '2023-07-01', endDate: '2023-09-30' }, // OKAY
-            { startDate: '2023-04-01', endDate: '2023-06-30' }, // OKAY
-            { startDate: '2023-01-01', endDate: '2023-03-31' }, // OKAY
+            { startDate: '2023-12-01', endDate: '2023-12-31' }, // OKAY
+            { startDate: '2023-11-01', endDate: '2023-11-30' }, // OKAY
+            { startDate: '2023-10-01', endDate: '2023-10-31' }, // OKAY
+            { startDate: '2023-09-01', endDate: '2023-09-30' }, // OKAY
+            { startDate: '2023-08-01', endDate: '2023-08-31' }, // OKAY
+            { startDate: '2023-07-01', endDate: '2023-07-31' }, // OKAY
+            { startDate: '2023-06-01', endDate: '2023-06-30' }, // OKAY
+            { startDate: '2023-05-01', endDate: '2023-05-31' }, // OKAY
+            { startDate: '2023-04-01', endDate: '2023-04-30' }, // OKAY
+            { startDate: '2023-03-01', endDate: '2023-03-31' }, // OKAY
+            { startDate: '2023-02-01', endDate: '2023-02-28' }, // OKAY
+            { startDate: '2023-01-01', endDate: '2023-01-31' }, // OKAY
 
             // 2022
-            { startDate: '2022-10-01', endDate: '2022-12-31' }, // OKAY
-            { startDate: '2022-07-01', endDate: '2022-09-30' }, // OKAY
-            { startDate: '2022-04-01', endDate: '2022-06-30' }, // OKAY
-            { startDate: '2022-01-01', endDate: '2022-03-31' }, // OKAY
+            { startDate: '2022-12-01', endDate: '2022-12-31' }, // OKAY
+            { startDate: '2022-11-01', endDate: '2022-11-30' }, // OKAY
+            { startDate: '2022-10-01', endDate: '2022-10-31' }, // OKAY
+            { startDate: '2022-09-01', endDate: '2022-09-30' }, // OKAY
+            { startDate: '2022-08-01', endDate: '2022-08-31' }, // OKAY
+            { startDate: '2022-07-01', endDate: '2022-07-31' }, // OKAY
+            { startDate: '2022-06-01', endDate: '2022-06-30' }, // OKAY
+            { startDate: '2022-05-01', endDate: '2022-05-31' }, // OKAY
+            { startDate: '2022-04-01', endDate: '2022-04-30' }, // OKAY
+            { startDate: '2022-03-01', endDate: '2022-03-31' }, // OKAY
+            { startDate: '2022-02-01', endDate: '2022-02-28' }, // OKAY
+            { startDate: '2022-01-01', endDate: '2022-01-31' }, // OKAY
 
             // 2021
-            { startDate: '2021-07-01', endDate: '2021-12-31' }, // OKAY
-            { startDate: '2021-01-01', endDate: '2021-06-30' }, // OKAY
+            { startDate: '2021-10-01', endDate: '2021-12-31' }, // OKAY
+            { startDate: '2021-07-01', endDate: '2021-09-30' }, // OKAY
+            { startDate: '2021-04-01', endDate: '2021-06-30' }, // OKAY
+            { startDate: '2021-01-01', endDate: '2021-03-31' }, // OKAY
+
+            // 2020
+            { startDate: '2020-07-01', endDate: '2020-12-31' }, // OKAY
+            { startDate: '2020-01-01', endDate: '2020-06-30' }, // OKAY
 
             // // 2017 - 2020
-            { startDate: '2020-01-01', endDate: '2020-12-31' }, // 
             { startDate: '2019-01-01', endDate: '2019-12-31' }, // 
             { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
             { startDate: '2017-01-01', endDate: '2017-12-31' }, // 

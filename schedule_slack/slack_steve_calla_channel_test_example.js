@@ -7,7 +7,7 @@
 const dotenv = require('dotenv');
 dotenv.config({path: "../.env"}); 
 
-console.log(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL);
+// console.log(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL);
 
 async function sendSlackMessage() {
   // const message = `Today's USD to INR Exchange Rate: slack hook`;

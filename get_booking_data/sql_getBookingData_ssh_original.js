@@ -14,7 +14,7 @@ const { queryBookingData } = require('./query_BookingData'); // Import the selec
 const SSHConnection = new Promise((resolve, reject) => {
     // Set up SSH tunnel
     sshClient.on('ready', () => {
-        console.log('SSH tunnel established.\n');
+        console.log('\nSSH tunnel established.\n');
 
         // Establish TCP connection through the SSH tunnel
         sshClient.forwardOut(
