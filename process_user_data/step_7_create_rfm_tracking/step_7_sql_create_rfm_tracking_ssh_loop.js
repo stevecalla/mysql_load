@@ -16,6 +16,8 @@ const {
 	query_get_min_and_max_created_at_dates,
 	query_get_most_recent_min_and_max_created_at_dates,
     query_get_offer_min_and_max_created_at_dates,
+    query_get_offer_v2_min_and_max_created_at_dates,
+    query_get_offer_v3_min_and_max_created_at_dates,
 	query_create_rfm_score_summary_history_data_tracking,
 } = require('./query_create_rfm_tracking');
 
@@ -86,6 +88,8 @@ async function execute_create_rfm_tracking() {
             `rfm_score_summary_history_data_tracking`, 
             `rfm_score_summary_history_data_tracking_most_recent`,
             `rfm_score_summary_history_data_tracking_offer`, 
+            `rfm_score_summary_history_data_tracking_offer_v2`, 
+            `rfm_score_summary_history_data_tracking_offer_v3`, 
         ];
 
         // STEP 7.1: CREATE RFM TRACKING SEGMENTS BACKUP
@@ -123,8 +127,14 @@ async function execute_create_rfm_tracking() {
                 dates = await execute_query(pool, query_get_min_and_max_created_at_dates, table);
             } else if (table === `rfm_score_summary_history_data_tracking_offer`) {
                 dates = await execute_query(pool, query_get_offer_min_and_max_created_at_dates, table);
-            } else {
+            } else if (table === `rfm_score_summary_history_data_tracking_offer_v2`) {
+                dates = await execute_query(pool, query_get_offer_v2_min_and_max_created_at_dates, table);
+            } else if (table === `rfm_score_summary_history_data_tracking_offer_v3`) {
+                dates = await execute_query(pool, query_get_offer_v3_min_and_max_created_at_dates, table);
+            } else if (table === `rfm_score_summary_history_data_tracking_most_recent`) {
                 dates = await execute_query(pool, query_get_most_recent_min_and_max_created_at_dates, table);
+            } else {
+                console.log("Error finding min & max dates query in Step 7 sql create rfm tracking ssh loop");
             }
 
             const { min_created_at_date, max_created_at_date, max_created_at_date_plus_1 } = dates[0];

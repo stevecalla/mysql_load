@@ -11,10 +11,11 @@ const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 const datasetId = "ezhire_metrics";
 
 //TODO:
-const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data", "rfm_tracking_data", "rfm_tracking_most_recent_data", "rfm_tracking_offers_data"];
+const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data", "rfm_tracking_data", "rfm_tracking_most_recent_data", "rfm_tracking_offers_data", "rfm_tracking_offers_v2_data", "rfm_tracking_offers_v3_data"];
 // const tableIds = ["rfm_tracking_data", "rfm_tracking_most_recent_data", "rfm_tracking_offers_data"];
 // const tableIds = ["rfm_tracking_data"];
 // const tableIds = ["rfm_data"];
+// const tableIds = ["rfm_tracking_offers_data", "rfm_tracking_offers_v2_data", "rfm_tracking_offers_v3_data"];
 
 async function execute_create_bigquery_dataset() {
     try {

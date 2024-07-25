@@ -177,6 +177,16 @@ async function execute_retrieve_data() {
                 fileName: 'rfm_tracking_offers_data',
                 query: rfmTrackingOffersQuery,
             },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_offers_v2_data',
+                query: rfmTrackingOffersQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_offers_v3_data',
+                query: rfmTrackingOffersQuery,
+            },
         ];
 
         // STEP 1.0 ARCHIVE FILES
