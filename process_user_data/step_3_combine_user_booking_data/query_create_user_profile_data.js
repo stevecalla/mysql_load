@@ -55,6 +55,10 @@ CREATE TABLE user_data_profile AS
 		udkm.all_countries_distinct,
 		udkm.all_cities_distinct,
 
+		-- BOOKING TYPE
+		udkm.booking_type_all_distinct,
+		udkm.booking_type_most_recent,
+
 		-- REVENUE STATS
 		udkm.booking_charge_total_less_discount_aed,
 		udkm.booking_charge_total_less_discount_extension_aed,
@@ -135,7 +139,7 @@ CREATE TABLE user_data_profile AS
 		-- booking_count_started = 0
 		-- AND
 		-- udkm.booking_most_recent_return_vs_now < 0
-	GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47
+	GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
 	ORDER BY ubd.user_ptr_id;
 `;
 

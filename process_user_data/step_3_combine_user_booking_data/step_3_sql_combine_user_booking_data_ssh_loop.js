@@ -8,7 +8,14 @@ const { createLocalDBConnection } = require('../../utilities/connectionLocalDB')
 const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');
 
-const { query_combine_user_and_booking_data } = require('./query_combine_user_and_booking_data');
+const { query_combine_user_and_booking_data,
+    drop_idx_user_ptr_id_dates,
+    drop_idx_user_ptr_id_return_date,
+    drop_idx_user_ptr_id_status,
+    create_idx_user_ptr_id_dates,
+    create_idx_user_ptr_id_return_date,
+    create_idx_user_ptr_id_status,
+} = require('./query_combine_user_and_booking_data');
 const { query_create_key_metrics_rollup } = require('./query_create_key_metrics_rollup');
 const { query_create_user_profile_data } = require('./query_create_user_profile_data');
 
@@ -77,8 +84,31 @@ async function execute_create_combined_data_query(pool) {
                 console.error('Error executing select query:', queryError);
                 reject(queryError);
             } else {
-                
                 console.log('\nCreate user base data');
+                console.table(results);
+                console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
+                resolve();
+            }
+        });
+    });
+}
+
+async function execute_create_combined_data_index(pool, indexQuery) {
+    return new Promise((resolve, reject) => {
+
+        const startTime = performance.now();
+  
+        const query = indexQuery;
+
+        pool.query(query, (queryError, results) => {
+            const endTime = performance.now();
+            const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
+
+            if (queryError) {
+                console.error('Error executing drop/create index:', queryError);
+                reject(queryError);
+            } else {
+                console.log('\nCreate index');
                 console.table(results);
                 console.log(`Query results: ${results.info}, Elapsed Time: ${elapsedTime} sec\n`);
                 resolve();
@@ -152,6 +182,22 @@ async function execute_create_user_data() {
 
         await execute_drop_table_query(pool, 'user_data_combined_booking_data;');
         await execute_create_combined_data_query(pool);
+
+        const indexQueries = [
+            // SINCE TABLE IS BEING RECREATED DON'T NEED TO DELETE / DROP INDEX
+            // drop_idx_user_ptr_id_dates,
+            // drop_idx_user_ptr_id_return_date,
+            // drop_idx_user_ptr_id_status,
+            create_idx_user_ptr_id_dates,
+            create_idx_user_ptr_id_return_date,
+            create_idx_user_ptr_id_status,
+        ];
+
+        console.log(indexQueries.length);
+
+        for (let i = 0; i < indexQueries.length; i++) {
+            await execute_create_combined_data_index(pool, indexQueries[i]);
+        }
         
         //STEP 3.2: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
         console.log(`STEP 3.2: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);

@@ -12,4 +12,38 @@ CREATE TABLE user_data_combined_booking_data AS
     -- LIMIT 1000;
 `;
 
-module.exports = { query_combine_user_and_booking_data };
+// DROP INDEX
+const drop_idx_user_ptr_id_status = `
+    DROP INDEX idx_user_ptr_id_status ON ezhire_user_data.user_data_combined_booking_data;
+`;
+
+const drop_idx_user_ptr_id_return_date = `
+    DROP INDEX idx_user_ptr_id_return_date ON ezhire_user_data.user_data_combined_booking_data;
+`;
+
+const drop_idx_user_ptr_id_dates = `
+    DROP INDEX idx_user_ptr_id_dates ON ezhire_user_data.user_data_combined_booking_data;
+`;
+
+// CREATE INDEX
+const create_idx_user_ptr_id_status = `
+    CREATE INDEX idx_user_ptr_id_dates ON ezhire_user_data.user_data_combined_booking_data (user_ptr_id, booking_date, pickup_date, return_date);
+`;
+
+const create_idx_user_ptr_id_return_date = `
+    CREATE INDEX idx_user_ptr_id_status ON ezhire_user_data.user_data_combined_booking_data (user_ptr_id, status);
+`;
+
+const create_idx_user_ptr_id_dates = `
+    CREATE INDEX idx_user_ptr_id_return_date ON ezhire_user_data.user_data_combined_booking_data (user_ptr_id, return_date);
+`;
+
+module.exports = { 
+    query_combine_user_and_booking_data,
+    drop_idx_user_ptr_id_dates,
+    drop_idx_user_ptr_id_return_date,
+    drop_idx_user_ptr_id_status,
+    create_idx_user_ptr_id_dates,
+    create_idx_user_ptr_id_return_date,
+    create_idx_user_ptr_id_status,
+ };

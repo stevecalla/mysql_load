@@ -5,11 +5,26 @@ const query_create_key_metrics_rollup = `
             -- booking_id, -- to see the detail for each booking_id,
             -- status, -- to see the detail for each booking_id,
 
+            -- COUNTRY & CITY STATS
             --  GROUP_CONCAT(DISTINCT deliver_country ORDER BY deliver_country ASC SEPARATOR ', ') AS all_countries_distinct,
             --  GROUP_CONCAT(DISTINCT deliver_city ORDER BY deliver_city ASC SEPARATOR ', ') AS all_cities_distinct,
-
             GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN deliver_country END ORDER BY deliver_country ASC SEPARATOR ', ') AS all_countries_distinct,
             GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN deliver_city END ORDER BY deliver_city ASC SEPARATOR ', ') AS all_cities_distinct,
+
+            -- BOOKING TYPE
+                --  GROUP_CONCAT(DISTINCT booking_type ORDER BY booking_type ASC SEPARATOR ', ') AS booking_type_all_distinct,
+                GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN booking_type END ORDER BY booking_type ASC SEPARATOR ', ') AS booking_type_all_distinct,
+            (SELECT booking_type
+            FROM ezhire_user_data.user_data_combined_booking_data AS inner_data
+            WHERE inner_data.user_ptr_id = user_data_combined_booking_data.user_ptr_id
+            AND inner_data.return_date = (
+                SELECT MAX(return_date)
+                FROM ezhire_user_data.user_data_combined_booking_data AS inner_data2
+                WHERE inner_data2.user_ptr_id = inner_data.user_ptr_id
+                    AND inner_data2.status NOT IN ('Cancelled by User')
+            )
+            AND inner_data.status NOT IN ('Cancelled by User')
+            LIMIT 1) AS booking_type_most_recent,
 
             -- CANCELLER, REPEAT, NEW, FIRST
             CASE
@@ -136,7 +151,8 @@ const query_create_key_metrics_rollup = `
         -- TO GET ROLLUP FOR ALL USERS
         GROUP BY 1
         ORDER BY 1;	
-        -- LIMIT 10;
+        -- ORDER BY 1
+        -- LIMIT 100;
 `;
 
 module.exports = { query_create_key_metrics_rollup };

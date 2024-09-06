@@ -58,7 +58,8 @@ function query_get_offer_v3_min_and_max_created_at_dates() {
 	return `
 		-- GET MIN & MAX CREATED AT DATE
 		SELECT
-			'2024-07-24' AS min_created_at_date,
+			-- '2024-07-24' AS min_created_at_date,
+			'2024-08-15' AS min_created_at_date,
 			MAX(created_at_date) AS max_created_at_date,
 			DATE_ADD(MAX(created_at_date), INTERVAL 1 DAY) AS max_created_at_date_plus_1
 		FROM rfm_score_summary_history_data
@@ -101,8 +102,13 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 				rfm.date_join_cohort,
 				
 				rfm.is_repeat_new_first,
+
 				rfm.all_cities_distinct,
-				rfm.all_countries_distinct, 
+				rfm.all_countries_distinct,
+				 
+				rfm.booking_type_all_distinct, 
+				rfm.booking_type_most_recent, 
+
 				rfm.booking_count_total,
 				rfm.booking_count_cancel,
 				rfm.booking_count_completed,
@@ -159,7 +165,7 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 			LEFT JOIN rfm_score_summary_history_data AS rfm_v2 ON rfm.user_ptr_id = rfm_v2.user_ptr_id
 				AND rfm_v2.created_at_date = '${max_created_at_date}'
 			WHERE rfm.created_at_date = '${min_created_at_date}'
-			GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35
+			GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
 			ORDER BY rfm.user_ptr_id, b.return_date
 			) AS a;
 	`

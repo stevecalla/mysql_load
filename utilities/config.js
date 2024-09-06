@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config({path: "../.env"}); // adding the path ensures each folder will read the .env file as necessary
+const connectionLimitThrottle = 30;
 
 // console.log(process.env); // double check if env variables are available
 
@@ -9,7 +10,7 @@ const dbConfig = {
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-    connectionLimit: 10,
+    connectionLimit: connectionLimitThrottle,
 };
 
 const sshConfig = {
@@ -33,7 +34,7 @@ const localBookingDbConfig = {
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_BOOKING_DB,
-    connectionLimit: 20, // adjust as needed
+    connectionLimit: connectionLimitThrottle,
 };
 
 const localKeyMetricsDbConfig = {
@@ -42,7 +43,7 @@ const localKeyMetricsDbConfig = {
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_KEYMETRICS_DB,
-    connectionLimit: 20, // adjust as needed
+    connectionLimit: connectionLimitThrottle,
     // timeout: 60000 //not sure if this works
     // connectTimeout: 10000 //not sure if this works
     // https://github.com/mysqljs/mysql#connection-options
@@ -55,7 +56,7 @@ const localPacingDbConfig = {
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_PACING_DB,
-    connectionLimit: 20, // adjust as needed
+    connectionLimit: connectionLimitThrottle,
     // timeout: 60000 //not sure if this works
     // connectTimeout: 10000 //not sure if this works
     // https://github.com/mysqljs/mysql#connection-options
@@ -68,7 +69,7 @@ const local_mock_rfm_db_config = {
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     // database: process.env.LOCAL_ATTENDANCE_DB,
-    connectionLimit: 20,
+    connectionLimit: connectionLimitThrottle,
 };
 
 const localUserDbConfig = {
@@ -77,7 +78,7 @@ const localUserDbConfig = {
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_USER_DB,
-    connectionLimit: 20,
+    connectionLimit: connectionLimitThrottle,
 };
 
 const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;

@@ -253,13 +253,26 @@ const profileQuery = `
 
         last_login_gst, 
         
-        has_last_login_date, is_resident, user_is_verified, is_repeat_user, is_repeat_new_first, 
+        has_last_login_date, 
+        
+        
+        -- is_resident, 
+        CASE
+            WHEN is_resident IN ('? undefined:undefined ?') THEN ''
+            ELSE is_resident
+        END AS is_resident,
+        
+        user_is_verified, is_repeat_user, is_repeat_new_first, 
         booking_count_total, booking_count_cancel, booking_count_completed, booking_count_started,
         booking_count_future, booking_count_other, booking_count_not_cancel, 
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
-        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct, 
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
         booking_charge_total_less_discount_aed, booking_charge_total_less_discount_extension_aed,
         booking_charge_extension_only_aed, booking_days_total, booking_days_initial_only, booking_days_extension_only, 
@@ -324,6 +337,10 @@ const rfmQuery = `
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
         
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
+        
         booking_count_total,booking_count_cancel,
         booking_count_completed,booking_count_started,booking_count_future,booking_count_other,is_currently_started,
         is_repeat_new_first,is_renter,is_looker,is_canceller,
@@ -357,6 +374,10 @@ const rfmTrackingQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
 		booking_count_total,
 		booking_count_cancel,
@@ -429,6 +450,10 @@ const rfmTrackingMostRecentQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
 		booking_count_total,
 		booking_count_cancel,
@@ -501,6 +526,10 @@ const rfmTrackingOffersQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
 		booking_count_total,
 		booking_count_cancel,
@@ -548,11 +577,11 @@ const rfmTrackingOffersQuery = `
         booking_count,
         
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN min_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
         END AS min_created_at_date,
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN max_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
         END AS max_created_at_date,
         
@@ -573,6 +602,10 @@ const rfmTrackingOffersV2Query = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
 		booking_count_total,
 		booking_count_cancel,
@@ -620,11 +653,11 @@ const rfmTrackingOffersV2Query = `
         booking_count,
         
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN min_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
         END AS min_created_at_date,
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN max_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
         END AS max_created_at_date,
         
@@ -645,6 +678,10 @@ const rfmTrackingOffersV3Query = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
+        CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
 		booking_count_total,
 		booking_count_cancel,
@@ -692,11 +729,11 @@ const rfmTrackingOffersV3Query = `
         booking_count,
         
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN min_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(min_created_at_date, '%Y-%m-%d')
         END AS min_created_at_date,
         CASE
-            WHEN booking_date IS NULL THEN ''
+            WHEN max_created_at_date IS NULL THEN ''
             ELSE DATE_FORMAT(max_created_at_date, '%Y-%m-%d')
         END AS max_created_at_date,
         
@@ -718,6 +755,8 @@ module.exports = {
     rfmTrackingQuery,
     rfmTrackingMostRecentQuery,
     rfmTrackingOffersQuery,
+    rfmTrackingOffersV2Query,
+    rfmTrackingOffersV3Query,
 }
 
 //NOTE: Need to fix date formats so biqquery would convert properly; BQ saves all timestamps in UTC thus need to convert for analysis/Looker queries 

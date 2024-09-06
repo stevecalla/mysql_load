@@ -4,11 +4,25 @@ const queryBookingData = `
 -- SET @str_date = '2024-01-01', @end_date = '2024-01-01';
 
 -- ********* START ************ CHANGE LOG
--- 5/21/24 adjust for early return  
--- adjust additional_driver_rate, additional_driver_charge, insurance_charge, other_rental_charge
+    -- CUSTOMER RATE = 0, EARLY RETURN = 1
+        -- WHERE b.id IN ('208353')
+	    -- WHERE b.id IN ('43646', '67222', '72671', '104647', '94785', '206269', '208353', '228349', '226414', '237124')
+    -- ADD BASE FARE CODE = 35 TO other_rental_charge TO INCLUDE THE BASE FARE
+        -- adjusted other_rental_charge to include 35
+        -- adjusted booking_charge to include 35
+        -- adjusted booking_charge_less_discount to include 35
+        -- adjusted base_rental_revenue to include 35
 -- ********* END *************** CHANGE LOG
 
 SELECT 
+    -- NOW(),
+    -- CURDATE(),
+    -- return_datetime AS test_return_date,
+    -- CASE 
+    --     WHEN return_datetime < now() THEN 'true'
+    --     ELSE 'false'
+    -- END AS test_v2,
+
     booking_id,
     REPLACE(REPLACE(agreement_number, '"', ''),
         ',',
@@ -173,6 +187,7 @@ SELECT
     IFNULL(extension_days, 0) AS extension_days, -- ????
 
     IFNULL(extra_day_calc, 0) AS extra_day_calc, -- adjusted for early return
+    -- IFNULL(customer_rate_v2, 0) AS customer_rate_v2, -- adjusted for early return
     IFNULL(customer_rate, 0) AS customer_rate, -- adjusted for early return
     IFNULL(insurance_rate, 0) AS insurance_rate, -- adjusted for early return
 
@@ -184,7 +199,8 @@ SELECT
     IFNULL(millage_rate, 0) AS millage_rate,
     IFNULL(millage_cap_km, 0) AS millage_cap_km,
 
-    IFNULL(rent_charge, 0) AS rent_charge, -- adjusted for early return
+    -- IFNULL(rent_charge, 0) AS rent_charge, -- adjusted for early return
+    IFNULL((days * customer_rate), 0) AS rent_charge,
 
     -- RENT CHARGE FOR INITIAL BOOKING (TO EXCLUDE EXTENSION AND DISCOUNT)
     IFNULL((((days - extension_days) * customer_rate) - (discount_charge)) * tb.conversion_rate, 0) AS rent_charge_less_discount_extension_aed,
@@ -462,7 +478,7 @@ FROM
                 FROM
                     myproject.rental_car_booking2 bb
                 WHERE
-                    bb.owner_id = b.owner_id
+                    bb.owner_id = b.owner_id 
                         AND bb.status NOT IN (8 , 9)), 0) AS no_of_started_bookings,
             b.owner_id AS customer_id,
             au.first_name AS first_name,
@@ -490,7 +506,7 @@ FROM
             -- adjusted for early return
             CASE
                 WHEN b.early_return = 0 THEN IFNULL(b.days, 0)
-                ELSE IFNULL(erb.new_days, 0)
+                ELSE IFNULL(erb.new_days, b.days)
             END AS days,
             
             -- adjusted for early return
@@ -533,19 +549,58 @@ FROM
                             b.deliver_date_string
                         ), 0)
                 ELSE 
-                    IFNULL((
-                        SELECT 
-                            charge 
-                        FROM
-                            myproject.rental_early_return_charges as erc
-                        WHERE
-                            -- AND erc.charge_type_id IN (4)), 0)
-                        
-                            erc.booking_id = b.id
-                                AND erc.charge_type_id IN (4)
-                        -- ****************************
-                        LIMIT 1), 0) -- FIX 07/03/24
-                        -- ****************************    
+                    CASE
+                        -- Fetch the charge for early return
+                        WHEN IFNULL((
+                            SELECT 
+                                charge 
+                            FROM
+                                myproject.rental_early_return_charges as erc
+                            WHERE
+                                erc.booking_id = b.id
+                                    AND erc.charge_type_id IN (4)
+                            LIMIT 1
+                        ), 0) = 0 THEN
+                    -- CASE
+                    --     -- Fetch the charge for early return
+                    --     WHEN (
+                    --         SELECT 
+                    --             charge 
+                    --         FROM
+                    --             myproject.rental_early_return_charges as erc
+                    --         WHERE
+                    --             erc.booking_id = b.id
+                    --                 AND erc.charge_type_id IN (4)
+                    --         LIMIT 1
+                    --     ) = 0 THEN
+                            -- Use the original WHEN clause value
+                            IFNULL(
+                                myproject.get_rental_rates(
+                                    b.id,
+                                    b.millage_id,
+                                    b.contract_id,
+                                    b.drg,
+                                    b.wrg,
+                                    b.mrg,
+                                    b.dr,
+                                    b.wr,
+                                    b.mr,
+                                    b.days,
+                                    b.deliver_date_string
+                                ), 0)
+                        ELSE
+                            -- Use the charge if it's not zero
+                            IFNULL((
+                                SELECT 
+                                    charge 
+                                FROM
+                                    myproject.rental_early_return_charges as erc
+                                WHERE
+                                    erc.booking_id = b.id
+                                        AND erc.charge_type_id IN (4)
+                                LIMIT 1
+                            ), 0)
+                    END
             END AS customer_rate, -- in local currency
 
             -- adjusted for early return
@@ -663,7 +718,7 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id = 4), 0)
+                                AND cc.charge_type_id IN (4)), 0)
                 ELSE 
                     IFNULL((
                         SELECT 
@@ -672,7 +727,7 @@ FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
                             erc.booking_id = b.id
-                                AND erc.charge_type_id = 4), 0)
+                                AND erc.charge_type_id IN (4)), 0)
             END AS rent_charge,
 
             -- adjusted for early return
@@ -1041,7 +1096,8 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
+                                -- AND cc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
+                                AND cc.charge_type_id IN (18, 23, 26, 35, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
                 ELSE 
                     IFNULL((
                         SELECT 
@@ -1050,7 +1106,8 @@ FROM
                             myproject.rental_early_return_charges as erc
                         WHERE
                             erc.booking_id = b.id
-                                AND erc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
+                                -- AND erc.charge_type_id IN (18, 23, 26, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
+                                AND erc.charge_type_id IN (18, 23, 26, 35, 37, 38, 39, 48, 49, 50, 52, 57)), 0)
             END AS other_rental_charge,
 
             -- (SELECT 
@@ -1177,21 +1234,71 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id IN (3, 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                                AND cc.charge_type_id IN (3, 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                -- fix  8/3/24
                 ELSE 
-                    IFNULL((
-                        SELECT 
-                            -- SUM(total_charge)
-                            SUM(CASE
-                                    WHEN charge_type_id IN (21, 40) THEN (charge)
-                                    WHEN charge_type_id IN (15, 36) THEN (charge)
-                                    ELSE (total_charge)
-                                END)
-                        FROM
-                            myproject.rental_early_return_charges as erc
-                        WHERE
-                            erc.booking_id = b.id
-                                AND erc.charge_type_id IN (3, 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                    CASE
+                        -- Fetch the charge for early return
+                        WHEN IFNULL((
+                            SELECT 
+                                charge 
+                            FROM
+                                myproject.rental_early_return_charges as erc
+                            WHERE
+                                erc.booking_id = b.id
+                                    AND erc.charge_type_id IN (4)
+                            LIMIT 1
+                        ), 0) = 0 THEN
+                            -- Use the original WHEN clause value
+                            IFNULL(
+                                myproject.get_rental_rates(
+                                    b.id,
+                                    b.millage_id,
+                                    b.contract_id,
+                                    b.drg,
+                                    b.wrg,
+                                    b.mrg,
+                                    b.dr,
+                                    b.wr,
+                                    b.mr,
+                                    b.days,
+                                    b.deliver_date_string
+                                ), 0)
+
+                                -- adjusted for early return
+                                * CASE
+                                    WHEN b.early_return = 0 THEN IFNULL(b.days, 0)
+                                    ELSE IFNULL(erb.new_days, b.days)
+                                END
+
+                                + IFNULL((
+                                    SELECT 
+                                        -- SUM(total_charge)
+                                        SUM(CASE
+                                                WHEN charge_type_id IN (21, 40) THEN (charge)
+                                                WHEN charge_type_id IN (15, 36) THEN (charge)
+                                                ELSE (total_charge)
+                                            END)
+                                    FROM
+                                        myproject.rental_early_return_charges as erc
+                                    WHERE
+                                        erc.booking_id = b.id
+                                            AND erc.charge_type_id IN (3, 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                        ELSE 
+                            IFNULL((
+                                SELECT 
+                                    -- SUM(total_charge)
+                                    SUM(CASE
+                                            WHEN charge_type_id IN (21, 40) THEN (charge)
+                                            WHEN charge_type_id IN (15, 36) THEN (charge)
+                                            ELSE (total_charge)
+                                        END)
+                                FROM
+                                    myproject.rental_early_return_charges as erc
+                                WHERE
+                                    erc.booking_id = b.id
+                                        AND erc.charge_type_id IN (3, 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                    END
             END AS booking_charge,
 
             -- adjusted for early return
@@ -1207,21 +1314,71 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57, 14)), 0)
+                                AND cc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57, 14)), 0)
+                -- fix  8/3/24
                 ELSE 
-                    IFNULL((
-                        SELECT 
-                            SUM(CASE
-                                    WHEN charge_type_id IN (14) THEN -(total_charge)
-                                    WHEN charge_type_id IN (21, 40) THEN (charge)
-                                    WHEN charge_type_id IN (15, 36) THEN (charge)
-                                    ELSE (total_charge)
-                                END)
-                        FROM
-                            myproject.rental_early_return_charges as erc
-                        WHERE
-                            erc.booking_id = b.id
-                                AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57, 14)), 0)
+                    CASE
+                        -- Fetch the charge for early return
+                        WHEN IFNULL((
+                            SELECT 
+                                charge 
+                            FROM
+                                myproject.rental_early_return_charges as erc
+                            WHERE
+                                erc.booking_id = b.id
+                                    AND erc.charge_type_id IN (4)
+                            LIMIT 1
+                        ), 0) = 0 THEN
+                            -- Use the original WHEN clause value
+                            IFNULL(
+                                myproject.get_rental_rates(
+                                    b.id,
+                                    b.millage_id,
+                                    b.contract_id,
+                                    b.drg,
+                                    b.wrg,
+                                    b.mrg,
+                                    b.dr,
+                                    b.wr,
+                                    b.mr,
+                                    b.days,
+                                    b.deliver_date_string
+                                ), 0)
+
+                                -- adjusted for early return
+                                * CASE
+                                    WHEN b.early_return = 0 THEN IFNULL(b.days, 0)
+                                    ELSE IFNULL(erb.new_days, b.days)
+                                END
+
+                                + IFNULL((
+                                    SELECT 
+                                        SUM(CASE
+                                                WHEN charge_type_id IN (14) THEN -(total_charge)
+                                                WHEN charge_type_id IN (21, 40) THEN (charge)
+                                                WHEN charge_type_id IN (15, 36) THEN (charge)
+                                                ELSE (total_charge)
+                                            END)
+                                    FROM
+                                        myproject.rental_early_return_charges as erc
+                                    WHERE
+                                        erc.booking_id = b.id
+                                            AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57, 14)), 0)
+                        ELSE 
+                            IFNULL((
+                                SELECT 
+                                    SUM(CASE
+                                            WHEN charge_type_id IN (14) THEN -(total_charge)
+                                            WHEN charge_type_id IN (21, 40) THEN (charge)
+                                            WHEN charge_type_id IN (15, 36) THEN (charge)
+                                            ELSE (total_charge)
+                                        END)
+                                FROM
+                                    myproject.rental_early_return_charges as erc
+                                WHERE
+                                    erc.booking_id = b.id
+                                        AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57, 14)), 0)
+                    END
             END AS booking_charge_less_discount,
             
             -- adjusted for early return
@@ -1234,21 +1391,71 @@ FROM
                             myproject.rental_charges cc
                         WHERE
                             cc.booking_id = b.id
-                                AND cc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                                AND cc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                -- fix  8/3/24
                 ELSE 
-                    IFNULL((
-                        SELECT 
-                            -- SUM(total_charge)
-                            SUM(CASE
-                                    WHEN charge_type_id IN (21, 40) THEN (charge)
-                                    WHEN charge_type_id IN (15, 36) THEN (charge)
-                                    ELSE (total_charge)
-                                END)
-                        FROM
-                            myproject.rental_early_return_charges as erc
-                        WHERE
-                            erc.booking_id = b.id
-                                AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)
+                    CASE
+                        -- Fetch the charge for early return
+                        WHEN IFNULL((
+                            SELECT 
+                                charge 
+                            FROM
+                                myproject.rental_early_return_charges as erc
+                            WHERE
+                                erc.booking_id = b.id
+                                    AND erc.charge_type_id IN (4)
+                            LIMIT 1
+                        ), 0) = 0 THEN
+                            -- Use the original WHEN clause value
+                            IFNULL(
+                                myproject.get_rental_rates(
+                                    b.id,
+                                    b.millage_id,
+                                    b.contract_id,
+                                    b.drg,
+                                    b.wrg,
+                                    b.mrg,
+                                    b.dr,
+                                    b.wr,
+                                    b.mr,
+                                    b.days,
+                                    b.deliver_date_string
+                                ), 0)
+
+                                -- adjusted for early return
+                                * CASE
+                                    WHEN b.early_return = 0 THEN IFNULL(b.days, 0)
+                                    ELSE IFNULL(erb.new_days, b.days)
+                                END
+
+                                + IFNULL((
+                                    SELECT 
+                                        -- SUM(total_charge)
+                                        SUM(CASE
+                                                WHEN charge_type_id IN (21, 40) THEN (charge)
+                                                WHEN charge_type_id IN (15, 36) THEN (charge)
+                                                ELSE (total_charge)
+                                            END)
+                                    FROM
+                                        myproject.rental_early_return_charges as erc
+                                    WHERE
+                                        erc.booking_id = b.id
+                                            AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)    
+                        ELSE 
+                            IFNULL((
+                                SELECT 
+                                    -- SUM(total_charge)
+                                    SUM(CASE
+                                            WHEN charge_type_id IN (21, 40) THEN (charge)
+                                            WHEN charge_type_id IN (15, 36) THEN (charge)
+                                            ELSE (total_charge)
+                                        END)
+                                FROM
+                                    myproject.rental_early_return_charges as erc
+                                WHERE
+                                    erc.booking_id = b.id
+                                        AND erc.charge_type_id IN (3 , 4, 11, 15, 16, 17, 18, 19, 21, 23, 25, 26, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 56, 57)), 0)                        
+                        END
             END AS base_rental_revenue,
             
             -- adjusted for early return
@@ -1374,6 +1581,22 @@ FROM
 	-- 	AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
 	-- 	AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
 
+    -- TBD
+    -- WHERE b.id IN ('51859', '75241', '271272')
+
+    -- BASE FARE MISSING
+    -- ADD BASE FARE CODE = 35 TO other_rental_charge TO INCLUDE THE BASE FARE
+    -- WHERE b.id IN ('87679', '151091', '121185', '134561', '153496', '168712', '168710' ,'145038','173788','173787')
+
+    -- CUSTOMER RATE = 0, EARLY RETURN = 1
+    -- WHERE b.id IN ('208353')
+	-- WHERE b.id IN ('43646', '67222', '72671', '104647', '94785', '206269', '208353', '228349', '226414', '237124')
+
+    -- RENTAL STARTED STATUS BUT RETURN DATE PRIOR TO NOW?
+	-- WHERE b.id IN ('281854')
+    -- WHERE b.status = '31'
+    -- HAVING return_datetime < NOW()
+
     -- WHERE b.id IN ('21899') -- additional driver rate & charge adjustment
     -- WHERE b.id IN ('21899', '36872', '121894', '86817', '68985') -- additional driver or insurance charge rate & charge adjustment
     -- WHERE b.id IN ('182520', '182582', '178575')
@@ -1410,7 +1633,7 @@ FROM
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL SET VARIABLES DON'T WORK ******* START *********
 	WHERE date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
         AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-		AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+	    AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL VARIABLES DON'T WORK ******* END *********
 
     ORDER BY b.id

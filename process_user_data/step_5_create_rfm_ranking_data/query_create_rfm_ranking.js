@@ -13,6 +13,10 @@ function query_create_rfm_ranking(table, metric, metric_as) {
 				-- COUNTRY / CITY
 				all_countries_distinct,
 				all_cities_distinct,
+
+				-- BOOKING TYPE
+				booking_type_all_distinct, 
+				booking_type_most_recent,
 		
 				booking_count_total,
 				booking_count_cancel,

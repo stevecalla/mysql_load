@@ -7,7 +7,7 @@ dotenv.config({ path: "../../.env" }); // add path to read.env file
 const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, localUserDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
-const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery, rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, } = require('./query_booking_keyMetrics_pacing');
+const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery, rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, rfmTrackingOffersV2Query, rfmTrackingOffersV3Query, } = require('./query_booking_keyMetrics_pacing');
 // const { rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, } = require('./query_booking_keyMetrics_pacing');
 // const { rfmTrackingQuery, } = require('./query_booking_keyMetrics_pacing');
 // const { rfmQuery, } = require('./query_booking_keyMetrics_pacing');
@@ -180,12 +180,12 @@ async function execute_retrieve_data() {
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_offers_v2_data',
-                query: rfmTrackingOffersQuery,
+                query: rfmTrackingOffersV2Query,
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_offers_v3_data',
-                query: rfmTrackingOffersQuery,
+                query: rfmTrackingOffersV3Query,
             },
         ];
 
