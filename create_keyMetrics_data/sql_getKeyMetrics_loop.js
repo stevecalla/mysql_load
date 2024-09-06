@@ -61,8 +61,13 @@ async function executeCreateBaseDataQuery(pool) {
         
             -- DAYS CALCULATION
             minutes_rented DECIMAL(20, 4) AS (TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime)),
-            days_rented DECIMAL(10, 4) AS (TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)),
-            days_less_extension_days DECIMAL(10, 4) AS ((TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)) - extension_days),
+            
+            -- days_rented DECIMAL(20, 4) AS ((TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime)) / total_minutes_in_day) STORED,
+            days_rented DECIMAL(20, 4) AS (TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)),
+
+            -- days_less_extension_days DECIMAL(20, 4) AS (((TIMESTAMPDIFF(MINUTE, pickup_datetime, return_datetime)) / total_minutes_in_day) - extension_days),
+            days_less_extension_days DECIMAL(20, 4) AS ((TIMESTAMPDIFF(DAY, pickup_datetime, return_datetime)) - extension_days),
+
             extension_days DECIMAL(10, 4),
         
             -- REVENUE CALCULATION
@@ -299,7 +304,7 @@ async function execute_create_key_metrics() {
 }
 
 // Run the main function
-// execute_create_key_metrics();
+execute_create_key_metrics();
 
 module.exports = {
     execute_create_key_metrics,
