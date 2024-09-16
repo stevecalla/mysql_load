@@ -84,6 +84,7 @@ function exportResultsToCSV(results, startDate, endDate) {
 
     try {
         const header = Object.keys(results[0]);
+        
         const csvContent = `${header.join(',')}\n${results.map(row =>
             header.map(key => (row[key] !== null ? row[key] : 'NULL')).join(',')
         ).join('\n')}`;

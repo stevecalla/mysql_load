@@ -304,7 +304,7 @@ async function execute_create_key_metrics() {
 }
 
 // Run the main function
-execute_create_key_metrics();
+// execute_create_key_metrics();
 
 module.exports = {
     execute_create_key_metrics,
