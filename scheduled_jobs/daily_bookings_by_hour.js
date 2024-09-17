@@ -151,8 +151,8 @@ async function step_1_get_daily_booking_data(startTime) {
         generateLogFile('scheduled_daily_booking_data', `${message}\n`);
 
         let slackMessage = await createSlackMessage(getResults)
-        // await slack_message_steve_calla_channel(slackMessage);
-        await slack_message_325_bookings_channel(slackMessage);
+        await slack_message_steve_calla_channel(slackMessage);
+        // await slack_message_325_bookings_channel(slackMessage);
 
         // NEXT STEP
         // await step_2(startTime);

@@ -1,7 +1,7 @@
 REM @echo off (is commented out so the commands below will print in the console)
 @echo
 
-REM go to root director
+REM go to root directory
 cd ../..
 
 REM list out file in director

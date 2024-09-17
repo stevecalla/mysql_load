@@ -59,7 +59,8 @@ function query_get_offer_v3_min_and_max_created_at_dates() {
 		-- GET MIN & MAX CREATED AT DATE
 		SELECT
 			-- '2024-07-24' AS min_created_at_date,
-			'2024-08-15' AS min_created_at_date,
+			-- '2024-08-15' AS min_created_at_date,
+			'2024-09-15' AS min_created_at_date,
 			MAX(created_at_date) AS max_created_at_date,
 			DATE_ADD(MAX(created_at_date), INTERVAL 1 DAY) AS max_created_at_date_plus_1
 		FROM rfm_score_summary_history_data
