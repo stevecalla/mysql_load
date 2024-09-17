@@ -1,19 +1,18 @@
 // https://www.locale.ai/blog/automate-slack-messages-node-js
+// https://ezhire.slack.com/services/B077HA1CCEB // = dr-issues channel integration settings
 // https://ezhire.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=settings&next_id=0
-// https://ezhire.slack.com/services/B075P6JS9GB?added=1 = steve calla channel integration settings
-// https://ezhire.slack.com/services/B07MLKJHYJH?added=1 = 325 booking channel integration settings
 
 // setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
 
-// console.log(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL);
+// console.log(process.env.SLACK_WEBHOOK_DRISSUES_CHANNEL_URL);
 
-async function sendSlackMessage(message) {
+async function sendSlackMessage(message = "test message") {
   const slack_message = `${message}`;
 
   try {
-    const response = await fetch(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL, {
+    const response = await fetch(process.env.SLACK_WEBHOOK_325_BOOKING_CHANNEL_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +24,7 @@ async function sendSlackMessage(message) {
       }),
     });
     if (response.ok) {
-      console.log('Message sent to eZhire Slack Steve Calla channel');
+      console.log('Message sent to eZhire Slack 325 Bookings Channel');
     } else {
       throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
     }
@@ -34,12 +33,12 @@ async function sendSlackMessage(message) {
   }
 }
 
-async function slack_message_steve_calla_channel(message) {
+async function slack_message_325_bookings_channel(message) {
   await sendSlackMessage(message);
 }
 
-// slack_message_steve_calla_channel();
+// slack_message_drissues_channel('testing slack bot automated message');
 
 module.exports = {
-  slack_message_steve_calla_channel,
+  slack_message_325_bookings_channel,
 }

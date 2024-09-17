@@ -18,8 +18,8 @@ let run_step_1 = true;     // get booking data
 let run_step_2 = true;     // load booking data
 let run_step_3 = true;     // create key metrics
 let run_step_4 = true;     // create pacing metrics   
-let run_step_5 = true;     // process user data = profile, cohort, rfm 
-let run_step_6 = true;     // upload data to google cloud / bigquery
+let run_step_5 = false;     // process user data = profile, cohort, rfm 
+let run_step_6 = false;     // upload data to google cloud / bigquery
 
 async function check_most_recent_created_on_date() {
     const startTime = performance.now();
@@ -128,6 +128,7 @@ async function step_1_get_booking_data(startTime) {
             // EXECUTE QUERIES
             let getResults;
             getResults = await execute_get_booking_data();
+            console.log('get results = ', getResults);
     
             // LOGS
             let message = getResults ? `\nAll get booking data queries executed successfully. Elapsed Time: ${getResults}`: `Opps error getting elapsed time\n`;
