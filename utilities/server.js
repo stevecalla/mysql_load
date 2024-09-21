@@ -1,14 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 
 // SLACK SETUP
+const ngrok = require('ngrok');
 const { WebClient } = require('@slack/web-api');
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
 // Initialize Slack Web API client
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token
 
 const app = express();
-const PORT = 8000; // You can change this port if needed
+const PORT = process.env.PORT || 8000; // You can change this port if needed
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,24 +57,49 @@ app.post('/getstats', async (req, res) => {
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+
+    startNgrok();
 });
 
+async function startNgrok() {
+    try { 
+        const ngrokUrl = await ngrok.connect(PORT);
+        console.log(`Ngrok tunnel established at: ${ngrokUrl         }`);
+
+        // Fetch tunnel details from the ngrok API
+        const apiUrl = 'http://127.0.0.1:4040/api/tunnels';
+        const response = await axios.get(apiUrl);
+        
+        // Log tunnel information
+        response.data.tunnels.forEach(tunnel => {
+            // console.log({tunnel});
+            console.log(`Tunnel: ${tunnel.public_url}`);
+            console.log(`Forwarding to: ${tunnel.config.addr}`);
+            console.log(`Traffic Inspector: https://dashboard.ngrok.com/ac_2J6Qn9CeVqC2bGd0EhZnAT612RQ/observability/traffic-inspector`)
+            console.log(`Status: http://127.0.0.1:4040/status`)
+        });
+
+    } catch (error) {
+        console.error(`Could not create ngrok tunnel: ${error}`);
+    }
+}
 
 // Function to send follow-up message to Slack
 async function sendFollowUpMessage(channelId, message) {
-    console.log(channelId, message);
-
     try {
-        await slackClient.chat.postMessage({
-            channel: channelId,
-            text: message,
-        });
-        console.log('Message sent to Slack');
+        if(channelId && message){
+            await slackClient.chat.postMessage({
+                channel: channelId,
+                text: message,
+            });
+            console.log('Message sent to Slack');
+        } else {
+            console.error('Channel ID or message is missing');
+        }
     } catch (error) {
         console.error('Error sending message to Slack:', error);
     }
 }
-
 
 async function createSlackMessage(results) {
     const goal = 325;
@@ -93,7 +120,6 @@ async function createSlackMessage(results) {
     let yesterday_status = `Yesterday: ${bookings_yesterday}, ${yesterday_above_below_goal} ${yesterday_above_below_goal >= 0 ? ' more than goal. Well done!🔥🔥' : 'less than goal. We’re learning from this! 👀'}`;
     
     slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
-    console.log(slackMessage);
 
     return slackMessage;
 }
