@@ -27,10 +27,14 @@ function query_daily_booking_data() {
             INNER JOIN myproject.rental_city rc ON rc.id = b.city_id
             INNER JOIN myproject.rental_country co ON co.id = rc.CountryID
 
-        WHERE DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%Y-%m-%d') >= (
-            SELECT DATE_FORMAT(DATE_SUB(DATE_ADD(MAX(b.created_on), INTERVAL 4 HOUR), INTERVAL 7 DAY), '%Y-%m-%d')
-            FROM rental_car_booking2 AS b
+        WHERE 
+            DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%Y-%m-%d') >= (
+                SELECT 
+                    DATE_FORMAT(DATE_SUB(DATE_ADD(MAX(b.created_on), INTERVAL 4 HOUR), INTERVAL 8 DAY), '%Y-%m-%d')
+                FROM rental_car_booking2 AS b
             )
+            and co.name IN ('United Arab Emirates')
+            
             -- AND 
             -- DATE_FORMAT(DATE_ADD(b.created_on, INTERVAL 4 HOUR), '%H') < (HOUR(NOW()) + 4)
 

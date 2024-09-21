@@ -59,7 +59,7 @@ async function check_most_recent_created_on_date() {
                 // (c) send slack with warning
                 slackMessage = `${fail_message}\n${log_results}`;
                 await slack_message_drissues_channel(slackMessage);
-                await slack_message_steve_calla_channel(slackMessage);
+                // await slack_message_steve_calla_channel(slackMessage);
 
                 console.log(fail_message);
                 console.log(getResults);
@@ -151,11 +151,13 @@ async function step_1_get_daily_booking_data(startTime) {
         generateLogFile('scheduled_daily_booking_data', `${message}\n`);
 
         let slackMessage = await createSlackMessage(getResults)
-        await slack_message_steve_calla_channel(slackMessage);
-        // await slack_message_325_bookings_channel(slackMessage);
+        // await slack_message_steve_calla_channel(slackMessage);
+        await slack_message_325_bookings_channel(slackMessage);
 
         // NEXT STEP
         // await step_2(startTime);
+
+        return slackMessage;
         
 
     } catch (error) {
@@ -405,16 +407,18 @@ async function createSlackMessage(results) {
     const today_above_below_goal = bookings_today - goal;
     const yesterday_above_below_goal = bookings_yesterday - goal;
 
-    const created_at_date = `Info Updated at: ${results[0].created_at_gst}`;
-    const most_recent_booking_date = `Most Recent Booking At: ${results[0].date_most_recent_created_on_gst}`;
+    const created_at_date = `Info Updated At: ${results[0].created_at_gst} GST`;
+    const most_recent_booking_date = `Most Recent Booking At: ${results[0].date_most_recent_created_on_gst} GST`;
     const goal_message = `Goal: ${goal}`;
     let booking_count_message = `Bookings: ${bookings_today}`;
     let today_above_below_goal_message = `Above / Below Goal: ${today_above_below_goal}`;
+
+    let pacing_thresholds = `Pacing Goals: 10a-11a = 60, noon-1p = 100, 4p-5p = 200, 8p-10p = 300`
     
     let today_status = today_above_below_goal >= goal ? '✅🚀 Well done!' : '💪 Keep going!';
     let yesterday_status = `Yesterday: ${bookings_yesterday}, ${yesterday_above_below_goal} ${yesterday_above_below_goal >= 0 ? ' more than goal. Well done!🔥🔥' : 'less than goal. We’re learning from this! 👀'}`;
     
-    slackMessage = `${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n----------\n${yesterday_status}`;
+    slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
     console.log(slackMessage);
 
     return slackMessage;

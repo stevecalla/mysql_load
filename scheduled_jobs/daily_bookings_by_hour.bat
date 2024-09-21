@@ -1,4 +1,4 @@
-REM "c:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/programs/scheduled_jobs/booking_data_032024.bat"
+REM "c:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/programs/scheduled_jobs/daily_bookings_by_hour.bat"
 REM @echo off (is commented out so the commands below will print in the console)
 @echo
 
@@ -6,7 +6,7 @@ REM Set the working directory as below to the correct path. This will ensure MyS
 cd "C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/programs/scheduled_jobs"
 
 REM Run the javascript file
-node "C:\Users\calla\Google Drive\Resume & Stuff\ezhire\sql_analysis\programs\scheduled_jobs\booking_job_032024.js"
+node "C:\Users\calla\Google Drive\Resume & Stuff\ezhire\sql_analysis\programs\scheduled_jobs\daily_bookings_by_hour.js"
 
 REM Set to pause to review the logs and process that executed. Remove pause if this is not necessary.
 pause
