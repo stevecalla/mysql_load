@@ -139,10 +139,11 @@ async function step_1_get_daily_booking_data(startTime) {
         console.log(`\n${message}\n`);
         generateLogFile('daily_booking_data', `${message}\n`);
 
-        if(getResults) {
-            await createSlackMessage(getResults)
+        if (getResults) {
+            const slackMessage = await createSlackMessage(getResults);
             // await slack_message_steve_calla_channel(slackMessage);
             await slack_message_325_bookings_channel(slackMessage);
+            console.log('step_1_get_daily_booking_data = ', slackMessage);
         }
         process.exit(0)
 
@@ -174,7 +175,7 @@ async function createSlackMessage(results) {
     let today_status = today_above_below_goal >= goal ? '✅🚀Well done!' : '💪Keep going!';
     let yesterday_status = `Yesterday: ${yesterday_above_below_goal >= 0 ? `Well done🔥🔥 = ${bookings_yesterday}!! Bookings were +${yesterday_above_below_goal} above goal.` : `We’re learning from this! 👀. Bookings were ${yesterday_above_below_goal} below goal.`}`;
 
-    slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
+    const slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
     // console.log(slackMessage);
 
     return slackMessage;

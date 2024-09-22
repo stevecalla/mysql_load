@@ -37,7 +37,7 @@ app.post('/getstats', async (req, res) => {
     console.log(slackMessage);
 
     // Send a follow-up message to Slack
-    await sendFollowUpMessage(req.body.channel_id, slackMessage);
+    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
 
 // Endpoint to handle button click
@@ -85,11 +85,18 @@ async function startNgrok() {
 }
 
 // Function to send follow-up message to Slack
-async function sendFollowUpMessage(channelId, message) {
+async function sendFollowUpMessage(channelId, channelName, userId, message) {
     try {
-        if(channelId && message){
-            await slackClient.chat.postMessage({
+        if(channelId && message && channelName !== "directmessage"){
+            await slackClient.chat.postEphemeral({
                 channel: channelId,
+                user: userId,
+                text: message,
+            });
+            console.log('Message sent to Slack');
+        } else if (channelId && message && channelName === "directmessage") {
+            await slackClient.chat.postMessage({
+                channel: userId,
                 text: message,
             });
             console.log('Message sent to Slack');
@@ -118,7 +125,7 @@ async function createSlackMessage(results) {
     let today_status = today_above_below_goal >= goal ? '✅🚀Well done!' : '💪Keep going!';
     let yesterday_status = `Yesterday: ${yesterday_above_below_goal >= 0 ? `Well done🔥🔥 = ${bookings_yesterday}!! Bookings were +${yesterday_above_below_goal} above goal.` : `We’re learning from this! 👀. Bookings were ${yesterday_above_below_goal} below goal.`}`;
 
-    slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
+    const slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
     // console.log(slackMessage);
 
     return slackMessage;
