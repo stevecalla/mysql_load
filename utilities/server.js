@@ -110,16 +110,16 @@ async function createSlackMessage(results) {
 
     const created_at_date = `Info Updated At: ${results[0].created_at_gst} GST`;
     const most_recent_booking_date = `Most Recent Booking At: ${results[0].date_most_recent_created_on_gst} GST`;
-    const goal_message = `Goal: ${goal}`;
-    let booking_count_message = `Bookings: ${bookings_today}`;
-    let today_above_below_goal_message = `Above / Below Goal: ${today_above_below_goal}`;
-
+    let booking_count_message = `📢Bookings: ${bookings_today}`;
+    const goal_message = `🎯Goal: ${goal}`;
+    let today_above_below_goal_message = `${today_above_below_goal >= 0 ? `🟢Goal: ${today_above_below_goal}` : `🔴Below Goal: ${today_above_below_goal}`}`;
     let pacing_thresholds = `Pacing Goals: 10a-11a = 60, noon-1p = 100, 4p-5p = 200, 8p-10p = 300`
-    
-    let today_status = today_above_below_goal >= goal ? '✅🚀 Well done!' : '💪 Keep going!';
-    let yesterday_status = `Yesterday: ${bookings_yesterday}, ${yesterday_above_below_goal} ${yesterday_above_below_goal >= 0 ? ' more than goal. Well done!🔥🔥' : 'less than goal. We’re learning from this! 👀'}`;
-    
+
+    let today_status = today_above_below_goal >= goal ? '✅🚀Well done!' : '💪Keep going!';
+    let yesterday_status = `Yesterday: ${yesterday_above_below_goal >= 0 ? `Well done🔥🔥 = ${bookings_yesterday}!! Bookings were +${yesterday_above_below_goal} above goal.` : `We’re learning from this! 👀. Bookings were ${yesterday_above_below_goal} below goal.`}`;
+
     slackMessage = `\n**************\nUAE ONLY\n${created_at_date}\n${most_recent_booking_date}\n--------------\n${booking_count_message}\n${goal_message}\n${today_above_below_goal_message}\n${today_status}\n--------------\n${pacing_thresholds}\n--------------\n${yesterday_status}\n**************\n`;
+    // console.log(slackMessage);
 
     return slackMessage;
 }

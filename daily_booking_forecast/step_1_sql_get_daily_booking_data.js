@@ -65,10 +65,10 @@ async function deleteArchivedFiles() {
                 // Delete the file
                 fs.unlinkSync(filePath);
                 console.log(`File ${filePath} deleted successfully.`);
-                generateLogFile('get_booking_data', `File ${filePath} deleted successfully.`, csvExportPath);
+                generateLogFile('daily_booking_data', `File ${filePath} deleted successfully.`, csvExportPath);
             } catch (deleteErr) {
                 console.error(`Error deleting file ${filePath}:`, deleteErr);
-                generateLogFile('get_booking_data', `Error deleting file ${filePath}: ${deleteErr}`, csvExportPath);
+                generateLogFile('daily_booking_data', `Error deleting file ${filePath}: ${deleteErr}`, csvExportPath);
             }
         }
     });
@@ -98,10 +98,10 @@ async function moveFilesToArchive() {
                     // Move the file to the "archive" directory
                     fs.renameSync(sourceFilePath, destinationFilePath);
                     console.log(`Archived ${file}`);
-                    generateLogFile('get_booking_data', `Archived ${file}`, csvExportPath);
+                    generateLogFile('daily_booking_data', `Archived ${file}`, csvExportPath);
                 } catch (archiveErr) {
                     console.error(`Error moving file ${file} to archive:`, archiveErr);
-                    generateLogFile('get_booking_data', `Error archive file ${file}: ${archiveErr}`, csvExportPath);
+                    generateLogFile('daily_booking_data', `Error archive file ${file}: ${archiveErr}`, csvExportPath);
                 }
             }
         }
@@ -134,7 +134,7 @@ async function execute_query_get_daily_booking_data(pool) {
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
-                generateLogFile('get_booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
+                generateLogFile('daily_booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
 
                 resolve(results);
             }
@@ -178,7 +178,7 @@ async function export_results_to_csv(results) {
 
     } catch (error) {
         console.error(`Error exporting results to csv:`, error);
-        generateLogFile('get_booking_data', `Error exporting results to csv: ${error}`, csvExportPath);
+        generateLogFile('daily_booking_data', `Error exporting results to csv: ${error}`, csvExportPath);
     }
 }
 
@@ -205,7 +205,7 @@ async function export_results_to_csv(results) {
 //         // console.log(results);
 //         console.table(results);
 //         // console.log(results.length);
-//         // generateLogFile('get_booking_data', `Query for  execute_query_get_booking_data executed successfully.`, csvExportPath);  
+//         // generateLogFile('daily_booking_data', `Query for  execute_query_scheduled_booking_data executed successfully.`, csvExportPath);  
         
 //         // STEP #4: EXPORT RESULTS TO CSV
 //         // await export_results_to_csv(results);
@@ -266,7 +266,7 @@ async function execute_get_daily_booking_data() {
         // console.log(results);
         // console.table(results);
         // console.log(results.length);
-        // generateLogFile('get_booking_data', `Query for execute_query_get_booking_data executed successfully.`, csvExportPath);  
+        // generateLogFile('daily_booking_data', `Query for execute_query_scheduled_booking_data executed successfully.`, csvExportPath);  
 
         // STEP #4: EXPORT RESULTS TO CSV
         // await export_results_to_csv(results);
