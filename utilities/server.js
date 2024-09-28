@@ -35,7 +35,7 @@ app.post('/getstats', async (req, res) => {
     // Process the request asynchronously
     const getResults = await execute_get_daily_booking_data();
     const slackMessage = await create_daily_booking_slack_message(getResults);
-    console.log(slackMessage);
+    // console.log(slackMessage);
 
     // Send a follow-up message to Slack
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
@@ -68,7 +68,7 @@ async function sendFollowUpMessage(channelId, channelName, userId, message) {
 async function startNgrok() {
     try { 
         const ngrokUrl = await ngrok.connect(PORT);
-        console.log(`Ngrok tunnel established at: ${ngrokUrl         }`);
+        console.log(`Ngrok tunnel established at: ${ngrokUrl}`);
 
         // Fetch tunnel details from the ngrok API
         const apiUrl = 'http://127.0.0.1:4040/api/tunnels';

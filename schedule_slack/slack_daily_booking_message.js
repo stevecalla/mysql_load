@@ -37,6 +37,7 @@ async function create_daily_booking_slack_message(results) {
   // FINAL MESSAGE
   const slackMessage = 
     `\n**************\nUAE ONLY\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${pacing_threshold}\n--------------\n${status_yesterday}\n**************\n`;
+
   console.log(slackMessage);
 
   return slackMessage;
@@ -47,7 +48,7 @@ async function check_pacing_for_current_hour(created_at_date, bookings_today) {
   const currentHour = new Date(created_at_date).getHours(); // Get the hour in created_at_date GST
   let currentHourFormatted = currentHour < 10 ? `0${currentHour}:00` : `${currentHour}:00`;
 
-  // currentHourFormatted = '21:05'; // test pacing logic
+  // currentHourFormatted = '23:01'; // test pacing logic
   const target = await find_target_for_current_hour(currentHourFormatted);
 
   const pacing_message = `📈 Pacing Target: ${target}`;
@@ -61,13 +62,14 @@ async function check_pacing_for_current_hour(created_at_date, bookings_today) {
 // Function to find the closest hour
 async function find_target_for_current_hour(currentHourFormatted) {
   const pacing_thresholds = {
+    '00:00': 10,
     '08:00': 25,
     '12:00': 90,
     '14:00': 135,
     '17:00': 215,
     '19:00': 270,
     '22:00': 300,
-    '00:00': 325,
+    '24:00': 325,
   };
 
   const inputDate = new Date(`1970-01-01T${currentHourFormatted}:00Z`);
@@ -78,16 +80,16 @@ async function find_target_for_current_hour(currentHourFormatted) {
     const thresholdDate = new Date(`1970-01-01T${hour}:00Z`);
     const difference = Math.abs(thresholdDate - inputDate) / (1000 * 60 * 60); // Convert to hours
     
-    // console.log(currentHourFormatted, inputDate, thresholdDate, difference, smallestDifference);
+    console.log(currentHourFormatted, currentHourFormatted, hour, difference, smallestDifference);
 
-      if (difference < smallestDifference) {
+      if (difference <= smallestDifference) {
           smallestDifference = difference;
           closestHour = hour;
       }
   }
 
-  const target = closestHour === '00:00' ? 10 : pacing_thresholds[closestHour];
-  console.log('closest hour = ', closestHour, 'target = ', target);
+  const target = pacing_thresholds[closestHour];
+  console.log('current hour ', currentHourFormatted, 'closest hour = ', closestHour, 'target = ', target);
 
   return target;
 }

@@ -1,10 +1,12 @@
 const fs = require('fs');
-const { getCurrentDateForFileNaming, getCurrentDateTime } = require('./getCurrentDate');
+const { getCurrentDateForFileNaming, getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('./getCurrentDate');
 
 function generateLogFile(source, content, passedFolderPath) {
     // CREATE FILE NAME
-    const date = getCurrentDateForFileNaming();
-    const fileName = `log_${source}_${date}.txt`;
+    // const date = getCurrentDateForFileNaming();
+    const createdAtFormatted = getCurrentDateTimeForFileNaming();
+    // const fileName = `log_${source}_${date}.txt`;
+    const fileName = `log_${source}_${createdAtFormatted}.txt`;
     // console.log('File name = ', fileName);
 
     // CREATE FILE PATH
