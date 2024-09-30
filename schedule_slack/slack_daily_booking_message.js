@@ -64,12 +64,12 @@ async function find_target_for_current_hour(currentHourFormatted) {
   const pacing_thresholds = {
     '00:00': 10,
     '08:00': 25,
-    '12:00': 90,
-    '14:00': 135,
-    '17:00': 215,
-    '19:00': 270,
-    '22:00': 300,
-    '24:00': 325,
+    '12:00': 100,
+    '14:00': 150,
+    '17:00': 235,
+    '19:00': 295,
+    '22:00': 330,
+    '24:00': 350,
   };
 
   const inputDate = new Date(`1970-01-01T${currentHourFormatted}:00Z`);
