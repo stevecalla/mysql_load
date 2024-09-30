@@ -7,7 +7,7 @@ async function create_daily_booking_slack_message(results) {
   const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date} GST`;
 
   // GOAL
-  const goal = 325;
+  const goal = 350;
   const goal_message = `🎯 Goal: ${goal}`;
 
   // BOOKINGS TODAY
@@ -32,7 +32,7 @@ async function create_daily_booking_slack_message(results) {
   const get_pacing_messages = await check_pacing_for_current_hour(created_at_date, bookings_today);
   const { pacing_message, pacing_status_message } = get_pacing_messages;
   const pacing_threshold = 
-    `Pacing Goals: 8a = 25, 12n = 90, 2p = 135, 5p = 215, 7p = 270, 10p = 300, 12a = 325`;
+    `Pacing Goals: 8a = 25, 12n = 100, 2p = 150, 5p = 235, 7p = 295, 10p = 330, 12a = 350`;
 
   // FINAL MESSAGE
   const slackMessage = 
@@ -64,12 +64,12 @@ async function find_target_for_current_hour(currentHourFormatted) {
   const pacing_thresholds = {
     '00:00': 10,
     '08:00': 25,
-    '12:00': 90,
-    '14:00': 135,
-    '17:00': 215,
-    '19:00': 270,
-    '22:00': 300,
-    '24:00': 325,
+    '12:00': 100,
+    '14:00': 150,
+    '17:00': 235,
+    '19:00': 295,
+    '22:00': 330,
+    '24:00': 350,
   };
 
   const inputDate = new Date(`1970-01-01T${currentHourFormatted}:00Z`);
