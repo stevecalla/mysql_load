@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 // SLACK SETUP
+const localtunnel = require('localtunnel');
 const ngrok = require('ngrok');
 const { WebClient } = require('@slack/web-api');
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
@@ -88,11 +89,25 @@ async function startNgrok() {
     }
 }
 
+async function localTunnel(PORT1) {
+    try {
+        const tunnel1 = await localtunnel({ port: PORT1 });
+        console.log(`Localtunnel for Server 1 is available at: ${tunnel1.url}`);
+        
+        tunnel1.on('close', () => {
+            console.log('Localtunnel for Server 1 is closed');
+        });
+    } catch (error) {
+        console.error(`Error starting localtunnel for Server 1: ${error.message}`);
+    }
+}
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
-    startNgrok();
+    // startNgrok();
+    localTunnel(PORT);
 });
 
 
