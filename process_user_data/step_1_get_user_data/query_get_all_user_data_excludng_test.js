@@ -125,12 +125,24 @@ const queryUserData = `
 
         -- AND
         -- LOGIC EXCLUDE TEST USERS FROM auth_user
+        -- LOWER(auth_user.first_name) NOT LIKE '%test%'
+        -- AND LOWER(auth_user.last_name) NOT LIKE '%test%'
+        -- AND LOWER(auth_user.username) NOT LIKE '%test%'
+        -- AND LOWER(auth_user.email) NOT LIKE '%test%'
+        -- AND auth_user.last_name NOT LIKE 'N'
+        -- AND auth_user.email NOT LIKE 'abc@gmail.com'
+        
+        -- LOGIC EXCLUDE TEST USERS FROM auth_user
+        -- REVISED ABOVE TO BELOW ON 10/11/24
         LOWER(auth_user.first_name) NOT LIKE '%test%'
         AND LOWER(auth_user.last_name) NOT LIKE '%test%'
         AND LOWER(auth_user.username) NOT LIKE '%test%'
         AND LOWER(auth_user.email) NOT LIKE '%test%'
         AND auth_user.last_name NOT LIKE 'N'
         AND auth_user.email NOT LIKE 'abc@gmail.com'
+        AND LOWER(auth_user.first_name) not LIKE '%ezhire%' 
+        AND LOWER(auth_user.last_name) not like '%ezhire%' 
+        AND LOWER(auth_user.email) not like '%ezhire%'
         
         -- LOGIC TO EXCLUDE TEST BOOKINGS
         -- AND COALESCE(rcb.vendor_id,'') NOT IN (5, 33, 218, 23086)

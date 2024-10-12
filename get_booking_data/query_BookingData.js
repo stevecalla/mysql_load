@@ -1554,32 +1554,49 @@ FROM
                 
     FROM myproject.rental_car_booking2 b
     
-    INNER JOIN myproject.rental_fuser f ON f.user_ptr_id = b.owner_id
-    INNER JOIN myproject.rental_city rc ON rc.id = b.city_id
-    INNER JOIN myproject.rental_country co ON co.id = rc.CountryID
-    LEFT JOIN myproject.rental_vendors rv ON rv.owner_id = b.vendor_id
+        INNER JOIN myproject.rental_fuser f ON f.user_ptr_id = b.owner_id
+        INNER JOIN myproject.rental_city rc ON rc.id = b.city_id
+        INNER JOIN myproject.rental_country co ON co.id = rc.CountryID
+        LEFT JOIN myproject.rental_vendors rv ON rv.owner_id = b.vendor_id
     
-    LEFT JOIN myproject.rental_car c ON c.id = b.car_id
-    LEFT JOIN myproject.rental_cars_available ca ON ca.id = b.car_available_id
-    LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id
+        LEFT JOIN myproject.rental_car c ON c.id = b.car_id
+        LEFT JOIN myproject.rental_cars_available ca ON ca.id = b.car_available_id
+        LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id
     
-    LEFT JOIN myproject.rental_add_promo_codes pc ON pc.id = b.Promo_Code_id
-    LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
+        LEFT JOIN myproject.rental_add_promo_codes pc ON pc.id = b.Promo_Code_id
+        LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
 
-    -- NEW JOINS ADDED ON 4/23/24
-    LEFT JOIN (SELECT MAX(id),rate,comments,booking_id FROM myproject.rental_rentalfeedback rf GROUP BY booking_id) ff ON ff.booking_id = b.id -- CHANGE
-    LEFT JOIN rental_car_booking_source bs ON bs.id = b.car_booking_source_id -- CHANGE
-    LEFT JOIN rental_city ci ON ci.id = b.city_id -- CHANGE
-    LEFT JOIN country_conversion_rate ct ON ci.CountryID = ct.country_id -- CHANGE
+        -- NEW JOINS ADDED ON 4/23/24
+        LEFT JOIN (SELECT MAX(id),rate,comments,booking_id FROM myproject.rental_rentalfeedback rf GROUP BY booking_id) ff ON ff.booking_id = b.id -- CHANGE
+        LEFT JOIN rental_car_booking_source bs ON bs.id = b.car_booking_source_id -- CHANGE
+        LEFT JOIN rental_city ci ON ci.id = b.city_id -- CHANGE
+        LEFT JOIN country_conversion_rate ct ON ci.CountryID = ct.country_id -- CHANGE
 
-    -- NEW JOINS ADDED 05/27/24 FOR EARLY RETURNS
-    LEFT JOIN rental_early_return_bookings AS erb ON erb.booking_id = b.id AND erb.is_active = 1 -- RETURNS MOST RECENT DATE RECORDS FOR EACH booking_id USING is_active flag 1
+        -- NEW JOINS ADDED 05/27/24 FOR EARLY RETURNS
+        LEFT JOIN rental_early_return_bookings AS erb ON erb.booking_id = b.id AND erb.is_active = 1 -- RETURNS MOST RECENT DATE RECORDS FOR EACH booking_id USING is_active flag 1
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
 	-- WHERE 
-    --     DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
-	-- 	AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-	-- 	AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+        -- LOGIC TO EXCLUDE TEST BOOKINGS
+        -- AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) 
+        -- AND (LOWER(au.first_name) NOT LIKE '%test%' 
+        -- AND LOWER(au.last_name) NOT LIKE '%test%' 
+        -- AND LOWER(au.username) NOT LIKE '%test%' 
+        -- AND LOWER(au.email) NOT LIKE '%test%')
+
+        -- LOGIC EXCLUDE TEST USERS FROM auth_user
+        -- REVISED ABOVE TO BELOW ON 10/11/24
+        -- AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086)    
+        -- AND LOWER(au.first_name) NOT LIKE '%test%'
+        -- AND LOWER(au.last_name) NOT LIKE '%test%'
+        -- AND LOWER(au.username) NOT LIKE '%test%'
+        -- AND LOWER(au.email) NOT LIKE '%test%'
+        -- AND au.last_name NOT LIKE 'N'
+        -- AND au.email NOT LIKE 'abc@gmail.com'
+        -- AND LOWER(au.first_name) not LIKE '%ezhire%' 
+        -- AND LOWER(au.last_name) not like '%ezhire%' 
+        -- AND LOWER(au.email) not like '%ezhire%'
 
     -- TBD
     -- WHERE b.id IN ('51859', '75241', '271272')
@@ -1631,9 +1648,29 @@ FROM
 	-- FOR TESTING / AUDITING ******* END *********
 	
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL SET VARIABLES DON'T WORK ******* START *********
-	WHERE date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
-        AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) -- LOGIC TO EXCLUDE TEST BOOKINGS
-	    AND (LOWER(au.first_name) NOT LIKE '%test%' AND LOWER(au.last_name) NOT LIKE '%test%' AND LOWER(au.username) NOT LIKE '%test%' AND LOWER(au.email) NOT LIKE '%test%')
+	WHERE 
+        date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
+
+        -- LOGIC TO EXCLUDE TEST BOOKINGS
+        -- AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) 
+        -- AND (LOWER(au.first_name) NOT LIKE '%test%' 
+        -- AND LOWER(au.last_name) NOT LIKE '%test%' 
+        -- AND LOWER(au.username) NOT LIKE '%test%' 
+        -- AND LOWER(au.email) NOT LIKE '%test%')
+
+        -- LOGIC EXCLUDE TEST USERS FROM auth_user
+        -- REVISED ABOVE TO BELOW ON 10/11/24
+        AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086)    
+        AND LOWER(au.first_name) NOT LIKE '%test%'
+        AND LOWER(au.last_name) NOT LIKE '%test%'
+        AND LOWER(au.username) NOT LIKE '%test%'
+        AND LOWER(au.email) NOT LIKE '%test%'
+        AND au.last_name NOT LIKE 'N'
+        AND au.email NOT LIKE 'abc@gmail.com'
+        AND LOWER(au.first_name) not LIKE '%ezhire%' 
+        AND LOWER(au.last_name) not like '%ezhire%' 
+        AND LOWER(au.email) not like '%ezhire%'
+
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL VARIABLES DON'T WORK ******* END *********
 
     ORDER BY b.id

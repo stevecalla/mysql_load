@@ -109,6 +109,11 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 
 				rfm.all_cities_distinct,
 				rfm.all_countries_distinct,
+
+				rfm.all_promo_codes_distinct,
+				rfm.promo_code_on_most_recent_booking,
+				rfm.used_promo_code_last_14_days_flag,
+				rfm.used_promo_code_on_every_booking,
 				 
 				rfm.booking_type_all_distinct, 
 				rfm.booking_type_most_recent, 
@@ -169,7 +174,7 @@ function query_create_rfm_score_summary_history_data_tracking(table, min_created
 			LEFT JOIN rfm_score_summary_history_data AS rfm_v2 ON rfm.user_ptr_id = rfm_v2.user_ptr_id
 				AND rfm_v2.created_at_date = '${max_created_at_date}'
 			WHERE rfm.created_at_date = '${min_created_at_date}'
-			GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
+			GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41
 			ORDER BY rfm.user_ptr_id, b.return_date
 			) AS a;
 	`
