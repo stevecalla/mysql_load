@@ -255,7 +255,6 @@ const profileQuery = `
         
         has_last_login_date, 
         
-        
         -- is_resident, 
         CASE
             WHEN is_resident IN ('? undefined:undefined ?') THEN ''
@@ -268,7 +267,13 @@ const profileQuery = `
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
-        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct, 
+        CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,  
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
@@ -338,6 +343,12 @@ const rfmQuery = `
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
+        
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
         CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
         
@@ -374,6 +385,12 @@ const rfmTrackingQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
@@ -450,6 +467,12 @@ const rfmTrackingMostRecentQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
@@ -526,6 +549,12 @@ const rfmTrackingOffersQuery = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
@@ -602,6 +631,12 @@ const rfmTrackingOffersV2Query = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
@@ -678,6 +713,12 @@ const rfmTrackingOffersV3Query = `
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', all_countries_distinct, '"') AS all_countries_distinct,
         CONCAT('"', all_cities_distinct, '"') AS all_cities_distinct,
+
+        -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
+        CONCAT('"', all_promo_codes_distinct, '"') AS all_promo_codes_distinct,
+        CONCAT('"', promo_code_on_most_recent_booking, '"') AS promo_code_on_most_recent_booking,
+        used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
         
         -- wrap fields in double quotes to avoid issues with comma parsing in CSV files
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,

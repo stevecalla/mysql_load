@@ -1,5 +1,14 @@
 function query_insert_rfm_data() {
-	return `INSERT INTO rfm_score_summary_history_data (user_ptr_id,date_join_cohort,email,mobile,telephone,first_name,last_name,all_countries_distinct,all_cities_distinct,
+	return `INSERT INTO rfm_score_summary_history_data (
+		user_ptr_id,date_join_cohort,email,mobile,telephone,first_name,last_name,
+		
+		all_countries_distinct,
+		all_cities_distinct,
+				
+		all_promo_codes_distinct,
+		promo_code_on_most_recent_booking,
+		used_promo_code_last_14_days_flag,
+		used_promo_code_on_every_booking,
 
 		booking_type_all_distinct, 
 		booking_type_most_recent,

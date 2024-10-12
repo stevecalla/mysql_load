@@ -11,6 +11,62 @@ const query_create_key_metrics_rollup = `
             GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN deliver_country END ORDER BY deliver_country ASC SEPARATOR ', ') AS all_countries_distinct,
             GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN deliver_city END ORDER BY deliver_city ASC SEPARATOR ', ') AS all_cities_distinct,
 
+            -- PROMO CODE STATS -- TODO:
+            -- (a) list of a promo codes
+            GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN promo_code END ORDER BY booking_date ASC SEPARATOR ', ') AS all_promo_codes_distinct,
+            -- (b) most recent booking promo code; if a no promo code on last booking it will be blank
+            -- (b.1) if used a promo code on last rental... code below also covers this as it will be blank if promo not used on most recent booking
+            (
+                SELECT 
+                    inner_data.promo_code
+                FROM 
+                    ezhire_user_data.user_data_combined_booking_data AS inner_data
+                WHERE 
+                    inner_data.user_ptr_id = user_data_combined_booking_data.user_ptr_id
+                    AND inner_data.return_date = 
+                    (
+                        SELECT 
+                            MAX(inner_data2.return_date)
+                        FROM ezhire_user_data.user_data_combined_booking_data AS inner_data2
+                        WHERE 
+                            inner_data2.user_ptr_id = inner_data.user_ptr_id
+                            AND inner_data2.status NOT IN ('Cancelled by User')
+                    )
+                    AND inner_data.status NOT IN ('Cancelled by User')
+                ORDER BY inner_data.return_date DESC
+                LIMIT 1
+            ) AS promo_code_on_most_recent_booking,
+
+            -- (c) used a promo code in the last 14 days
+            (
+                SELECT 
+                    CASE 
+                        WHEN MAX(inner_data.return_date) >= (CURDATE() - INTERVAL 14 DAY) THEN 'Yes' 
+                        ELSE 'No' 
+                    END AS used_promo_code_last_14_days_flag
+                FROM 
+                    ezhire_user_data.user_data_combined_booking_data AS inner_data
+                WHERE 
+                    inner_data.user_ptr_id = user_data_combined_booking_data.user_ptr_id
+                    AND inner_data.status NOT IN ('Cancelled by User')
+                LIMIT 1
+            ) AS used_promo_code_last_14_days_flag,
+
+            -- (d) only used a promo code, 
+            (
+                SELECT 
+                    CASE 
+                        WHEN COUNT(inner_data.promo_code) = 0 THEN 'No' 
+                        WHEN COUNT(inner_data.promo_code) = COUNT(*) THEN 'Yes' 
+                        ELSE 'No' 
+                    END AS used_promo_code_on_every_booking
+                FROM 
+                    ezhire_user_data.user_data_combined_booking_data AS inner_data
+                WHERE 
+                    inner_data.user_ptr_id = user_data_combined_booking_data.user_ptr_id
+                    AND inner_data.status NOT IN ('Cancelled by User')
+            ) AS used_promo_code_on_every_booking,
+
             -- BOOKING TYPE
                 --  GROUP_CONCAT(DISTINCT booking_type ORDER BY booking_type ASC SEPARATOR ', ') AS booking_type_all_distinct,
                 GROUP_CONCAT(DISTINCT CASE WHEN status NOT LIKE '%cancelled%' THEN booking_type END ORDER BY booking_type ASC SEPARATOR ', ') AS booking_type_all_distinct,

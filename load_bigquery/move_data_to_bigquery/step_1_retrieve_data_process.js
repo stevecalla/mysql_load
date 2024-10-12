@@ -8,9 +8,8 @@ const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, loca
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
 const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery, rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, rfmTrackingOffersV2Query, rfmTrackingOffersV3Query, } = require('./query_booking_keyMetrics_pacing');
-// const { rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, } = require('./query_booking_keyMetrics_pacing');
-// const { rfmTrackingQuery, } = require('./query_booking_keyMetrics_pacing');
-// const { rfmQuery, } = require('./query_booking_keyMetrics_pacing');
+
+// const { rfmTrackingQuery }  = require('./query_booking_keyMetrics_pacing');
 
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');
@@ -159,33 +158,33 @@ async function execute_retrieve_data() {
             },
             {
                 poolName: localUserDbConfig,
-                fileName: 'rfm_data',
-                query: rfmQuery,
+                fileName: 'rfm_data', // rfm_score_summary_data 
+                query: rfmQuery, 
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_data',
-                query: rfmTrackingQuery,
+                query: rfmTrackingQuery, // rfm_score_summary_history_data_tracking
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_most_recent_data',
-                query: rfmTrackingMostRecentQuery,
+                query: rfmTrackingMostRecentQuery, // rfm_score_summary_history_data_tracking_most_recent
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_offers_data',
-                query: rfmTrackingOffersQuery,
+                query: rfmTrackingOffersQuery, // rfm_score_summary_history_data_tracking_offer
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_offers_v2_data',
-                query: rfmTrackingOffersV2Query,
+                query: rfmTrackingOffersV2Query, // rfm_score_summary_history_data_tracking_offer_v2
             },
             {
                 poolName: localUserDbConfig,
                 fileName: 'rfm_tracking_offers_v3_data',
-                query: rfmTrackingOffersV3Query,
+                query: rfmTrackingOffersV3Query, // rfm_score_summary_history_data_tracking_offer_v3
             },
         ];
 
