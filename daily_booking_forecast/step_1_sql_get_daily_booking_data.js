@@ -8,7 +8,8 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
 
-const { query_booking_count_today } = require('./query_booking_count_today');
+// const { query_booking_count_today } = require('./query_booking_count_today');
+const { query_booking_count_today_v2 } = require('./query_booking_count_today_v2');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection(is_development_pool) {
@@ -55,7 +56,7 @@ async function execute_query_get_daily_booking_data(pool) {
 
         const startTime = performance.now();
 
-        const query = query_booking_count_today();
+        const query = query_booking_count_today_v2();
         // console.log(query);
 
         pool.query(query, (queryError, results) => {
