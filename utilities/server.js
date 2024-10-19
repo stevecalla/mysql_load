@@ -7,9 +7,12 @@ const localtunnel = require('localtunnel');
 const ngrok = require('ngrok');
 const { WebClient } = require('@slack/web-api');
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
+
 // Initialize Slack Web API client
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token
-const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
+
+const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
+const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message_v2');
 
 const app = express();
 const PORT = process.env.PORT || 8000; // You can change this port if needed
@@ -34,12 +37,19 @@ app.post('/getstats', async (req, res) => {
     });
 
     // Process the request asynchronously
-    const getResults = await execute_get_daily_booking_data();
+    const is_development_pool = await check_most_recent_created_on_date(); // USE DR DB OR PRODUCTION DB
+
+    console.log('***********************************');    
+    console.log('using dev DR DB = ', is_development_pool);
+    console.log('***********************************');
+
+    const getResults = await execute_get_daily_booking_data(is_development_pool);
+
     const slackMessage = await create_daily_booking_slack_message(getResults);
     // console.log(slackMessage);
 
     // Send a follow-up message to Slack
-    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+    // await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
 
 // Function to send follow-up message to Slack
@@ -106,7 +116,7 @@ async function localTunnel(PORT1) {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
-    startNgrok();
+    // startNgrok();
     // localTunnel(PORT);
 });
 

@@ -1,50 +1,72 @@
+const { getFormattedDateAmPm } = require('../utilities/getCurrentDate');
+const { group_by_country } = require('../daily_booking_forecast/results_grouped_by_country');
+
 async function create_daily_booking_slack_message(results) {
-  // DATE INFO
-  const created_at_date = results[0].created_at_gst;
-  const created_at_message = `Info Updated At: ${created_at_date} GST`;
-
-  const most_recent_booking_date = results[0].date_most_recent_created_on_gst;
-  const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date} GST`;
-
   // GOAL
   const goal = 350;
   const goal_message = `🎯 Goal: ${goal}`;
 
-  // BOOKINGS TODAY
-  const bookings_today = results[7].current_bookings;
+  let { yesterdaySummary, todaySummary, uae_bookings_today, uae_bookings_yesterday } = await group_by_country(results);
 
-  let booking_count_message = `📢 Bookings: ${bookings_today}`;
-  const today_above_below_goal = (bookings_today - goal);
-  let today_above_below_goal_message = 
-    `${today_above_below_goal >= 0 ? `🟢 Above Goal: ${today_above_below_goal}` : `🔴 Below Goal: ${today_above_below_goal}`}`;
-    
-  let status_today = 
-    today_above_below_goal >= goal ? '✅🚀 Well done!' : '💪 Keep going!';
+  let { created_at_message, most_recent_booking_date_message, created_at_date_unformatted } = await date_info(results);
 
-  // BOOKINGS YESTERDAY
-  const bookings_yesterday = results[6].current_bookings;
+  let { booking_count_message, today_above_below_goal_message, status_today } = await get_booking_status_today(results, goal, uae_bookings_today);
 
-  const yesterday_above_below_goal = (bookings_yesterday - goal);
-  let status_yesterday = 
-    `Yesterday: ${yesterday_above_below_goal >= 0 ? `= ${bookings_yesterday}. +${yesterday_above_below_goal} above goal. Well done🔥🔥!! ` : `${bookings_yesterday}. ${yesterday_above_below_goal} below goal. We’re learning from this 👀!`}`;
-
-  // PACING
-  const get_pacing_messages = await check_pacing_for_current_hour(created_at_date, bookings_today);
-  const { pacing_message, pacing_status_message } = get_pacing_messages;
-  const pacing_threshold = 
-    `Pacing Goals: 8a = 25, 12n = 100, 2p = 150, 5p = 235, 7p = 295, 10p = 330, 12a = 350`;
+  let { status_yesterday } = await get_booking_status_yesterday(results, goal, uae_bookings_yesterday);
+  
+  const { pacing_message, pacing_status_message, pacing_threshold } = await check_pacing_for_current_hour(created_at_date_unformatted, uae_bookings_today);
 
   // FINAL MESSAGE
   const slackMessage = 
-    `\n**************\nUAE ONLY\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${pacing_threshold}\n--------------\n${status_yesterday}\n**************\n`;
+    `\n**************\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\nUAE ONLY\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${status_yesterday}\n--------------\n${pacing_threshold}\n**************\n${yesterdaySummary}\n${todaySummary}\n**************\n`;
 
   console.log(slackMessage);
 
   return slackMessage;
 }
 
+// CREATE DATE INFO
+async function date_info(results) {
+  
+  // DATE INFO
+  const created_at_date = `${getFormattedDateAmPm(results[0].created_at_gst)} GST`;
+  const created_at_message = `Info Updated At: ${created_at_date}`;
+  const created_at_date_unformatted = results[0].created_at_gst;
+
+  const most_recent_booking_date = `${getFormattedDateAmPm(results[0].date_most_recent_created_on_gst)} GST`;
+  const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date}`;
+
+  return { created_at_date, created_at_message, most_recent_booking_date, most_recent_booking_date_message, created_at_date_unformatted };
+}
+
+// BOOKINGS TODAY
+async function get_booking_status_today(results, goal, uae_bookings_today) {
+  // Filter for entries related to the United Arab Emirates
+  // const uae_bookings_today = results.filter(booking => booking.delivery_country === 'United Arab Emirates')[1].current_bookings;
+
+  let booking_count_message = `📢 Bookings: ${uae_bookings_today}`;
+  const today_above_below_goal = (uae_bookings_today - goal);
+  let today_above_below_goal_message = `${today_above_below_goal >= 0 ? `🟢 Above Goal: ${today_above_below_goal}` : `🔴 Below Goal: ${today_above_below_goal}`}`;
+    
+  let status_today = today_above_below_goal >= goal ? '✅🚀 Well done!' : '💪 Keep going!';
+
+  return { uae_bookings_today, booking_count_message, today_above_below_goal_message, status_today };
+}
+
+// BOOKINGS YESTERDAY
+async function get_booking_status_yesterday(results, goal, uae_bookings_yesterday) {
+  // const uae_bookings_yesterday = results.filter(booking => 
+  //   booking.delivery_country === 'United Arab Emirates')[0].current_bookings;
+
+  const yesterday_above_below_goal = (uae_bookings_yesterday - goal);
+
+  let status_yesterday = `Yesterday: ${yesterday_above_below_goal >= 0 ? `${uae_bookings_yesterday}. +${yesterday_above_below_goal} above goal. Well done🔥🔥!! ` : `${uae_bookings_yesterday}. ${yesterday_above_below_goal} below goal. We’re learning from this 👀!`}`;
+
+  return { uae_bookings_yesterday, status_yesterday }
+}
+
 // Function to check pacing for the current hour
-async function check_pacing_for_current_hour(created_at_date, bookings_today) {
+async function check_pacing_for_current_hour(created_at_date, uae_bookings_today) {
   const currentHour = new Date(created_at_date).getHours(); // Get the hour in created_at_date GST
   let currentHourFormatted = currentHour < 10 ? `0${currentHour}:00` : `${currentHour}:00`;
 
@@ -54,9 +76,12 @@ async function check_pacing_for_current_hour(created_at_date, bookings_today) {
   const pacing_message = `📈 Pacing Target: ${target}`;
 
   const pacing_status_message = 
-    `${bookings_today >= target ? `🌱 Above Pacing: +${bookings_today - target}` : `🟡 Below Pacing: ${bookings_today - target}`}`;
+    `${uae_bookings_today >= target ? `🌱 Above Pacing: +${uae_bookings_today - target}` : `🟡 Below Pacing: ${uae_bookings_today - target}`}`;
 
-  return { pacing_message, pacing_status_message };
+    
+  const pacing_threshold = `Pacing Goals: 8a = 25, 12n = 100, 2p = 150, 5p = 235, 7p = 295, 10p = 330, 12a = 350`;
+
+  return { pacing_message, pacing_status_message, pacing_threshold };
 }
 
 // Function to find the closest hour

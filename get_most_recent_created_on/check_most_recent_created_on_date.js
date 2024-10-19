@@ -5,16 +5,13 @@ const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_s
 const { slack_message_325_bookings_channel } = require('../schedule_slack/slack_325_bookings_channel');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
-const { execute_get_most_recent_created_on_date } = require('../get_most_recent_created_on/sql_getBookingMostRecentCreatedOn'); //step_0
-const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
+const { execute_get_most_recent_created_on_date } = require('./sql_getBookingMostRecentCreatedOn'); //step_0
 
 // TESTING VARIABLES
-let send_slack_to_calla = false;
 const is_testing = false;
 
 // RUN PROGRAM
 let run_step_0 = true;     // get most recent created on / updated on datetime
-let run_step_1 = true;     // get daily booking data
 
 // STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
 async function check_most_recent_created_on_date() {
@@ -71,52 +68,7 @@ async function check_most_recent_created_on_date() {
         
         await program_end_message(start_time, step);
 
-        // NEXT STEP
-        await step_1_get_daily_booking_data(start_time, is_development_pool);
-    }
-}
-
-// STEP #1: GET DAILY BOOKING DATA / POST BOOKING DATA TO SLACK 325 CHANNEL
-async function step_1_get_daily_booking_data(start_time, is_development_pool) {
-    const step = `STEP 1 - GET DAILY BOOKING DATA. `;
-    
-    await program_start_message(step);
-
-    try {
-        if (run_step_1) {
-
-            // EXECUTE QUERY
-            let getResults = await execute_get_daily_booking_data(is_development_pool);
-            console.table(getResults);
-
-            // LOGS
-            let message = getResults ? `\nGet booking data queries executed successfully.` : `Opps error getting data\n`;
-            console.log(message);
-
-            if (getResults) {
-
-                const slack_message = await create_daily_booking_slack_message(getResults);
-
-                send_slack_to_calla ? await slack_message_steve_calla_channel(slack_message) : await slack_message_325_bookings_channel(slack_message);
-
-                // console.log(step, slack_message);
-            };
-
-        } else {
-            await program_skip_message(step);
-        }
-
-        await program_end_message(start_time, step);
-
-    } catch (error) {
-        console.error(`Error executing ${step}`, error);
-        // process.exit(1); // Exit on error
-        // return;
-    } finally {
-        // NEXT STEP
-        // await step_2(start_time);
-
-        process.exit(0);
+        return is_development_pool;
     }
 }
 
@@ -192,4 +144,8 @@ async function create_log_message(data) {
     return log_message;
 }
 
-check_most_recent_created_on_date();
+// check_most_recent_created_on_date();
+
+module.exports = {
+    check_most_recent_created_on_date,
+}
