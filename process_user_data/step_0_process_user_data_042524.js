@@ -11,10 +11,11 @@ const { execute_create_rfm_history_data } = require('./step_6_create_rfm_history
 const { execute_create_rfm_tracking } = require('./step_7_create_rfm_tracking/step_7_sql_create_rfm_tracking_ssh_loop'); //step 7
 
 //TODO:
-const run_step_1 = false; // retrieve user_data
-const run_step_2 = false; // load user_data
+const run_step_1 = true; // retrieve user_data
+const run_step_2 = true; // load user_data
 const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
-const run_step_4 = false; // create cohort base and stats
+const run_step_4 = true
+; // create cohort base and stats
 const run_step_5 = true; // create rfm scores & summary
 const run_step_6 = true; // insert from rfm summary data into history table
 const run_step_7 = true; // create rfm tracking
