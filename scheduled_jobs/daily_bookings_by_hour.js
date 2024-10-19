@@ -11,139 +11,182 @@ const { execute_get_daily_booking_data } = require('../daily_booking_forecast/st
 let run_step_0 = true;     // get most recent created on / updated on datetime
 let run_step_1 = true;     // get daily booking data
 
+// TESTING VARIABLES
+let send_slack_to_calla = false;
+const is_testing = false;
+
+// STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
 async function check_most_recent_created_on_date() {
-    const startTime = performance.now();
-    console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+    const start_time = performance.now();
+    const step = `STEP 0 - CHECK MOST RECENT DATE. `;
+
+    await program_start_message(step);
+
+    let is_development_pool = true;
 
     try {
-        // STEP #1: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
-        console.log('\n*************** STARTING STEP 0 ***************\n');
-
-        let log_results = "";
-        let success_message = "";
-        let slackMessage = "";
-
         if (run_step_0) {
             // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_get_most_recent_created_on_date();
+            let getResults = await execute_get_most_recent_created_on_date();
+            console.log('query results = ', getResults);
 
-            // let { results } = getResults;
+            const results = getResults.results[0];
+            let { is_within_15_minutes, is_within_2_hours } = results;
 
-            let { last_updated_utc, execution_timestamp_utc, time_stamp_difference, source_field, is_within_2_hours } = getResults.results[0];
-
-            log_results = getResults ? `\nLAST UPDATED: ${last_updated_utc}\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nTIME STAMP DIFFERENCE: ${time_stamp_difference}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
-
-            // console.log(is_within_2_hours);
-
-            // if false then 
-            if (is_within_2_hours === 'false') {
-                // (a) adjust variables to false to prevent running next steps
-                // not 100% necessary given return below; used as backup
-                run_step_1 = false; // get booking data
-
-                // (b) LOGS
-                let fail_message = getResults ? `\nHello - Myproject db needs some attention please. DB rental_car_booking2 most recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}` : `Opps error getting elapsed time`;
-
-                // (c) send slack with warning
-                slackMessage = `${fail_message}\n${log_results}`;
-                await slack_message_drissues_channel(slackMessage); //todo:
-                // await slack_message_steve_calla_channel(slackMessage);
-
-                console.log(fail_message);
-                console.log(getResults);
-
-                const endTime = performance.now();
-                const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-                console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
-
-                // (c) return to exit function
-                return;
+            // Assign false to is_within_15_minutes if is_testing is true
+            if (is_testing) {
+                is_within_15_minutes = false;
             }
 
-            // LOGS
-            success_message = getResults ? `\nMost recent created on time is within 2 hours. Elapsed Time: ${getResults.elapsedTime}` : `Opps error getting elapsed time\n`;
+            // Assign false to is_within_2_hours if is_testing is true
+            if (is_testing) {
+                is_within_2_hours = false;
+            }
 
-            console.log(success_message);
+            if (!is_within_15_minutes) {
+                // (a) adjust variable to false to prevent running next step...
+                // ... however, in this case allow run_step_1 to execute because is_development_pool false
+                // ... switches to the production server
+                // run_step_1 = false; // get booking data
+
+                // (b) change to production db pool connection
+                is_development_pool = false;
+            }
+            
+            // slack messages
+            let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults);
+
+            is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours)
+            !is_within_2_hours && await slack_message_drissues_channel(slack_message_2_hours);
 
         } else {
-            // LOGS
-            let skip_message = `\nSkipped STEP 1 due to toggle set to false.\n`;
-            console.log(skip_message);
+            await program_skip_message(step);   
         }
 
-        console.log('\n*************** END OF STEP 1 ***************\n');
-
-        // LOGS & SLACK MESSAGE
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-        let message = `\nSTEP 0 - CHECK MOST RECENT DATE: PROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`;
-
-        console.log(`\n${message}\n`);
-
-        slackMessage = `${message}${success_message}\n${log_results}`;
-        await slack_message_steve_calla_channel(slackMessage); //todo:
-
-        // NEXT STEP
-        await step_1_get_daily_booking_data(startTime);
+        // await program_end_message(start_time, step);
 
     } catch (error) {
-        console.error('Error executing Step #1:', error);
+        console.error(`Error executing ${step}`, error);
         return; // Exit the function early
+    } finally {
+        
+        await program_end_message(start_time, step);
+
+        // NEXT STEP
+        await step_1_get_daily_booking_data(start_time, is_development_pool);
     }
 }
 
-async function step_1_get_daily_booking_data(startTime) {
+// STEP #1: GET DAILY BOOKING DATA
+async function step_1_get_daily_booking_data(start_time, is_development_pool) {
+    const step = `STEP 1 - GET DAILY BOOKING DATA. `;
+    
+    await program_start_message(step);
+
     try {
-        // STEP #1: GET DAILY BOOKING DATA
-        console.log('\n*************** STARTING STEP 1 ***************\n');
-
-        let getResults;
-
         if (run_step_1) {
-            // EXECUTE QUERIES
-            getResults = await execute_get_daily_booking_data();
+
+            // EXECUTE QUERY
+            let getResults = await execute_get_daily_booking_data(is_development_pool);
             console.table(getResults);
 
             // LOGS
-            let message = getResults ? `\nAll get booking data queries executed successfully.` : `Opps error getting elapsed time\n`;
-
+            let message = getResults ? `\nGet booking data queries executed successfully.` : `Opps error getting data\n`;
             console.log(message);
+
+            if (getResults) {
+
+                const slack_message = await create_daily_booking_slack_message(getResults);
+
+                send_slack_to_calla ? await slack_message_steve_calla_channel(slack_message) : await slack_message_325_bookings_channel(slack_message);
+
+                // console.log(step, slack_message);
+            };
 
         } else {
-            // LOGS
-            let message = `\nSkipped STEP 1 due to toggle set to false.\n`;
-            console.log(message);
+            await program_skip_message(step);
         }
 
-        console.log('\n*************** END OF STEP 1 ***************\n');
-
-        // LOGS & SLACK MESSAGE
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-        let message = `\nSTEP 1 - GET DAILY BOOKING DATA: PROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`;
-
-        console.log(`\n${message}\n`);
-
-        if (getResults) {
-            const slackMessage = await create_daily_booking_slack_message(getResults);
-            // await slack_message_steve_calla_channel(slackMessage); //todo:
-            await slack_message_325_bookings_channel(slackMessage);
-            console.log('step_1_get_daily_booking_data = ', slackMessage);
-        };
-        
-        process.exit(0);
-
-        // NEXT STEP
-        // await step_2(startTime);
+        await program_end_message(start_time, step);
 
     } catch (error) {
-        console.error('Error executing Step #1:', error);
-        process.exit(1); // Exit on error
-        // return; // Exit the function early
+        console.error(`Error executing ${step}`, error);
+        // process.exit(1); // Exit on error
+        // return;
+    } finally {
+        // NEXT STEP
+        // await step_2(start_time);
+
+        process.exit(0);
     }
+}
+
+// MESSAGES
+async function program_start_message(step) {
+    console.log(`\n*************** STARTING ${step} ***************`);
+    console.log(`PROGRAM START TIME = ${getCurrentDateTime()}`);
+}
+
+async function program_skip_message(step) {
+    console.log(`\nSKIPPED ${step} DUE TO TOGGLE SET TO FALSE.`);
+}
+
+async function program_end_message(start_time, step) {
+    const end_time = performance.now();
+    const elapsed_time = ((end_time - start_time) / 1_000).toFixed(2); //convert ms to sec
+
+    console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsed_time} sec`);
+    console.log(`*************** END OF ${step} ***************`);
+}
+
+async function create_slack_message(data) {
+    // log message
+    let log_message = await create_log_message(data);
+
+    // slack mesage
+    results = data.results[0];
+    let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
+
+    // Assign false to is_within_15_minutes if is_testing is true
+    if (is_testing) {
+        is_within_15_minutes = false;
+    }
+
+    // Assign false to is_within_2_hours if is_testing is true
+    if (is_testing) {
+        is_within_2_hours = false;
+    }
+
+    let inside_15_minutes = is_within_15_minutes && `MOST RECENT ${source_field.toUpperCase()} TIME IS WITHIN 15 MITNUTES.\nUSING DR DEV DB`;
+    let outside_15_minutes = !is_within_15_minutes && `MOST RECENT ${source_field.toUpperCase()} TIME IS OUTSIDE 15 MITNUTES.\nUSING PRODUCTION DB`;
+    let minutes_diff_message = `TIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}`;
+    let elapsed_time = `QUERY ELAPSED TIME: ${data.elapsedTime}`;
+    
+    let slack_message_15_minutes = is_within_15_minutes ? 
+        `\n${inside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}` : 
+        `\n${outside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}`;
+    
+    let outside_2_hours = !is_within_2_hours && `MOST RECENT ${source_field.toUpperCase()} TIME IS OUTSIDE 2 HOURS.\nUSING PRODUCTION DB`;
+    let inside_2_hours = is_within_2_hours && `MOST RECENT ${source_field.toUpperCase()} TIME IS WITHIN 2 HOURS.\nUsing DR DEV DB`;
+    let hours_diff_message = `TIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}`;
+    
+    let slack_message_2_hours = is_within_2_hours ? 
+        `\n${inside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}` : 
+        `\n${outside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}`;
+        
+    console.log(is_within_2_hours ? slack_message_15_minutes : slack_message_2_hours);
+
+    return {slack_message_15_minutes, slack_message_2_hours};
+}
+
+async function create_log_message(data) {
+    results = data.results[0];
+
+    let { source_field, most_recent_event_update_utc, execution_timestamp_utc, time_stamp_difference_minute, is_within_15_minutes } = results;
+
+    let log_message = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nLAST UPDATED: ${most_recent_event_update_utc}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
+
+    return log_message;
 }
 
 check_most_recent_created_on_date();

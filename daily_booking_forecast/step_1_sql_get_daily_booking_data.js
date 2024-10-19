@@ -1,21 +1,29 @@
 const fs = require('fs');
-const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" }); // adding the path ensures each folder will read the .env file as necessary
 
+const mysql = require('mysql2');
 const { Client } = require('ssh2');
 const sshClient = new Client();
-const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utilities/config');
+
+const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
 
 const { query_booking_count_today } = require('./query_booking_count_today');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
-function createSSHConnection() {
+function createSSHConnection(is_development_pool) {
+
+    const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
+    const db = is_development_pool ? dbConfig : dbConfigProduction;
+    const ssh = is_development_pool ? sshConfig : sshConfigProduction;
+
+    // console.log('db = ', db);
+    // console.log('ssh = ', ssh);
+    
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
             console.log('\nSSH tunnel established.\n');
 
-            const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
             sshClient.forwardOut(
                 srcHost,
                 srcPort,
@@ -25,7 +33,7 @@ function createSSHConnection() {
                     if (err) reject(err);
 
                     const updatedDbServer = {
-                        ...dbConfig,
+                        ...db,
                         stream,
                         ssl: {
                             rejectUnauthorized: false,
@@ -37,7 +45,7 @@ function createSSHConnection() {
                     resolve(pool);
                 }
             );
-        }).connect(sshConfig);
+        }).connect(ssh);
     });
 }
 
@@ -70,14 +78,14 @@ async function execute_query_get_daily_booking_data(pool) {
     });
 }
 
-async function execute_get_daily_booking_data() {
+async function execute_get_daily_booking_data(is_development_pool) {
     let pool;
     let results;
     const startTime = performance.now();
 
     try {
         // STEP #1: GET / QUERY Booking data DATA & RETURN RESULTS
-        pool = await createSSHConnection();
+        pool = await createSSHConnection(is_development_pool);
         results = await execute_query_get_daily_booking_data(pool);
 
         // Return the results from the try block

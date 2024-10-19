@@ -3,6 +3,12 @@ dotenv.config({path: "../.env"}); // adding the path ensures each folder will re
 const connectionLimitThrottle = 30;
 
 // console.log(process.env); // double check if env variables are available
+const forwardConfig = {
+    srcHost: '127.0.0.1',
+    srcPort: 3306,
+    dstHost: process.env.MYSQL_HOST,
+    dstPort: parseInt(process.env.MYSQL_PORT),
+};
 
 const dbConfig = {
     host: process.env.MYSQL_HOST,
@@ -10,6 +16,15 @@ const dbConfig = {
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
+    connectionLimit: connectionLimitThrottle,
+};
+
+const dbConfigProduction = {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT),
+    user: process.env.MYSQL_USER_PRODUCTION,
+    password: process.env.MYSQL_PASSWORD_PRODUCTION,
+    database: process.env.MYSQL_DATABASE_PRODUCTION,
     connectionLimit: connectionLimitThrottle,
 };
 
@@ -21,11 +36,12 @@ const sshConfig = {
     // privateKey: fs.readFileSync('/path/to/your/private/key'),
 };
 
-const forwardConfig = {
-    srcHost: '127.0.0.1',
-    srcPort: 3306,
-    dstHost: process.env.MYSQL_HOST,
-    dstPort: parseInt(process.env.MYSQL_PORT),
+const sshConfigProduction = {
+    host: process.env.SSH_HOST_PRODUCTION,
+    port: parseInt(process.env.SSH_PORT_PRODUCTION),
+    username: process.env.SSH_USERNAME_PRODUCTION,
+    password: process.env.SSH_PASSWORD_PRODUCTION,
+    // privateKey: fs.readFileSync('/path/to/your/private/key'),
 };
 
 const localBookingDbConfig = {
@@ -87,7 +103,9 @@ const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;
 
 module.exports = {
     dbConfig,
+    dbConfigProduction,
     sshConfig,
+    sshConfigProduction,
     forwardConfig,
     localBookingDbConfig,
     localKeyMetricsDbConfig,
