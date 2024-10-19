@@ -58,7 +58,7 @@ async function check_most_recent_created_on_date() {
             let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults);
 
             is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours)
-            !is_within_2_hours && await slack_message_drissues_channel(slack_message_2_hours);
+            !is_testing && !is_within_2_hours && await slack_message_drissues_channel(slack_message_2_hours);
 
         } else {
             await program_skip_message(step);   
