@@ -18,9 +18,9 @@ function createSSHConnection(is_development_pool = true) {
     const db = is_development_pool ? dbConfig : dbConfigProduction;
     const ssh = is_development_pool ? sshConfig : sshConfigProduction;
 
-    console.log('db = ', db);
-    console.log('ssh = ', ssh);
-    console.log('forward config = ', forwardConfig);
+    // console.log('db = ', db);
+    // console.log('ssh = ', ssh);
+    // console.log('forward config = ', forwardConfig);
     
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
