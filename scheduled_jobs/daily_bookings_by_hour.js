@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config({ path: "../../.env" }); // adding the path ensures each folder will read the .env file as necessary
+
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
 const { slack_message_drissues_channel } = require('../schedule_slack/slack_drissues_channel');
@@ -9,7 +12,7 @@ const { check_most_recent_created_on_date } = require('../get_most_recent_create
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
 
 // TESTING VARIABLES
-let send_slack_to_calla = false;
+let send_slack_to_calla = true;
 let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM

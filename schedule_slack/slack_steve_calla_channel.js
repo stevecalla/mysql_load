@@ -6,31 +6,49 @@
 // setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
+const axios = require('axios');
 
 // console.log(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL);
 
 async function sendSlackMessage(message) {
   const slack_message = `${message}`;
 
+  const url = process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL;
+
+  const payload = {
+    text: slack_message,
+    icon_emoji: ":ghost:",
+    username: "Steve Calla",
+  };
+  
   try {
-    const response = await fetch(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: slack_message,
-        "icon_emoji": ":ghost:",
-        "username": "Steve Calla",
-      }),
-    });
-    if (response.ok) {
-      console.log('Message sent to eZhire Slack Steve Calla channel');
+    let response;
+
+    // Check if fetch is available
+    if (typeof fetch !== 'undefined') {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
+      }
     } else {
-      throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
-    }
+        // Fallback to axios
+        response = await axios.post(url, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+  
+    console.log('Message sent to eZhire Slack Steve Calla channel');
   } catch (error) {
-    console.error('Error sending message to Slack:', error);
+    console.error('Error sending message to Slack:', error.response ? error.response.data : error.message);
   }
 }
 

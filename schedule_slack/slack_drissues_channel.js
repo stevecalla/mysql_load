@@ -5,25 +5,38 @@
 // setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
-
-// console.log(process.env.SLACK_WEBHOOK_DRISSUES_CHANNEL_URL);
+const axios = require('axios');
 
 async function sendSlackMessage(message = "test message") {
-  const slack_message = `${message}`;
+  const url = process.env.SLACK_WEBHOOK_DRISSUES_CHANNEL_URL;
+
+  // Create the payload object inside the function
+  const payload = {
+    text: message,
+    icon_emoji: ":ghost:",
+    username: "Steve Calla",
+  };
+
+  // Check if fetch is available
+  const isFetchAvailable = typeof fetch === 'function';
 
   try {
-    const response = await fetch(process.env.SLACK_WEBHOOK_DRISSUES_CHANNEL_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: slack_message,
-        "icon_emoji": ":ghost:",
-        "username": "Steve Calla",
-      }),
-    });
-    if (response.ok) {
+    let response;
+
+    if (isFetchAvailable) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      // Fallback to axios
+      response = await axios.post(url, payload);
+    }
+
+    if (response.ok || response.status === 200) {
       console.log('Message sent to eZhire Slack DR ISSUES channel');
     } else {
       throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
@@ -32,6 +45,7 @@ async function sendSlackMessage(message = "test message") {
     console.error('Error sending message to Slack:', error);
   }
 }
+
 
 async function slack_message_drissues_channel(fail_message) {
   await sendSlackMessage(fail_message);

@@ -29,10 +29,14 @@ const dbConfigProduction = {
 };
 
 const sshConfig = {
-    host: process.env.SSH_HOST,
-    port: parseInt(process.env.SSH_PORT),
-    username: process.env.SSH_USERNAME,
-    password: process.env.SSH_PASSWORD,
+    host: '188.166.124.137',
+    port: 22,
+    username: 'steve',
+    password: 'ezhire@7865',
+    // host: process.env.SSH_HOST,
+    // port: parseInt(process.env.SSH_PORT),
+    // username: process.env.SSH_USERNAME,
+    // password: process.env.SSH_PASSWORD,
     // privateKey: fs.readFileSync('/path/to/your/private/key'),
 };
 
