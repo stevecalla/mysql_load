@@ -37,7 +37,7 @@ async function check_most_recent_created_on_date() {
         if (run_step_0) {
             // EXECUTE QUERY
             let getResults = await execute_get_most_recent_created_on_date();
-            // console.log('query results = ', getResults);
+            console.log('query results = ', getResults);
             
             const results = getResults.results[0];
             let { is_within_2_hours } = results;
