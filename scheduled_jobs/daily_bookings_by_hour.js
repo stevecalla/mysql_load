@@ -5,15 +5,16 @@ const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_s
 const { slack_message_325_bookings_channel } = require('../schedule_slack/slack_325_bookings_channel');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
-const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
+const { execute_get_most_recent_created_on_date } = require('../get_most_recent_created_on/sql_getBookingMostRecentCreatedOn'); //step_0
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
-
-let run_step_0 = true;     // get most recent created on / updated on datetime
-let run_step_1 = true;     // get daily booking data
 
 // TESTING VARIABLES
 let send_slack_to_calla = false;
 const is_testing = false;
+
+// RUN PROGRAM
+let run_step_0 = true;     // get most recent created on / updated on datetime
+let run_step_1 = true;     // get daily booking data
 
 // STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
 async function check_most_recent_created_on_date() {
@@ -183,6 +184,10 @@ async function create_log_message(data) {
     results = data.results[0];
 
     let { source_field, most_recent_event_update_utc, execution_timestamp_utc, time_stamp_difference_minute, is_within_15_minutes } = results;
+
+    // // slack mesage
+    // results = data.results[0];
+    // let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
 
     let log_message = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nLAST UPDATED: ${most_recent_event_update_utc}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
 

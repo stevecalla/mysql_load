@@ -3,7 +3,8 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 const { slack_message_drissues_channel } = require('../schedule_slack/slack_drissues_channel');
 const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel');
 
-const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
+// const { execute_get_most_recent_created_on_date } = require('../get_booking_data/sql_getBookingMostRecentCreatedOn'); //step_0
+const { execute_get_most_recent_created_on_date } = require('../get_most_recent_created_on/sql_getBookingMostRecentCreatedOn'); //step_0
 const { execute_get_booking_data } = require('../get_booking_data/sql_getBookingData_ssh_loop'); //step_1
 const { execute_load_booking_data } = require('../load_booking_data/sql_load_bookingData'); //step_2
 const { execute_create_key_metrics } = require('../create_keyMetrics_data/sql_getKeyMetrics_loop'); //step_3
@@ -29,25 +30,25 @@ async function check_most_recent_created_on_date() {
         // STEP #1: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
         console.log('\n*************** STARTING STEP 0 ***************\n');
 
-        let log_results = "";
+        let log_message_2_hours = "";
         let success_message = "";
         let slackMessage = "";
         
         if (run_step_0) {
-            // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_get_most_recent_created_on_date();
+            // EXECUTE QUERY
+            let getResults = await execute_get_most_recent_created_on_date();
+            // console.log('query results = ', getResults);
             
-            // let { results } = getResults;
+            const results = getResults.results[0];
+            let { is_within_2_hours } = results;
 
-            let { last_updated_utc, execution_timestamp_utc, time_stamp_difference, source_field, is_within_2_hours } = getResults.results[0];
-            
-            log_results = getResults ? `\nLAST UPDATED: ${last_updated_utc}\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nTIME STAMP DIFFERENCE: ${time_stamp_difference}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
+            log_message_2_hours = await create_log_message(getResults);
 
-            // console.log(is_within_2_hours);
+            // console.log('message = ', log_message_2_hours);
+            // console.log('is within 2 hours = ', is_within_2_hours);
 
             // if false then 
-            if (is_within_2_hours === 'false') {
+            if (!is_within_2_hours) {
                 // (a) adjust variables to false to prevent running next steps
                 // not 100% necessary given return below; used as backup
                 run_step_1 = false; // get booking data
@@ -61,7 +62,7 @@ async function check_most_recent_created_on_date() {
                 let fail_message = getResults ? `\nHello - Myproject db needs some attention please. DB rental_car_booking2 most recent created on time is outside 2 hours. Elapsed Time: ${getResults.elapsedTime}`: `Opps error getting elapsed time`;
 
                 // (c) send slack with warning
-                slackMessage = `${fail_message}\n${log_results}`;
+                slackMessage = `${fail_message}\n${log_message_2_hours}`;
                 await slack_message_drissues_channel(slackMessage);
                 // await slack_message_steve_calla_channel(slackMessage);
 
@@ -69,7 +70,7 @@ async function check_most_recent_created_on_date() {
                 console.log(getResults);
 
                 generateLogFile('scheduled_booking_data', fail_message);
-                generateLogFile('scheduled_booking_data', log_results);
+                generateLogFile('scheduled_booking_data', log_message_2_hours);
 
                 const endTime = performance.now();
                 const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
@@ -104,7 +105,7 @@ async function check_most_recent_created_on_date() {
         console.log(`\n${message}\n`);
         generateLogFile('scheduled_booking_data', `${message}\n`);
 
-        slackMessage = `${message}${success_message}\n${log_results}`;
+        slackMessage = `${message}${success_message}\n${log_message_2_hours}`;
         await slack_message_steve_calla_channel(slackMessage);
 
         // NEXT STEP
@@ -395,6 +396,17 @@ async function step_6(startTime) {
         generateLogFile('scheduled_booking_data', `Error executing Step #4: ${error}`);
         return; // Exit the function early
     }
+}
+
+// MESSAGES
+async function create_log_message(data) {
+    results = data.results[0];
+
+    let { source_field, most_recent_event_update_utc, execution_timestamp_utc, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
+
+    let log_message_2_hours = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nLAST UPDATED: ${most_recent_event_update_utc}\nTIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
+
+    return log_message_2_hours;
 }
 
 check_most_recent_created_on_date();
