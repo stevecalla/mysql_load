@@ -8,13 +8,13 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 const { execute_get_most_recent_created_on_date } = require('./sql_getBookingMostRecentCreatedOn'); //step_0
 
 // TESTING VARIABLES
-const is_testing = false;
+// const is_testing = false;
 
 // RUN PROGRAM
 let run_step_0 = true;     // get most recent created on / updated on datetime
 
 // STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
-async function check_most_recent_created_on_date() {
+async function check_most_recent_created_on_date(is_testing = false) {
     const start_time = performance.now();
     const step = `STEP 0 - CHECK MOST RECENT DATE. `;
 
@@ -52,7 +52,7 @@ async function check_most_recent_created_on_date() {
             }
             
             // slack messages
-            let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults);
+            let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults, is_testing);
 
             is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours)
             !is_testing && !is_within_2_hours && await slack_message_drissues_channel(slack_message_2_hours);
@@ -68,7 +68,7 @@ async function check_most_recent_created_on_date() {
         
         await program_end_message(start_time, step);
 
-        return is_development_pool;
+        return { start_time, is_development_pool };
     }
 }
 
@@ -90,7 +90,7 @@ async function program_end_message(start_time, step) {
     console.log(`*************** END OF ${step} ***************`);
 }
 
-async function create_slack_message(data) {
+async function create_slack_message(data, is_testing) {
     // log message
     let log_message = await create_log_message(data);
 

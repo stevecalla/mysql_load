@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 // SLACK SETUP
-const localtunnel = require('localtunnel');
 const ngrok = require('ngrok');
 const { WebClient } = require('@slack/web-api');
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
@@ -12,7 +11,7 @@ const { execute_get_daily_booking_data } = require('../daily_booking_forecast/st
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token
 
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
-const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message_v2');
+const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 const app = express();
 const PORT = process.env.PORT || 8000; // You can change this port if needed
@@ -37,19 +36,13 @@ app.post('/getstats', async (req, res) => {
     });
 
     // Process the request asynchronously
-    const is_development_pool = await check_most_recent_created_on_date(); // USE DR DB OR PRODUCTION DB
-
-    console.log('***********************************');    
-    console.log('using dev DR DB = ', is_development_pool);
-    console.log('***********************************');
-
+    const is_development_pool  = await check_most_recent_created_on_date(); // USE DR DB OR PRODUCTION DB
     const getResults = await execute_get_daily_booking_data(is_development_pool);
-
     const slackMessage = await create_daily_booking_slack_message(getResults);
     // console.log(slackMessage);
 
     // Send a follow-up message to Slack
-    // await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
 
 // Function to send follow-up message to Slack
@@ -99,25 +92,11 @@ async function startNgrok() {
     }
 }
 
-async function localTunnel(PORT1) {
-    try {
-        const tunnel1 = await localtunnel({ port: PORT1 });
-        console.log(`Localtunnel for Server 1 is available at: ${tunnel1.url}`);
-        
-        tunnel1.on('close', () => {
-            console.log('Localtunnel for Server 1 is closed');
-        });
-    } catch (error) {
-        console.error(`Error starting localtunnel for Server 1: ${error.message}`);
-    }
-}
-
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
-    // startNgrok();
-    // localTunnel(PORT);
+    startNgrok();
 });
 
 
