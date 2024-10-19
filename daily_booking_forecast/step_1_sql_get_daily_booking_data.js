@@ -12,7 +12,7 @@ const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduct
 const { query_booking_count_today_v2 } = require('./query_booking_count_today_v2');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
-function createSSHConnection(is_development_pool) {
+function createSSHConnection(is_development_pool = true) {
 
     const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
     const db = is_development_pool ? dbConfig : dbConfigProduction;
@@ -20,6 +20,7 @@ function createSSHConnection(is_development_pool) {
 
     // console.log('db = ', db);
     // console.log('ssh = ', ssh);
+    // console.log('forward config = ', forwardConfig);
     
     return new Promise((resolve, reject) => {
         sshClient.on('ready', () => {
@@ -34,7 +35,7 @@ function createSSHConnection(is_development_pool) {
                     if (err) reject(err);
 
                     const updatedDbServer = {
-                        ...db,
+                        ...db,  
                         stream,
                         ssl: {
                             rejectUnauthorized: false,
