@@ -5,37 +5,33 @@ const query_most_recent_create_on_date = `
         
         -- last updated dates
         most_recent_event_update, -- converts base time via MST + 7 to UTC (converts 10:07:53 to 16:07:53)
-        -- DATE_FORMAT(CONVERT_TZ(most_recent_event_update, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') AS most_recent_event_update_utc, -- military time format
-        DATE_FORMAT(CONVERT_TZ(most_recent_event_update, '+00:00', '+00:00'), '%Y-%m-%d %h:%i:%s %p UTC') AS most_recent_event_update_utc, -- am/pm format
+        DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p GST') AS most_recent_event_update_gst, -- am/pm format
 
         -- current timestamp dates
-        CURRENT_TIMESTAMP AS execution_timestamp,
-        -- DATE_FORMAT(CONVERT_TZ(CURRENT_TIMESTAMP, '+00:00', '+00:00'), '%Y-%m-%d %H:%i:%s UTC') AS execution_timestamp_utc, -- military time format
-        DATE_FORMAT(CONVERT_TZ(CURRENT_TIMESTAMP, '+00:00', '+00:00'), '%Y-%m-%d %h:%i:%s %p UTC') AS execution_timestamp_utc, -- am/pm format
+        DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p GST') AS execution_timestamp_gst, -- am/pm format
 
         -- variance between last updated and current timestamp
-        TIMESTAMPDIFF(HOUR, most_recent_event_update, CURRENT_TIMESTAMP()) as time_stamp_difference_hour,
-        TIMESTAMPDIFF(MINUTE, most_recent_event_update, CURRENT_TIMESTAMP()) as time_stamp_difference_minute,
-        -- TIMESTAMPDIFF(HOUR, '2024-10-19 03:41:54', '2024-10-19 03:51:54') as time_stamp_difference_hour_test, -- in whole hour
-        -- TIMESTAMPDIFF(MINUTE, '2024-10-19 03:41:54', '2024-10-19 05:50:54') as time_stamp_difference_minutes_test, -- in minutes
+        TIMESTAMPDIFF(HOUR, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) AS time_stamp_difference_hour,
+        TIMESTAMPDIFF(MINUTE, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) AS time_stamp_difference_minute,
         CASE
-            WHEN TIMESTAMPDIFF(HOUR, most_recent_event_update, CURRENT_TIMESTAMP()) <= 2 THEN "true"
+            WHEN TIMESTAMPDIFF(HOUR, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 2 THEN "true"
             ELSE "false"
         END AS is_within_2_hours,
         CASE
-            WHEN TIMESTAMPDIFF(MINUTE, most_recent_event_update, CURRENT_TIMESTAMP()) <= 15 THEN "true"
+            WHEN TIMESTAMPDIFF(MINUTE, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 15 THEN "true"
             ELSE "false"
         END AS is_within_15_minutes,
         
         most_recent_created_on,
         most_recent_updated_on
 
-    FROM (
+    FROM 
+    (
             SELECT 
                 'created_on' AS source_field, 
-                MAX(created_on) AS most_recent_event_update, 
-                MAX(created_on) AS most_recent_created_on, 
-                MAX(updated_on) AS most_recent_updated_on,
+                DATE_FORMAT(DATE_ADD(MAX(created_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_event_update, -- gst
+                DATE_FORMAT(DATE_ADD(MAX(created_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_created_on, -- gst
+                DATE_FORMAT(DATE_ADD(MAX(updated_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_updated_on, -- gst
                 count(*) AS count
             FROM myproject.rental_car_booking2
 
@@ -43,15 +39,17 @@ const query_most_recent_create_on_date = `
 
             SELECT 
                 'updated_on' AS source_field, 
-                MAX(updated_on) AS most_recent_event_update, 
-                MAX(created_on) AS most_recent_created_on, 
-                MAX(updated_on) AS most_recent_updated_on, 
+                DATE_FORMAT(DATE_ADD(MAX(updated_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_event_update, -- gst
+                DATE_FORMAT(DATE_ADD(MAX(created_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_created_on, -- gst
+                DATE_FORMAT(DATE_ADD(MAX(updated_on), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS most_recent_updated_on, -- gst
                 count(*) AS count
             FROM myproject.rental_car_booking2
 
         ) AS last_updated_table
+    GROUP BY source_field
     ORDER BY most_recent_event_update DESC
-    LIMIT 1; -- keeps most recent created on record
+    LIMIT 1
+    ; -- keeps most recent created on record
 `;
 
 module.exports = { query_most_recent_create_on_date };

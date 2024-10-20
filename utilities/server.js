@@ -36,7 +36,11 @@ app.post('/getstats', async (req, res) => {
     });
 
     // Process the request asynchronously
-    const is_development_pool  = await check_most_recent_created_on_date(); // USE DR DB OR PRODUCTION DB
+    let is_testing = false; // used to test is_development_pool; normal state is false
+    const result = await check_most_recent_created_on_date(is_testing); // USE DR DB OR PRODUCTION DB
+    let is_development_pool = result.is_development_pool;
+    // console.log(is_development_pool);
+
     const getResults = await execute_get_daily_booking_data(is_development_pool);
     const slackMessage = await create_daily_booking_slack_message(getResults);
     // console.log(slackMessage);

@@ -108,24 +108,22 @@ async function create_slack_message(data, is_testing) {
         is_within_2_hours = false;
     }
 
-    let inside_15_minutes = is_within_15_minutes && `MOST RECENT ${source_field.toUpperCase()} TIME IS WITHIN 15 MITNUTES.\nUSING DR DEV DB`;
-    let outside_15_minutes = !is_within_15_minutes && `MOST RECENT ${source_field.toUpperCase()} TIME IS OUTSIDE 15 MITNUTES.\nUSING PRODUCTION DB`;
+    let inside_15_minutes = `WiTHIN 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVEVELOPMENT DB`;
+    let outside_15_minutes =  `OUTSIDE 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING PRODUCTION DB`;
     let minutes_diff_message = `TIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}`;
     let elapsed_time = `QUERY ELAPSED TIME: ${data.elapsedTime}`;
     
-    let slack_message_15_minutes = is_within_15_minutes ? 
+    let slack_message_15_minutes = (is_within_15_minutes === 'true' ? 
         `\n${inside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}` : 
-        `\n${outside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}`;
+        `\n${outside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}`);
     
-    let outside_2_hours = !is_within_2_hours && `MOST RECENT ${source_field.toUpperCase()} TIME IS OUTSIDE 2 HOURS.\nUSING PRODUCTION DB`;
-    let inside_2_hours = is_within_2_hours && `MOST RECENT ${source_field.toUpperCase()} TIME IS WITHIN 2 HOURS.\nUsing DR DEV DB`;
+    let outside_2_hours = `WiTHIN 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVEVELOPMENT DB`;
+    let inside_2_hours = `OUTSIDE 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUsing PRODUCTOIN DB`;
     let hours_diff_message = `TIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}`;
     
-    let slack_message_2_hours = is_within_2_hours ? 
+    let slack_message_2_hours = is_within_2_hours === 'true' ? 
         `\n${inside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}` : 
         `\n${outside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}`;
-        
-    console.log(is_within_2_hours ? slack_message_15_minutes : slack_message_2_hours);
 
     return {slack_message_15_minutes, slack_message_2_hours};
 }
@@ -133,13 +131,9 @@ async function create_slack_message(data, is_testing) {
 async function create_log_message(data) {
     results = data.results[0];
 
-    let { source_field, most_recent_event_update_utc, execution_timestamp_utc, time_stamp_difference_minute, is_within_15_minutes } = results;
+    let { source_field, most_recent_event_update_gst, execution_timestamp_gst, time_stamp_difference_minute, is_within_15_minutes } = results;
 
-    // // slack mesage
-    // results = data.results[0];
-    // let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
-
-    let log_message = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nLAST UPDATED: ${most_recent_event_update_utc}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
+    let log_message = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_gst}\nLAST UPDATED: ${most_recent_event_update_gst}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
 
     return log_message;
 }
