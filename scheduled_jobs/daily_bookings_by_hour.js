@@ -12,7 +12,7 @@ const { check_most_recent_created_on_date } = require('../get_most_recent_create
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
 
 // TESTING VARIABLES
-let send_slack_to_calla = true;
+let send_slack_to_calla = false;
 let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM
@@ -31,7 +31,6 @@ async function run_most_recent_check() {
 
             let result = await check_most_recent_created_on_date(is_testing); // USE DR DB OR PRODUCTION DB
 
-            console.log('check most recent = ', result);
             is_development_pool = result.is_development_pool;
             start_time = result.start_time;
 
