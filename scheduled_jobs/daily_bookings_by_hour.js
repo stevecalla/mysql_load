@@ -12,7 +12,7 @@ const { check_most_recent_created_on_date } = require('../get_most_recent_create
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
 
 // TESTING VARIABLES
-let send_slack_to_calla = false;
+let send_slack_to_calla = true;
 let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM
@@ -29,7 +29,11 @@ async function run_most_recent_check() {
     try {
         if (run_step_0) {
 
-            is_development_pool = await check_most_recent_created_on_date(is_testing); // USE DR DB OR PRODUCTION DB
+            let result = await check_most_recent_created_on_date(is_testing); // USE DR DB OR PRODUCTION DB
+
+            console.log('check most recent = ', result);
+            is_development_pool = result.is_development_pool;
+            start_time = result.start_time;
 
         } else {
             await program_skip_message(step);   
@@ -43,13 +47,15 @@ async function run_most_recent_check() {
     } finally {
 
         // NEXT STEP
-        await step_1_get_daily_booking_data(is_development_pool);
+        await step_1_get_daily_booking_data(start_time, is_development_pool);
     }
 }
 
 // STEP #1: GET DAILY BOOKING DATA / POST BOOKING DATA TO SLACK 325 CHANNEL
 async function step_1_get_daily_booking_data(start_time, is_development_pool) {
     const step = `STEP 1 - GET DAILY BOOKING DATA. `;
+
+    console.log('get daily bookings step 1 = ', is_development_pool);
     
     await program_start_message(step);
 

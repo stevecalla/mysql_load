@@ -30,10 +30,10 @@ async function date_info(results) {
   
   // DATE INFO
   const created_at_date = `${getFormattedDateAmPm(results[0].created_at_gst)} GST`;
-  const created_at_message = `Info Updated At: ${created_at_date}`;
+  const created_at_message = `Info Queried At: ${created_at_date}`;
   const created_at_date_unformatted = results[0].created_at_gst;
 
-  const most_recent_booking_date = `${getFormattedDateAmPm(results[0].date_most_recent_created_on_gst)} GST`;
+  const most_recent_booking_date = `${getFormattedDateAmPm(results[0].most_recent_event_update)} GST`;
   const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date}`;
 
   return { created_at_date, created_at_message, most_recent_booking_date, most_recent_booking_date_message, created_at_date_unformatted };
