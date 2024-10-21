@@ -48,7 +48,7 @@ async function check_most_recent_created_on_date() {
             // console.log('is within 2 hours = ', is_within_2_hours);
 
             // if false then 
-            if (!is_within_2_hours) {
+            if (is_within_2_hours === 'false') { // is within 2 hours is a string not boolean
                 // (a) adjust variables to false to prevent running next steps
                 // not 100% necessary given return below; used as backup
                 run_step_1 = false; // get booking data
@@ -402,9 +402,9 @@ async function step_6(startTime) {
 async function create_log_message(data) {
     results = data.results[0];
 
-    let { source_field, most_recent_event_update_utc, execution_timestamp_utc, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
+    let { source_field, most_recent_event_update_gst, execution_timestamp_gst, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
 
-    let log_message_2_hours = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_utc}\nLAST UPDATED: ${most_recent_event_update_utc}\nTIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
+    let log_message_2_hours = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_gst}\nLAST UPDATED: ${most_recent_event_update_gst}\nTIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}\nSOURCE FIELD: ${source_field}\nIS WITHIN 2 HOURS: ${is_within_2_hours}` : `Opps no results`;
 
     return log_message_2_hours;
 }
