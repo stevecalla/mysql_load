@@ -21,8 +21,8 @@ let run_step_1 = true;     // get daily booking data
 
 // STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE
 async function run_most_recent_check() {
-    
-    const start_time = performance.now();
+    const step = `STEP #0: RUN QUERY TO GET MOST RECENT CREATED ON / UPDATED ON DATE `;
+    let start_time = performance.now();
 
     let is_development_pool = true;
     
@@ -92,7 +92,7 @@ async function step_1_get_daily_booking_data(start_time, is_development_pool) {
         // NEXT STEP
         // await step_2(start_time);
 
-        process.exit(0);
+        // process.exit(0);
     }
 }
 
@@ -114,8 +114,8 @@ async function program_end_message(start_time, step) {
     console.log(`*************** END OF ${step} ***************`);
 }
 
-run_most_recent_check(); // need to run like this for bat file execution
+// run_most_recent_check(); // need to run like this for bat file execution
 
-// module.exports = {
-//     run_most_recent_check,
-// }
+module.exports = {
+    run_most_recent_check,
+}
