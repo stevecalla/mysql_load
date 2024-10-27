@@ -15,3 +15,5 @@ fetch('http://localhost:8000/hourlyReport')
     .catch(error => {
         console.error('Error with request:', error.message);
     });
+
+    // C:\Users\calla\development\ezhire\programs\scheduled_jobs\cron_daily_bookings\script.js

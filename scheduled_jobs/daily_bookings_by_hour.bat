@@ -7,7 +7,8 @@ cd "C:/Users/calla/development/ezhire/programs/scheduled_jobs"
 
 REM Run the javascript file
 REM old path node "C:\Users\calla\Google Drive\Resume & Stuff\ezhire\sql_analysis\programs\scheduled_jobs\daily_bookings_by_hour.js"
-node "C:/Users/calla/development/ezhire/programs/scheduled_jobs/daily_bookings_by_hour.js"
+REM node "C:/Users/calla/development/ezhire/programs/scheduled_jobs/daily_bookings_by_hour.js"
+Node "C:\Users\calla\development\ezhire\programs\scheduled_jobs\cron_daily_bookings\script.js"
 
 REM Set to pause to review the logs and process that executed. Remove pause if this is not necessary.
 pause
