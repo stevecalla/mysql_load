@@ -12,6 +12,7 @@ const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to 
 
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
+const { run_most_recent_check } = require('../scheduled_jobs/daily_bookings_by_hour.js');
 
 const app = express();
 const PORT = process.env.PORT || 8000; // You can change this port if needed
@@ -48,6 +49,27 @@ app.post('/getstats', async (req, res) => {
     // Send a follow-up message to Slack
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
+
+app.get('/hourlyReport', async (req, res) => {
+    try {
+        // Call the function to run the most recent check
+        await run_most_recent_check(); // Ensure to await if it's a promise-based function
+        
+        // Send a success response
+        res.status(200).json({
+            message: 'Hourly report check completed successfully.',
+        });
+    } catch (error) {
+        console.error('Error running most recent check:', error);
+        
+        // Send an error response
+        res.status(500).json({
+            message: 'An error occurred while running the hourly report check.',
+            error: error.message || 'Internal Server Error',
+        });
+    }
+});
+
 
 // Function to send follow-up message to Slack
 async function sendFollowUpMessage(channelId, channelName, userId, message) {
