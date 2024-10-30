@@ -1,8 +1,3 @@
-// https://www.locale.ai/blog/automate-slack-messages-node-js
-// https://ezhire.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=settings&next_id=0
-// https://ezhire.slack.com/services/B075P6JS9GB?added=1 = steve calla channel integration settings
-// https://ezhire.slack.com/services/B07MLKJHYJH?added=1 = 400 booking channel integration settings
-
 // setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
