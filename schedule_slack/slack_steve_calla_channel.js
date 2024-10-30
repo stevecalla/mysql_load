@@ -1,4 +1,3 @@
-// setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
 const axios = require('axios');

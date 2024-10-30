@@ -1,14 +1,6 @@
-// https://www.locale.ai/blog/automate-slack-messages-node-js
-// https://ezhire.slack.com/services/B075P6JS9GB?added=1
-// https://ezhire.slack.com/services/B0762026MFB // = development channel integration settings
-// https://ezhire.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=settings&next_id=0
-
-// setup .env file
 const dotenv = require('dotenv');
 dotenv.config({path: "../.env"}); 
 const axios = require('axios');
-
-// console.log(process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL);
 
 async function sendSlackMessage() {
   const message = `Test slack development channel integration by Steve Calla.`;
