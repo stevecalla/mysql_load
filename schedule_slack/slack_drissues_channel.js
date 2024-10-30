@@ -1,8 +1,3 @@
-// https://www.locale.ai/blog/automate-slack-messages-node-js
-// https://ezhire.slack.com/services/B077HA1CCEB // = dr-issues channel integration settings
-// https://ezhire.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=settings&next_id=0
-
-// setup .env file
 const dotenv = require('dotenv');
 dotenv.config({ path: "../.env" });
 const axios = require('axios');

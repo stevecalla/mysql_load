@@ -2,8 +2,8 @@ const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
 const { slack_message_drissues_channel } = require('../schedule_slack/slack_drissues_channel');
 const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel');
-const { slack_message_325_bookings_channel } = require('../schedule_slack/slack_325_bookings_channel');
-const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
+// const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
+// const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 const { execute_get_most_recent_created_on_date } = require('./sql_getBookingMostRecentCreatedOn'); //step_0
 

@@ -1,10 +1,13 @@
 const dotenv = require('dotenv');
-dotenv.config({path: "../.env"}); 
+dotenv.config({ path: "../.env" });
 const axios = require('axios');
 
-async function sendSlackMessage() {
-  const message = `Test slack development channel integration by Steve Calla.`;
-  const url = process.env.SLACK_WEBHOOK_DEVELOPMENT_CHANNEL_URL;
+// console.log(process.env.SLACK_WEBHOOK_DRISSUES_CHANNEL_URL);
+
+async function sendSlackMessage(message = "test message") {
+  const slack_message = `${message}`;
+
+  const url = process.env.SLACK_WEBHOOK_400_BOOKING_CHANNEL_URL;
 
   // Create the payload object inside the function
   const payload = {
@@ -33,22 +36,19 @@ async function sendSlackMessage() {
     }
 
     if (response.ok || response.status === 200) {
-      console.log('Exchange rate update sent to Slack');
+      console.log('Message sent to eZhire Slack 350 Bookings Channel');
     } else {
-      throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
+      throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText || response.status}`);
     }
   } catch (error) {
     console.error('Error sending message to Slack:', error);
-  }
+  } 
 }
 
-async function main() {
-  await sendSlackMessage();
+async function slack_message_400_bookings_channel(message) {
+  await sendSlackMessage(message);
 }
 
-  
-async function main() {
-    await sendSlackMessage();
+module.exports = {
+  slack_message_400_bookings_channel,
 }
-
-main();

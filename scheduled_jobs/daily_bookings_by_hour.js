@@ -3,9 +3,9 @@ dotenv.config({ path: "../../.env" }); // adding the path ensures each folder wi
 
 const { getCurrentDateTime } = require('../utilities/getCurrentDate');
 
-const { slack_message_drissues_channel } = require('../schedule_slack/slack_drissues_channel');
 const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel');
-const { slack_message_325_bookings_channel } = require('../schedule_slack/slack_325_bookings_channel');
+const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
+const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date'); //step_0
@@ -50,7 +50,7 @@ async function run_most_recent_check() {
     }
 }
 
-// STEP #1: GET DAILY BOOKING DATA / POST BOOKING DATA TO SLACK 325 CHANNEL
+// STEP #1: GET DAILY BOOKING DATA / POST BOOKING DATA TO SLACK 400 CHANNEL
 async function step_1_get_daily_booking_data(start_time, is_development_pool) {
     const step = `STEP 1 - GET DAILY BOOKING DATA. `;
 
@@ -73,7 +73,12 @@ async function step_1_get_daily_booking_data(start_time, is_development_pool) {
 
                 const slack_message = await create_daily_booking_slack_message(getResults);
 
-                send_slack_to_calla ? await slack_message_steve_calla_channel(slack_message) : await slack_message_325_bookings_channel(slack_message);
+                if (send_slack_to_calla) {
+                    await slack_message_steve_calla_channel(slack_message);
+                  } else {
+                    await slack_message_400_bookings_channel(slack_message);
+                    await slack_message_350_bookings_channel(slack_message);
+                  }
 
                 // console.log(step, slack_message);
             };
