@@ -3,7 +3,7 @@ const { group_by_country } = require('../daily_booking_forecast/results_grouped_
 
 async function create_daily_booking_slack_message(results) {
   // GOAL
-  const goal = 350;
+  const goal = 400;
   const goal_message = `🎯 Goal: ${goal}`;
 
   let { yesterdaySummary, todaySummary, uae_bookings_today, uae_bookings_yesterday } = await group_by_country(results);
@@ -79,7 +79,8 @@ async function check_pacing_for_current_hour(created_at_date, uae_bookings_today
     `${uae_bookings_today >= target ? `🌱 Above Pacing: +${uae_bookings_today - target}` : `🟡 Below Pacing: ${uae_bookings_today - target}`}`;
 
     
-  const pacing_threshold = `Pacing Goals: 8a = 25, 12n = 100, 2p = 150, 5p = 235, 7p = 295, 10p = 330, 12a = 350`;
+  // const pacing_threshold = `Pacing Goals: 8a = 25, 12n = 100, 2p = 150, 5p = 235, 7p = 295, 10p = 330, 12a = 350`;
+  const pacing_threshold = `Pacing Goals: 8a = 30, 12n = 115, 2p = 175, 5p = 270, 7p = 340, 10p = 375, 12a = 400`;
 
   return { pacing_message, pacing_status_message, pacing_threshold };
 }
@@ -88,13 +89,13 @@ async function check_pacing_for_current_hour(created_at_date, uae_bookings_today
 async function find_target_for_current_hour(currentHourFormatted) {
   const pacing_thresholds = {
     '00:00': 10,
-    '08:00': 25,
-    '12:00': 100,
-    '14:00': 150,
-    '17:00': 235,
-    '19:00': 295,
-    '22:00': 330,
-    '24:00': 350,
+    '08:00': 30,
+    '12:00': 115,
+    '14:00': 175,
+    '17:00': 270,
+    '19:00': 340,
+    '22:00': 375,
+    '24:00': 400,
   };
 
   const inputDate = new Date(`1970-01-01T${currentHourFormatted}:00Z`);
