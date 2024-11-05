@@ -31,30 +31,29 @@ async function check_most_recent_created_on_date(is_testing = false) {
             const results = getResults.results[0];
             let { is_within_15_minutes, is_within_2_hours } = results;
 
-            // Assign false to is_within_15_minutes if is_testing is true
-            if (is_testing) {
-                is_within_15_minutes = false;
-            }
+            console.log('is with 15 = ', is_within_15_minutes, typeof is_within_15_minutes, !is_within_15_minutes);
+            console.log('is with 2hr = ', is_within_2_hours, typeof is_within_2_hours, !is_within_2_hours);
 
-            // Assign false to is_within_2_hours if is_testing is true
-            if (is_testing) {
-                is_within_2_hours = false;
-            }
+            // // Assign false to is_within_15_minutes if is_testing is true
+            // if (is_testing) {
+            //     is_within_15_minutes = false;
+            // }
+
+            // // Assign false to is_within_2_hours if is_testing is true
+            // if (is_testing) {
+            //     is_within_2_hours = false;
+            // }
 
             if (!is_within_15_minutes) {
-                // (a) adjust variable to false to prevent running next step...
-                // ... however, in this case allow run_step_1 to execute because is_development_pool false
-                // ... switches to the production server
-                // run_step_1 = false; // get booking data
-
-                // (b) change to production db pool connection
+                // change to production db pool connection
                 is_development_pool = false;
             }
             
             // slack messages
             let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults, is_testing);
 
-            is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours)
+            is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours);
+
             !is_testing && !is_within_2_hours && await slack_message_drissues_channel(slack_message_2_hours);
 
         } else {
@@ -97,31 +96,31 @@ async function create_slack_message(data, is_testing) {
     // slack mesage
     results = data.results[0];
     let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
+    let elapsed_time = `QUERY ELAPSED TIME: ${data.elapsedTime}`;
 
-    // Assign false to is_within_15_minutes if is_testing is true
-    if (is_testing) {
-        is_within_15_minutes = false;
-    }
+    // // Assign false to is_within_15_minutes if is_testing is true
+    // if (is_testing) {
+    //     is_within_15_minutes = false;
+    // }
 
-    // Assign false to is_within_2_hours if is_testing is true
-    if (is_testing) {
-        is_within_2_hours = false;
-    }
+    // // Assign false to is_within_2_hours if is_testing is true
+    // if (is_testing) {
+    //     is_within_2_hours = false;
+    // }
 
-    let inside_15_minutes = `WiTHIN 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVEVELOPMENT DB`;
+    let inside_15_minutes = `WITHIN 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVELOPMENT DB`;
     let outside_15_minutes =  `OUTSIDE 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING PRODUCTION DB`;
     let minutes_diff_message = `TIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}`;
-    let elapsed_time = `QUERY ELAPSED TIME: ${data.elapsedTime}`;
     
-    let slack_message_15_minutes = (is_within_15_minutes === 'true' ? 
+    let slack_message_15_minutes = (is_within_15_minutes ? 
         `\n${inside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}` : 
         `\n${outside_15_minutes}\n${minutes_diff_message}\n${elapsed_time}\n${log_message}`);
     
-    let outside_2_hours = `WiTHIN 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVEVELOPMENT DB`;
-    let inside_2_hours = `OUTSIDE 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUsing PRODUCTOIN DB`;
+    let inside_2_hours = `WITHIN 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVELOPMENT DB`;
+    let outside_2_hours = `OUTSIDE 2 HOURS USING MOST RECENT ${source_field.toUpperCase()}.\nUSING PRODUCTION DB`;
     let hours_diff_message = `TIME STAMP DIFFERENCE - HOURS: ${time_stamp_difference_hour}`;
     
-    let slack_message_2_hours = is_within_2_hours === 'true' ? 
+    let slack_message_2_hours = is_within_2_hours ? 
         `\n${inside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}` : 
         `\n${outside_2_hours}\n${hours_diff_message}\n${elapsed_time}\n${log_message}`;
 

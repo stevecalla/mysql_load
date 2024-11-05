@@ -13,13 +13,15 @@ const query_most_recent_create_on_date = `
         -- variance between last updated and current timestamp
         TIMESTAMPDIFF(HOUR, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) AS time_stamp_difference_hour,
         TIMESTAMPDIFF(MINUTE, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) AS time_stamp_difference_minute,
+
         CASE
-            WHEN TIMESTAMPDIFF(HOUR, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 2 THEN "true"
-            ELSE "false"
+            WHEN TIMESTAMPDIFF(HOUR, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 2 THEN 1
+            ELSE 0
         END AS is_within_2_hours,
+
         CASE
-            WHEN TIMESTAMPDIFF(MINUTE, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 15 THEN "true"
-            ELSE "false"
+            WHEN TIMESTAMPDIFF(MINUTE, DATE_FORMAT(most_recent_event_update, '%Y-%m-%d %h:%i:%s %p'), DATE_FORMAT(DATE_ADD(MAX(CURRENT_TIMESTAMP), INTERVAL 4 HOUR), '%Y-%m-%d %h:%i:%s %p')) <= 15 THEN 1
+            ELSE 0
         END AS is_within_15_minutes,
         
         most_recent_created_on,
