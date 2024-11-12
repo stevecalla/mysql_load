@@ -34,6 +34,9 @@ async function run_most_recent_check() {
             console.log(result);
 
             is_development_pool = result.is_development_pool;
+
+            // is_development_pool = false; // switch to production if necessary
+            
             start_time = result.start_time;
 
         } else {
