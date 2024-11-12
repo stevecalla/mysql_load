@@ -48,7 +48,7 @@ async function check_most_recent_created_on_date() {
             // console.log('is within 2 hours = ', is_within_2_hours);
 
             // if false then 
-            if (is_within_2_hours === 'false') { // is within 2 hours is a string not boolean
+            if (!is_within_2_hours) { // is within 2 hours is a string not boolean
                 // (a) adjust variables to false to prevent running next steps
                 // not 100% necessary given return below; used as backup
                 run_step_1 = false; // get booking data
