@@ -42,6 +42,8 @@ app.post('/getstats', async (req, res) => {
     let is_development_pool = result.is_development_pool;
     // console.log(is_development_pool);
 
+    // is_development_pool = false; // switch to production if necessary
+
     const getResults = await execute_get_daily_booking_data(is_development_pool);
     const slackMessage = await create_daily_booking_slack_message(getResults);
     // console.log(slackMessage);
