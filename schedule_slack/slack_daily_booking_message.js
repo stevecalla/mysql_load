@@ -144,13 +144,14 @@ async function find_target_for_current_hour(currentHourFormatted) {
   return target;
 }
 
-async function main() {
-  let test = await execute_get_daily_booking_data();
+// used to test
+// async function main() {
+//   let test = await execute_get_daily_booking_data();
 
-  create_daily_booking_slack_message(test);
-}
+//   create_daily_booking_slack_message(test);
+// }
 
-main();
+// main();
 
 module.exports = {
   create_daily_booking_slack_message,
