@@ -10,6 +10,25 @@ const forwardConfig = {
     dstPort: parseInt(process.env.MYSQL_PORT),
 };
 
+// LEADS DB
+const dbConfigLeadsProduction = {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT),
+    user: process.env.LEADS_USER_PRODUCTION,
+    password: process.env.LEADS_PASSWORD_PRODUCTION,
+    database: process.env.LEADS_DATABASE_PRODUCTION,
+    connectionLimit: connectionLimitThrottle,
+};
+
+const sshConfigLeadsProduction = {
+    host: process.env.SSH_HOST_LEADS_PRODUCTION,
+    port: parseInt(process.env.SSH_PORT_LEADS_PRODUCTION),
+    username: process.env.SSH_USERNAME_LEADS_PRODUCTION,
+    password: process.env.SSH_PASSWORD_LEADS_PRODUCTION,
+    // privateKey: fs.readFileSync('/path/to/your/private/key'),
+};
+
+// BOOKING DB
 const dbConfig = {
     host: process.env.MYSQL_HOST,
     port: parseInt(process.env.MYSQL_PORT),
@@ -104,8 +123,10 @@ const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;
 module.exports = {
     dbConfig,
     dbConfigProduction,
+    dbConfigLeadsProduction,
     sshConfig,
     sshConfigProduction,
+    sshConfigLeadsProduction,
     forwardConfig,
     localBookingDbConfig,
     localKeyMetricsDbConfig,

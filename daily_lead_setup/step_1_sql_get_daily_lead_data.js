@@ -6,16 +6,16 @@ const mysql = require('mysql2');
 const { Client } = require('ssh2');
 const sshClient = new Client();
 
-const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
+const { forwardConfig, dbConfigLeadsProduction, sshConfigLeadsProduction  } = require('../utilities/config');
 
-const { query_booking_count_today_v3_all_bookings } = require('./query_booking_count_today_v3_all_bookings');
+// const { query_booking_count_today_v3_all_bookings } = require('./query_booking_count_today_v3_all_bookings');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
 
     const { srcHost, srcPort, dstHost, dstPort } = forwardConfig;
-    const db = dbConfigProduction;
-    const ssh = sshConfigProduction;
+    const db = dbConfigLeadsProduction;
+    const ssh = sshConfigLeadsProduction;
 
     // console.log('db = ', db);
     // console.log('ssh = ', ssh);
@@ -51,7 +51,7 @@ function createSSHConnection() {
 }
 
 // STEP #1: GET / QUERY DAILY BOOKING DATA & RETURN RESULTS
-async function execute_query_get_daily_booking_data(pool) {
+async function execute_query_get_daily_lead_data(pool) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
@@ -83,7 +83,7 @@ async function execute_query_get_daily_booking_data(pool) {
     });
 }
 
-async function execute_get_daily_booking_data(is_development_pool) {
+async function execute_get_daily_lead_data(is_development_pool) {
     let pool;
     let results;
     const startTime = performance.now();
@@ -91,7 +91,7 @@ async function execute_get_daily_booking_data(is_development_pool) {
     try {
         // STEP #1: GET / QUERY Booking data DATA & RETURN RESULTS
         pool = await createSSHConnection(is_development_pool);
-        // results = await execute_query_get_daily_booking_data(pool);
+        // results = await execute_query_get_daily_lead_data(pool);
 
         // Return the results from the try block
         return results;
@@ -136,8 +136,8 @@ async function execute_get_daily_booking_data(is_development_pool) {
 }
 
 // Run the main function
-// execute_get_daily_booking_data();
+execute_get_daily_lead_data();
 
 module.exports = {
-    execute_get_daily_booking_data,
+    execute_get_daily_lead_data,
 }

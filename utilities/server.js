@@ -14,7 +14,7 @@ const { execute_get_daily_booking_data } = require('../daily_booking_forecast/st
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 // LEADS SETUP
-const { execute_get_daily_leads_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
+const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
 const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 // EXPRESS SERVER
