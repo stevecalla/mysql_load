@@ -8,7 +8,7 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfigLeadsProduction, sshConfigLeadsProduction  } = require('../utilities/config');
 
-// const { query_booking_count_today_v3_all_bookings } = require('./query_booking_count_today_v3_all_bookings');
+const { query_lead_stats } = require('./query_lead_stats_111424');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
@@ -56,8 +56,7 @@ async function execute_query_get_daily_lead_data(pool) {
 
         const startTime = performance.now();
 
-        // const query = query_booking_count_today_v2(); // only non cancelled
-        const query = query_booking_count_today_v3_all_bookings();
+        const query = query_lead_stats();
         // console.log(query);
 
         pool.query(query, (queryError, results) => {
@@ -69,13 +68,13 @@ async function execute_query_get_daily_lead_data(pool) {
                 reject(queryError);
             } else {
 
-                // results.forEach(result => console.log(result));
-                // console.table(results);
+                // console.table(results[0]);
+                console.log('***** DISPLAYING FIRST 10 RESULTS');
+                console.table(results.slice(0, 10));
 
+                // console.log(results);
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
-                // console.table(results);
-                // console.log(results);
 
                 resolve(results);
             }
@@ -91,7 +90,7 @@ async function execute_get_daily_lead_data(is_development_pool) {
     try {
         // STEP #1: GET / QUERY Booking data DATA & RETURN RESULTS
         pool = await createSSHConnection(is_development_pool);
-        // results = await execute_query_get_daily_lead_data(pool);
+        results = await execute_query_get_daily_lead_data(pool);
 
         // Return the results from the try block
         return results;
