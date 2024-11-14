@@ -8,7 +8,7 @@ function query_lead_stats() {
             COUNT(*) AS count_leads,
             -- CURRENT DATE / TIME GST
             DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s') AS queried_at_utc,
-            DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s'),
+            DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS queried_at_gst
             -- Max created_on for all records (without per-grouping)
             (SELECT 
                 DATE_FORMAT(MAX(created_on), '%Y-%m-%d %H:%i:%s') 
