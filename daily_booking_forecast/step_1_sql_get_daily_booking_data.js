@@ -8,7 +8,6 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
 
-// const { query_booking_count_today } = require('./query_booking_count_today');
 const { query_booking_count_today_v2 } = require('./query_booking_count_today_v2');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
