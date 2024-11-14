@@ -1,39 +1,63 @@
 const { getFormattedDateAmPm } = require('../utilities/getCurrentDate');
 const { group_by_country } = require('../daily_booking_forecast/results_grouped_by_country');
+const { get_country_data } = require('../daily_booking_forecast/results_grouped_by_country_by_cancel');
+
+const { execute_get_daily_booking_data} = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
 
 async function create_daily_booking_slack_message(results) {
   // GOAL
   const goal = 400;
   const goal_message = `🎯 Goal: ${goal}`;
 
-  let { yesterdaySummary, todaySummary, uae_bookings_today, uae_bookings_yesterday } = await group_by_country(results);
+  const { country_data, summary_data } = await get_country_data(results);
+  const { 
+      yesterday_cancelled, 
+      yesterday_not_cancelled, 
+      yesterday_total, 
+      today_cancelled, 
+      today_not_cancelled, 
+      today_total,  } = summary_data;
 
-  let { created_at_message, most_recent_booking_date_message, created_at_date_unformatted } = await date_info(results);
+    // Use find to get the booking for the United Arab Emirates
+    const uaeBookings = country_data.find(booking => booking.delivery_country === 'United Arab Emirates');
 
-  let { booking_count_message, today_above_below_goal_message, status_today } = await get_booking_status_today(results, goal, uae_bookings_today);
+    // Extract only the booking values, with defaults in case not found
+    const { today_not_cancelled: uae_bookings_today = 0, yesterday_not_cancelled: uae_bookings_yesterday = 0 } = uaeBookings || {};
 
-  let { status_yesterday } = await get_booking_status_yesterday(results, goal, uae_bookings_yesterday);
-  
-  const { pacing_message, pacing_status_message, pacing_threshold } = await check_pacing_for_current_hour(created_at_date_unformatted, uae_bookings_today);
+    let { created_at_message, most_recent_booking_date_message, created_at_date_unformatted } = await date_info(results);
 
-  // FINAL MESSAGE
-  const slackMessage = 
-    `\n**************\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\nUAE ONLY\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${status_yesterday}\n--------------\n${pacing_threshold}\n**************\n${yesterdaySummary}\n${todaySummary}\n**************\n`;
+    let { booking_count_message, today_above_below_goal_message, status_today } = await get_booking_status_today(results, goal, uae_bookings_today);
 
-  console.log(slackMessage);
+    let { status_yesterday } = await get_booking_status_yesterday(results, goal, uae_bookings_yesterday);
+    
+    const { pacing_message, pacing_status_message, pacing_threshold } = await check_pacing_for_current_hour(created_at_date_unformatted, uae_bookings_today);
 
-  return slackMessage;
+    // FINAL MESSAGE
+    const slackMessage = 
+      `\n**************\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\nUAE ONLY\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${status_yesterday}\n--------------\n${pacing_threshold}\n**************\nNET BOOKINGS\n${yesterday_not_cancelled}\n${today_not_cancelled}\n  ------------\nCANCELLED BOOKINGS\n${yesterday_cancelled}\n${today_cancelled}\n  ------------\nGROSS BOOKINGS\n${yesterday_total}\n${today_total}\n**************\n`;
+
+    console.log(slackMessage);
+
+    return slackMessage;
 }
 
 // CREATE DATE INFO
 async function date_info(results) {
+
+  // console.log(results);
   
   // DATE INFO
   const created_at_date = `${getFormattedDateAmPm(results[0].created_at_gst)} GST`;
   const created_at_message = `Info Queried At: ${created_at_date}`;
   const created_at_date_unformatted = results[0].created_at_gst;
 
-  const most_recent_booking_date = `${getFormattedDateAmPm(results[0].most_recent_event_update)} GST`;
+  // const most_recent = MAX(date_most_recent_created_on_gst, date_most_recent_updated_on_gst);
+  const most_recent = new Date(Math.max(
+    new Date(results[0].date_most_recent_created_on_gst).getTime(),
+    new Date(results[0].date_most_recent_updated_on_gst).getTime()
+  ));
+
+  const most_recent_booking_date = `${getFormattedDateAmPm(most_recent)} GST`;
   const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date}`;
 
   return { created_at_date, created_at_message, most_recent_booking_date, most_recent_booking_date_message, created_at_date_unformatted };
@@ -119,7 +143,16 @@ async function find_target_for_current_hour(currentHourFormatted) {
 
   return target;
 }
-  
+
+// used to test
+// async function main() {
+//   let test = await execute_get_daily_booking_data();
+
+//   create_daily_booking_slack_message(test);
+// }
+
+// main();
+
 module.exports = {
   create_daily_booking_slack_message,
 }
