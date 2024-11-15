@@ -2,155 +2,47 @@ const dayjs = require('dayjs');
 const { getFormattedDate } = require('../utilities/getCurrentDate');
 const { lead_data } = require('./seed_data');
 
-async function create_summary(countryData, data = 'yesterday_cancelled') {
+async function create_summary(data, option) {
     let summary = '';
-  
-    countryData.forEach(country => {
-        const { renting_in_country, yesterday, today } = country;
-        // Get the first three characters in uppercase or 'UAE' for United Arab Emirates
-        const countryCode = renting_in_country === 'United Arab Emirates' ? 'UAE' : renting_in_country.slice(0, 3).toUpperCase();
+    let emoji = option.includes('today') ? '⏳' : '🍿';
+    const day_label = option.includes('today') ? 'Today:       ' : 'Yesterday: ';
 
-        // Dynamically access the value using the 'data' key
-        const value = country[data] || 0;  // Default to 0 if the key is not found
+    if (data[0]?.renting_in_country) {
+        data.forEach(item => {
+            const { renting_in_country } = item;
+    
+            // Get the first three characters in uppercase or 'UAE' for United Arab Emirates
+            const countryCode = renting_in_country === 'United Arab Emirates' ? 'UAE' : renting_in_country.slice(0, 3).toUpperCase();
+    
+            // Dynamically access the value using the 'option' key
+            const value = item[option] || 0;  // Default to 0 if the key is not found
+    
+            // Append to summary
+            summary += `${countryCode}: ${value}, `;
+        })
+    } else if (
+        data.forEach(item => {
+            const { source } = item;
+    
+            // Dynamically access the value using the 'option' key
+            const value = item[option] || 0;  // Default to 0 if the key is not found
+    
+            // Append to summary
+            summary += `${source}: ${value}, `;
+        })
+    )
 
-        // Append to summary
-        summary += `${countryCode}: ${value}, `;
-    });
-
-    const text = {
-        yesterday_cancelled: 'Yesterday - Cancelled',
-        yesterday_not_cancelled: 'Yesterday - Net', // not cancelled
-        yesterday_total: 'Yesterday - Gross',
-        today_cancelled: 'Today - Cancelled',
-        today_not_cancelled: 'Today - Net', // not cancelled
-        today_total: 'Today - Gross', //grand total
-    };
-
-    const emoji = data.includes('today') ? '⏳' : '🍿';
-    const text_v2 = data.includes('today') ? 'Today:       ' : 'Yesterday: ';
-
-    summary =  `${emoji} ${text_v2} ${summary.slice(0, -2)}`;
-    // console.log('summary =', summary);
+    summary =  `${emoji} ${day_label} ${summary.slice(0, -2)}`;
+    console.log('summary =', summary);
     
     return summary
 }
 
-// async function rollup_by_country(data) {
-//     // Create a result object to store the rolled-up data
-//     const result = {};
-
-//     // Track all unique dates and countries
-//     const uniqueDates = new Set();
-//     const uniqueCountries = new Set();
-
-//     // Step 1: Gather all unique dates and countries from the data
-//     data.forEach(item => {
-//         const { created_on_gst, renting_in_country, count_leads } = item;
-        
-//         // Adjust renting_in_country: take first 3 characters, convert to uppercase or set to "Unknown" if null or empty
-//         let countryCode = "";
-        
-//         // Special handling for "UNI" to convert it to "UAE"
-//         if (renting_in_country.slice(0, 3).toUpperCase() === "UNI") {
-//             countryCode = "UAE";
-//         } else {
-//             countryCode = (renting_in_country && renting_in_country.length > 0) 
-//                 ? renting_in_country.slice(0, 3).toUpperCase() 
-//                 : 'UNKNOWN'; 
-//         }
-        
-//         // Add to unique sets
-//         uniqueDates.add(created_on_gst);
-//         uniqueCountries.add(countryCode);
-
-//         const key = `${created_on_gst}_${countryCode}`;  // Create a unique key for each combination of created_on_gst and renting_in_country
-        
-//         // If the key does not exist in the result, initialize it
-//         if (!result[key]) {
-//             result[key] = {
-//                 created_on_gst,
-//                 renting_in_country: countryCode,
-//                 total_leads: 0
-//             };
-//         }
-        
-//         // Add the count_leads to the total for that key
-//         result[key].total_leads += count_leads;
-//     });
-
-//     // Step 2: Ensure each country has an entry for each date with total_leads set to 0 if missing
-//     uniqueDates.forEach(date => {
-//         uniqueCountries.forEach(country => {
-//             const key = `${date}_${country}`;
-            
-//             // If the entry doesn't exist, initialize it with total_leads set to 0
-//             if (!result[key]) {
-//                 result[key] = {
-//                     created_on_gst: date,  // Use the date from the loop to populate
-//                     renting_in_country: country,
-//                     total_leads: 0
-//                 };
-//             }
-//         });
-//     });
-
-//     // Step 3: Convert the result object into an array of objects
-//     const resultArray = Object.values(result);
-
-//     // Step 4: Sort the result array by created_on_gst and then renting_in_country
-//     resultArray.sort((a, b) => {
-//         // First, sort by created_on_gst (date)
-//         if (a.created_on_gst !== b.created_on_gst) {
-//             return new Date(a.created_on_gst) - new Date(b.created_on_gst);
-//         }
-//         // If created_on_gst is the same, sort by renting_in_country
-//         return a.renting_in_country.localeCompare(b.renting_in_country);
-//     });
-
-//     // Step 5: Add a single "total" entry for each date
-//     const finalResult = [];
-//     let currentDate = null;
-//     let currentTotal = 0;
-
-//     resultArray.forEach(item => {
-//         // If the date changes, push the total for the previous date
-//         if (currentDate && currentDate !== item.created_on_gst) {
-//             finalResult.push({
-//                 created_on_gst: currentDate,
-//                 renting_in_country: "ALL",
-//                 total_leads: currentTotal
-//             });
-//             currentTotal = 0;  // Reset the total for the next date
-//         }
-
-//         // Add the current item to the final result
-//         finalResult.push(item);
-
-//         // Accumulate the total leads for the current date
-//         currentTotal += item.total_leads;
-
-//         // Update the current date
-//         currentDate = item.created_on_gst;
-//     });
-
-//     // Step 6: Add the total for the last date group
-//     if (currentDate) {
-//         finalResult.push({
-//             created_on_gst: currentDate,
-//             renting_in_country: "ALL",
-//             total_leads: currentTotal
-//         });
-//     }
-
-//     // Step 7: Return the sorted result with a single total for each date group
-//     return finalResult;
-// }
-
 async function rollup_by_country(data) {
-    // Create a result object to store the rolled-up data
+    // Create a result object to store the rolled-up data for Yesterday and Today
     const result = {};
 
-    // Track all unique dates and countries
+    // Track unique countries and dates
     const uniqueDates = new Set();
     const uniqueCountries = new Set();
 
@@ -189,137 +81,196 @@ async function rollup_by_country(data) {
         result[key].total_leads += count_leads;
     });
 
-    // Step 2: Ensure each country has an entry for each date with total_leads set to 0 if missing
-    uniqueDates.forEach(date => {
-        uniqueCountries.forEach(country => {
-            const key = `${date}_${country}`;
-            
-            // If the entry doesn't exist, initialize it with total_leads set to 0
-            if (!result[key]) {
-                result[key] = {
-                    created_on_gst: date,  // Use the date from the loop to populate
-                    renting_in_country: country,
-                    total_leads: 0
-                };
-            }
-        });
-    });
+    // Step 2: Ensure each country has an entry for "Yesterday" and "Today" with total_leads set to 0 if missing
+    const minDate = Math.min(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
+    const maxDate = Math.max(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
+    const minDateStr = new Date(minDate).toISOString().split('T')[0]; // format as 'YYYY-MM-DD'
+    const maxDateStr = new Date(maxDate).toISOString().split('T')[0]; // format as 'YYYY-MM-DD'
 
-    // Step 3: Convert the result object into an array of objects
-    const resultArray = Object.values(result);
-
-    // Step 4: Sort the result array by created_on_gst and then renting_in_country
-    resultArray.sort((a, b) => {
-        // First, sort by created_on_gst (date)
-        if (a.created_on_gst !== b.created_on_gst) {
-            return new Date(a.created_on_gst) - new Date(b.created_on_gst);
+    uniqueCountries.forEach(country => {
+        // Create entries for "Yesterday" and "Today" for each country
+        if (!result[`${minDateStr}_${country}`]) {
+            result[`${minDateStr}_${country}`] = {
+                created_on_gst: "Yesterday",
+                renting_in_country: country,
+                total_leads: 0
+            };
         }
-        // If created_on_gst is the same, sort by renting_in_country
-        return a.renting_in_country.localeCompare(b.renting_in_country);
+        if (!result[`${maxDateStr}_${country}`]) {
+            result[`${maxDateStr}_${country}`] = {
+                created_on_gst: "Today",
+                renting_in_country: country,
+                total_leads: 0
+            };
+        }
     });
 
-    // Step 5: Find the min and max date
-    const minDate = resultArray[0].created_on_gst;
-    const maxDate = resultArray[resultArray.length - 1].created_on_gst;
-
-    // Step 6: Add a single "total" entry for each date and label min/max dates as "Yesterday" and "Today"
+    // Step 3: Organize the final output as [{ renting_in_country, yesterday: value, today: value }]
     const finalResult = [];
-    let currentDate = null;
-    let currentTotal = 0;
-    let dateGroup = []; // To hold country entries for a specific date
+    let overallYesterdayTotal = 0;
+    let overallTodayTotal = 0;
 
-    resultArray.forEach(item => {
-        // If the date changes, push the total for the previous date and reset for the new date
-        if (currentDate && currentDate !== item.created_on_gst) {
-            // Label the minimum date as "Yesterday" and the maximum date as "Today"
-            if (currentDate === minDate) {
-                currentDate = "Yesterday";
-            } else if (currentDate === maxDate) {
-                currentDate = "Today";
-            }
+    uniqueCountries.forEach(country => {
+        const yesterdayLeads = result[`${minDateStr}_${country}`] ? result[`${minDateStr}_${country}`].total_leads : 0;
+        const todayLeads = result[`${maxDateStr}_${country}`] ? result[`${maxDateStr}_${country}`].total_leads : 0;
 
-            // Add the country-specific entries for the current date
-            finalResult.push(...dateGroup);
+        finalResult.push({
+            renting_in_country: country,
+            yesterday: yesterdayLeads,
+            today: todayLeads
+        });
 
-            // Add the "ALL" entry for the current date group
-            finalResult.push({
-                created_on_gst: currentDate,
-                renting_in_country: "ALL",
-                total_leads: currentTotal
-            });
-
-            // Reset for the next date group
-            currentTotal = 0;
-            dateGroup = [];
-        }
-
-        // Update the current date
-        currentDate = item.created_on_gst;
-
-        // Label the minimum date as "Yesterday" and the maximum date as "Today"
-        if (currentDate === minDate) {
-            item.created_on_gst = "Yesterday";
-        } else if (currentDate === maxDate) {
-            item.created_on_gst = "Today";
-        }
-
-        // Add the current item to the date group
-        dateGroup.push(item);
-
-        // Accumulate the total leads for the current date
-        currentTotal += item.total_leads;
+        // Accumulate the overall totals for Yesterday and Today
+        overallYesterdayTotal += yesterdayLeads;
+        overallTodayTotal += todayLeads;
     });
 
-    // Step 7: Add the total for the last date group
-    if (currentDate) {
-        // Label the minimum date as "Yesterday" and the maximum date as "Today"
-        if (currentDate === minDate) {
-            currentDate = "Yesterday";
-        } else if (currentDate === maxDate) {
-            currentDate = "Today";
+    // Step 4: Add the "ALL" total entry
+    finalResult.push({
+        renting_in_country: "ALL",
+        yesterday: overallYesterdayTotal,
+        today: overallTodayTotal
+    });
+
+    // Step 5: Return the final result
+    return finalResult;
+}
+
+async function rollup_by_source(data) {
+    // Create a result object to store the rolled-up data for Yesterday and Today
+    const result = {};
+
+    // Track unique countries and dates
+    const uniqueDates = new Set();
+    const uniqueSource = new Set();
+
+    // Step 1: Gather all unique dates and countries from the data
+    data.forEach(item => {
+        const { created_on_gst, source_name, count_leads } = item;
+        
+        // Add to unique sets
+        uniqueDates.add(created_on_gst);
+        uniqueSource.add(source_name);
+
+        const key = `${created_on_gst}_${source_name}`;  // Create a unique key for each combination of created_on_gst and renting_in_country
+        
+        // If the key does not exist in the result, initialize it
+        if (!result[key]) {
+            result[key] = {
+                created_on_gst,
+                source: source_name,
+                total_leads: 0
+            };
         }
+        
+        // Add the count_leads to the total for that key
+        result[key].total_leads += count_leads;
+    });
 
-        // Add the country-specific entries for the last date
-        finalResult.push(...dateGroup);
+    // Step 2: Ensure each source has an entry for "Yesterday" and "Today" with total_leads set to 0 if missing
+    const minDate = Math.min(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
+    const maxDate = Math.max(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
+    const minDateStr = new Date(minDate).toISOString().split('T')[0]; // format as 'YYYY-MM-DD'
+    const maxDateStr = new Date(maxDate).toISOString().split('T')[0]; // format as 'YYYY-MM-DD'
 
-        // Add the "ALL" entry for the last date group
+    uniqueSource.forEach(source => {
+        // Create entries for "Yesterday" and "Today" for each source
+        if (!result[`${minDateStr}_${source}`]) {
+            result[`${minDateStr}_${source}`] = {
+                created_on_gst: "Yesterday",
+                source: source,
+                total_leads: 0
+            };
+        }
+        if (!result[`${maxDateStr}_${source}`]) {
+            result[`${maxDateStr}_${source}`] = {
+                created_on_gst: "Today",
+                source_name: source,
+                total_leads: 0
+            };
+        }
+    });
+
+    // Step 3: Organize the final output as [{ renting_in_country, yesterday: value, today: value }]
+    const finalResult = [];
+    let overallYesterdayTotal = 0;
+    let overallTodayTotal = 0;
+
+    uniqueSource.forEach(source => {
+        const yesterdayLeads = result[`${minDateStr}_${source}`] ? result[`${minDateStr}_${source}`].total_leads : 0;
+        const todayLeads = result[`${maxDateStr}_${source}`] ? result[`${maxDateStr}_${source}`].total_leads : 0;
+
         finalResult.push({
-            created_on_gst: currentDate,
-            renting_in_country: "ALL",
-            total_leads: currentTotal
+            source: source,
+            yesterday: yesterdayLeads,
+            today: todayLeads
         });
-    }
 
-    // Step 8: Return the sorted result with a single total for each date group
+        // Accumulate the overall totals for Yesterday and Today
+        overallYesterdayTotal += yesterdayLeads;
+        overallTodayTotal += todayLeads;
+    });
+
+    // Step 4: Add the "ALL" total entry
+    finalResult.push({
+        source: "ALL",
+        yesterday: overallYesterdayTotal,
+        today: overallTodayTotal
+    });
+
+    // Step 5: Return the final result
     return finalResult;
 }
 
 async function format_lead_data(data) {
     const leads_rollup_by_country = await rollup_by_country(data);
 
-    console.table(leads_rollup_by_country)
+    const options = [
+        'yesterday',
+        'today',
+    ];
 
-    // const data = [
-    //     'yesterday_cancelled',
-    //     'yesterday_not_cancelled',
-    //     'yesterday_total',
-    //     'today_cancelled',
-    //     'today_not_cancelled',
-    //     'today_total'
-    // ];
+    // ALL COUNTRIES WITH YESTERDAY & TODAY
+    const all_countries_output_text = {};
+    for (i = 0; i < options.length; i++) {
+        const formatted_output = await create_summary(leads_rollup_by_country, options[i]);
+        all_countries_output_text[options[i]] = formatted_output;
+    }
+    
+    // UAE ONLY WITH YESTERDAY & TODAY
+    let uae_only = leads_rollup_by_country.filter(({ renting_in_country }) => renting_in_country === 'UAE');
 
-    // let summary_data = {};
-    // for (i = 0; i < data.length; i++) {
-    //     const formatted_output = await create_summary(country_data, data[i]);
-    //     summary_data[data[i]] = formatted_output;
-    // }
+    const uae_only_output_text = {};
+    for (i = 0; i < options.length; i++) {
+        const formatted_output = await create_summary(uae_only, options[i]);
+        uae_only_output_text[options[i]] = formatted_output;
+    }
 
-    // // console.log(summary_data);
+    // ALL COUNTRIES SOURCE DATA WITH YESTERDAY AND TODAY
+    const leads_rollup_by_source = await rollup_by_source(data);
 
-    return { data, leads_rollup_by_country };
+    const source_output_text = {};
+    for (i = 0; i < options.length; i++) {
+        const formatted_output = await create_summary(leads_rollup_by_source, options[i]);
+        source_output_text[options[i]] = formatted_output;
+    }
+
+    // SOURCE UAE ONLY
+    let uae_only_source = data.filter(({ renting_in_country }) => renting_in_country === 'United Arab Emirates');
+    const leads_rollup_uae_only_by_source = await rollup_by_source(uae_only_source);
+
+    // console.log(uae_only_source);
+
+    const uae_only_source_output_text = {};
+    for (i = 0; i < options.length; i++) {
+        const formatted_output = await create_summary(leads_rollup_uae_only_by_source, options[i]);
+        uae_only_source_output_text[options[i]] = formatted_output;
+    }
+
+    return { leads_rollup_by_country, all_countries_output_text, uae_only_output_text, source_output_text, uae_only_source_output_text };
 }
 
-format_lead_data(lead_data);
+// format_lead_data(lead_data);
 
 module.exports = {
     format_lead_data,

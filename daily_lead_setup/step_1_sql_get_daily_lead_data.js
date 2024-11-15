@@ -68,13 +68,9 @@ async function execute_query_get_daily_lead_data(pool) {
                 reject(queryError);
             } else {
 
-                // console.table(results[0]);
-                console.log('***** DISPLAYING FIRST 10 RESULTS');
-                // console.table(results.slice(0, 10));
                 console.table(results);
-                console.log(results);
+                // console.log(results);
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
-
 
                 resolve(results);
             }
