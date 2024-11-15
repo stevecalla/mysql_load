@@ -287,7 +287,7 @@ async function format_lead_data(data) {
     return { leads_rollup_by_country, all_countries_output_text, uae_only_output_text, source_output_text, uae_only_source_output_text };
 }
 
-format_lead_data(lead_data);
+// format_lead_data(lead_data);
 
 module.exports = {
     format_lead_data,

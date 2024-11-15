@@ -69,7 +69,7 @@ app.post('/get-leads', async (req, res) => {
     });
 
     // Acknowledge the command from Slack immediately to avoid a timeout
-    const processingMessage = "Retrieving leads information. Will respond shortly."; // Example data
+    const processingMessage = "Retrieving lead information. Will respond shortly."; // Example data
 
     // Respond back to Slack
     res.json({
