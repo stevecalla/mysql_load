@@ -32,7 +32,7 @@ async function create_daily_lead_slack_message(data) {
     // FINAL MESSAGE
     // \n${most_recent_date_message} // took this out because the most recent lead at looks wrong
     const slackMessage = 
-      `\n**************\nLEADS DATA\n${queried_at_message}\n--------------\nLEADS - UAE ONLY\n${yesterday_uae}\n${today_uae}\n--------------\nSOURCE - UAE ONLY\n${yesterday_uae_source}\n${today_uae_source}\n--------------\nLEADS - All COUNTRIES\n${yesterday}\n${today}\nUNK: Unknown = country blank\n--------------\nSOURCE - ALL COUNTRIES\n${yesterday_source}\n${today_source}\n--------------\nResponse Time: TBD\nConversion: TBD\nSame Day Conversion: TBD\n**************\n`;
+      `\n**************\nLEADS DATA\n${queried_at_message}\n--------------\nLEADS - UAE ONLY\n${yesterday_uae}\n${today_uae}\n--------------\nSOURCE - UAE ONLY\n${yesterday_uae_source}\n${today_uae_source}\n--------------\nLEADS - All COUNTRIES\n${yesterday}\n${today}\nUNK: Unknown = country blank\n--------------\nSOURCE - ALL COUNTRIES\n${yesterday_source}\n${today_source}\n--------------\nResponse Time: TBD\nConversion: TBD\nConversion - Same Day: TBD\n**************\n`;
 
     console.log(slackMessage);
 

@@ -1,7 +1,7 @@
 console.log(`\nHello - RUN DAILY BOOKING JOB`);
 console.log("Current Date and Time:", new Date().toLocaleString());
 
-fetch('http://localhost:8000/scheduled-bookings')
+fetch('http://localhost:8000/scheduled-leads')
     .then(response => {
 
         if (!response.ok) {
