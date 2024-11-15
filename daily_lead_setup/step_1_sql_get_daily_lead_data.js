@@ -131,7 +131,7 @@ async function execute_get_daily_lead_data(is_development_pool) {
 }
 
 // Run the main function
-execute_get_daily_lead_data();
+// execute_get_daily_lead_data();
 
 module.exports = {
     execute_get_daily_lead_data,
