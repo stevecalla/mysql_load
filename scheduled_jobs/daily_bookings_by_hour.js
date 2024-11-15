@@ -101,7 +101,6 @@ async function step_1_get_daily_booking_data(start_time, is_development_pool) {
     } finally {
         // NEXT STEP
         // await step_2(start_time);
-
         // process.exit(0);
     }
 }

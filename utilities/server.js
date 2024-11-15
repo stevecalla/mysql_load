@@ -15,6 +15,11 @@ const { create_daily_lead_slack_message } = require('../schedule_slack/slack_dai
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
+const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
+const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
+const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
+
+// NGROK TUNNEL
 const ngrok = require('ngrok');
 
 // EXPRESS SERVER
@@ -71,12 +76,48 @@ app.post('/get-leads', async (req, res) => {
         text: processingMessage,
     });
 
-    const getResults = await execute_get_daily_lead_data(); //fix change to leads
-    const slackMessage = await create_daily_lead_slack_message(getResults); //fix change to leads
+    const getResults = await execute_get_daily_lead_data();
+    const slackMessage = await create_daily_lead_slack_message(getResults); 
     // console.log(slackMessage);
 
     // Send a follow-up message to Slack
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+});
+
+// Endpoint to handle slash "/leads" command
+app.post('/scheduled-leads', async (req, res) => {
+    // TESTING VARIABLES
+    let send_slack_to_calla = true;
+
+    try {
+        const getResults = await execute_get_daily_lead_data();
+
+        if (getResults) {
+            const slack_message = await create_daily_lead_slack_message(getResults);
+
+            if (send_slack_to_calla) {
+                await slack_message_steve_calla_channel(slack_message);
+              } else {
+                await slack_message_400_bookings_channel(slack_message);
+                await slack_message_350_bookings_channel(slack_message);
+              }
+        };
+        
+        // Send a success response
+        res.status(200).json({
+            message: 'Leads queried & sent successfully.',
+        });
+    } catch (error) {
+        console.error('Error quering or sending leads:', error);
+        
+        // Send an error response
+        res.status(500).json({
+            message: 'Error quering or sending leads.',
+            error: error.message || 'Internal Server Error',
+        });
+    }
+
+
 });
 
 app.get('/hourlyReport', async (req, res) => {
