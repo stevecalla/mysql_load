@@ -68,7 +68,7 @@ async function execute_query_get_daily_lead_data(pool) {
                 reject(queryError);
             } else {
 
-                console.table(results);
+                // console.table(results);
                 // console.log(results);
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
@@ -126,7 +126,7 @@ async function execute_get_daily_lead_data(is_development_pool) {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
-        console.log(`\nAll get booking data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Oops error getting time"} sec\n`);
+        console.log(`\nAll get lead data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Oops error getting time"} sec\n`);
     }
 }
 

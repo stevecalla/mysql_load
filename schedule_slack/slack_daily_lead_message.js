@@ -4,7 +4,7 @@ const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_
 const { format_lead_data } = require('../daily_lead_setup/utility_group_data');
 const { all } = require('axios');
 
-async function create_daily_booking_slack_message(data) {
+async function create_daily_lead_slack_message(data) {
   const { leads_rollup_by_country, all_countries_output_text, uae_only_output_text, source_output_text, uae_only_source_output_text } = await format_lead_data(data);
 
   const { 
@@ -51,15 +51,15 @@ async function date_info(data) {
   return { queried_at_message, most_recent_date_message };
 }
 
-// used to test
-async function main() {
-  let data = await execute_get_daily_lead_data();
+// // used to test
+// async function main() {
+//   let data = await execute_get_daily_lead_data();
 
-  create_daily_booking_slack_message(data);
-}
+//   create_daily_lead_slack_message(data);
+// }
 
-main();
+// main();
 
 module.exports = {
-  create_daily_booking_slack_message,
+  create_daily_lead_slack_message,
 }

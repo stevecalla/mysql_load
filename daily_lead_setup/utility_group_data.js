@@ -30,7 +30,10 @@ async function create_summary(data, option) {
             // Append to summary
             summary += `${source}: ${value}, `;
         })
-    )
+    );
+
+    // console.log('emoji = ', emoji);
+    // console.log('day label =', day_label);
 
     summary =  `${emoji} ${day_label} ${summary.slice(0, -2)}`;
     console.log('summary =', summary);
