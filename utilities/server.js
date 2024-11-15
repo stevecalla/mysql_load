@@ -85,7 +85,7 @@ app.post('/get-leads', async (req, res) => {
 });
 
 // Endpoint to handle slash "/leads" command
-app.post('/scheduled-leads', async (req, res) => {
+app.get('/scheduled-leads', async (req, res) => {
     // TESTING VARIABLES
     let send_slack_to_calla = true;
 
@@ -120,7 +120,7 @@ app.post('/scheduled-leads', async (req, res) => {
 
 });
 
-app.get('/hourlyReport', async (req, res) => {
+app.get('/scheduled-bookings', async (req, res) => {
     try {
         // Call the function to run the most recent check
         await run_most_recent_check();

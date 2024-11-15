@@ -1,7 +1,7 @@
 console.log(`\nHello - RUN DAILY BOOKING JOB`);
 console.log("Current Date and Time:", new Date().toLocaleString());
 
-fetch('http://localhost:8000/hourlyReport')
+fetch('http://localhost:8000/scheduled-bookings')
     .then(response => {
 
         if (!response.ok) {
@@ -10,7 +10,7 @@ fetch('http://localhost:8000/hourlyReport')
         return response.text();  // Use response.json() if expecting JSON data
     })
     .then(data => {
-        console.log('Response from hourlyReport:', data);
+        console.log('Response from scheduled-bookings:', data);
     })
     .catch(error => {
         console.error('Error with request:', error.message);
