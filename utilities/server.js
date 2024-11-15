@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 // SLACK SETUP
+const { WebClient } = require('@slack/web-api');
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
 const ngrok = require('ngrok');
-const { WebClient } = require('@slack/web-api');
 
 // BOOKINGS SETUP
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
@@ -15,7 +15,7 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 
 // LEADS SETUP
 const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
-const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_booking_message');
+const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 
 // EXPRESS SERVER
 const app = express();
@@ -71,7 +71,7 @@ app.post('/get-leads', async (req, res) => {
         text: processingMessage,
     });
 
-    const getResults = await execute_get_daily_leads_data(); //fix change to leads
+    const getResults = await execute_get_daily_lead_data(); //fix change to leads
     const slackMessage = await create_daily_lead_slack_message(getResults); //fix change to leads
     // console.log(slackMessage);
 
