@@ -225,23 +225,36 @@ async function rollup_by_source(data) {
     return finalResult;
 }
 
-async function format_lead_data(data) {
-    const leads_rollup_by_country = await rollup_by_country(data);
+async function sortLeads(data, criteria) {
+    // Validate criteria to be either 'renting_in_country' or 'source_name'
+    if (criteria !== 'renting_in_country' && criteria !== 'source') {
+        throw new Error("Invalid sort criteria. Use 'renting_in_country' or 'source_name'.");
+    }
 
-    const options = [
-        'yesterday',
-        'today',
-    ];
+    // Sort based on the provided criteria
+    return data.sort((a, b) => {
+        if (a[criteria] < b[criteria]) return -1;
+        if (a[criteria] > b[criteria]) return 1;
+        return 0;
+    });
+}
+
+async function format_lead_data(data) {
+    const options = ['yesterday', 'today',];
+
+    // COUNTRY ROLLUPS
+    const leads_rollup_by_country = await rollup_by_country(data);
+    const leads_sorted_by_country = await sortLeads(leads_rollup_by_country, 'renting_in_country');
 
     // ALL COUNTRIES WITH YESTERDAY & TODAY
     const all_countries_output_text = {};
     for (i = 0; i < options.length; i++) {
-        const formatted_output = await create_summary(leads_rollup_by_country, options[i]);
+        const formatted_output = await create_summary(leads_sorted_by_country, options[i]);
         all_countries_output_text[options[i]] = formatted_output;
     }
     
     // UAE ONLY WITH YESTERDAY & TODAY
-    let uae_only = leads_rollup_by_country.filter(({ renting_in_country }) => renting_in_country === 'UAE');
+    let uae_only = leads_sorted_by_country.filter(({ renting_in_country }) => renting_in_country === 'UAE');
 
     const uae_only_output_text = {};
     for (i = 0; i < options.length; i++) {
@@ -249,31 +262,32 @@ async function format_lead_data(data) {
         uae_only_output_text[options[i]] = formatted_output;
     }
 
-    // ALL COUNTRIES SOURCE DATA WITH YESTERDAY AND TODAY
+    // SOURCE ROLLUPS
+    // ALL SOURCE DATA WITH YESTERDAY AND TODAY
     const leads_rollup_by_source = await rollup_by_source(data);
+    const leads_sorted_by_source = await sortLeads(leads_rollup_by_source, 'source');
 
     const source_output_text = {};
     for (i = 0; i < options.length; i++) {
-        const formatted_output = await create_summary(leads_rollup_by_source, options[i]);
+        const formatted_output = await create_summary(leads_sorted_by_source, options[i]);
         source_output_text[options[i]] = formatted_output;
     }
 
     // SOURCE UAE ONLY
     let uae_only_source = data.filter(({ renting_in_country }) => renting_in_country === 'United Arab Emirates');
     const leads_rollup_uae_only_by_source = await rollup_by_source(uae_only_source);
-
-    // console.log(uae_only_source);
+    const leads_sorted_by_source_uae = await sortLeads(leads_rollup_uae_only_by_source, 'source');
 
     const uae_only_source_output_text = {};
     for (i = 0; i < options.length; i++) {
-        const formatted_output = await create_summary(leads_rollup_uae_only_by_source, options[i]);
+        const formatted_output = await create_summary(leads_sorted_by_source_uae, options[i]);
         uae_only_source_output_text[options[i]] = formatted_output;
     }
 
     return { leads_rollup_by_country, all_countries_output_text, uae_only_output_text, source_output_text, uae_only_source_output_text };
 }
 
-// format_lead_data(lead_data);
+format_lead_data(lead_data);
 
 module.exports = {
     format_lead_data,
