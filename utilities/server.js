@@ -87,7 +87,7 @@ app.post('/get-leads', async (req, res) => {
 // Endpoint to handle slash "/leads" command
 app.get('/scheduled-leads', async (req, res) => {
     // TESTING VARIABLES
-    let send_slack_to_calla = true;
+    let send_slack_to_calla = false;
 
     try {
         const getResults = await execute_get_daily_lead_data();
