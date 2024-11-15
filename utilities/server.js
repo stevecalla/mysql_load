@@ -3,17 +3,21 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 
 // SLACK SETUP
+const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
 const ngrok = require('ngrok');
 const { WebClient } = require('@slack/web-api');
-const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
 
-// Initialize Slack Web API client
-const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token
-
+// BOOKINGS SETUP
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
-const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 const { run_most_recent_check } = require('../scheduled_jobs/daily_bookings_by_hour.js');
+const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
+const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
+// LEADS SETUP
+const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
+const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_booking_message');
+
+// EXPRESS SERVER
 const app = express();
 const PORT = process.env.PORT || 8000; // You can change this port if needed
 
@@ -21,8 +25,8 @@ const PORT = process.env.PORT || 8000; // You can change this port if needed
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Endpoint to handle slash command
-app.post('/getstats', async (req, res) => {
+// Endpoint to handle slash "bookings" command
+app.post('/get-bookings', async (req, res) => {
     console.log('Received request for stats:', {
         body: req.body,
         headers: req.headers,
@@ -52,10 +56,33 @@ app.post('/getstats', async (req, res) => {
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
 
+// Endpoint to handle slash "/leads" command
+app.post('/get-leads', async (req, res) => {
+    console.log('Received request for stats:', {
+        body: req.body,
+        headers: req.headers,
+    });
+
+    // Acknowledge the command from Slack immediately to avoid a timeout
+    const processingMessage = "Retrieving leads information. Will respond shortly."; // Example data
+
+    // Respond back to Slack
+    res.json({
+        text: processingMessage,
+    });
+
+    const getResults = await execute_get_daily_leads_data(); //fix change to leads
+    const slackMessage = await create_daily_lead_slack_message(getResults); //fix change to leads
+    // console.log(slackMessage);
+
+    // Send a follow-up message to Slack
+    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+});
+
 app.get('/hourlyReport', async (req, res) => {
     try {
         // Call the function to run the most recent check
-        await run_most_recent_check(); // Ensure to await if it's a promise-based function
+        await run_most_recent_check();
         
         // Send a success response
         res.status(200).json({
@@ -71,7 +98,6 @@ app.get('/hourlyReport', async (req, res) => {
         });
     }
 });
-
 
 // Function to send follow-up message to Slack
 async function sendFollowUpMessage(channelId, channelName, userId, message) {
