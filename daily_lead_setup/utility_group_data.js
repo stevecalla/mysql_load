@@ -33,7 +33,8 @@ async function create_summary(data, option, segmentField, is_value_only) {
     );
 
     summary =  option.includes('booking') && is_value_only ? `${summary.slice(0, -2)}` : `${emoji} ${day_label} ${summary.slice(0, -2)}`;
-    console.log(option, '=', summary);
+
+    // console.log(option, '=', summary);
     
     return summary
 }
@@ -174,8 +175,8 @@ async function rollup_by_segment(data, segmentField) {
 
         finalResult.push({
             [segmentField]: segment,
-            yesterday: yesterdayLeads,
-            today: todayLeads,
+            yesterday_leads: yesterdayLeads,
+            today_leads: todayLeads,
             yesterday_booking_cancelled,
             yesterday_booking_confirmed,
             yesterday_booking_total,
@@ -207,8 +208,8 @@ async function rollup_by_segment(data, segmentField) {
 
     finalResult.push({
         [segmentField]: "ALL",
-        yesterday: overallYesterdayTotal,
-        today: overallTodayTotal,
+        yesterday_leads: overallYesterdayTotal,
+        today_leads: overallTodayTotal,
         yesterday_booking_cancelled: overallYesterdayBookingCancelled,
         yesterday_booking_confirmed: overallYesterdayBookingConfirmed,
         yesterday_booking_total: overallYesterdayBookingTotal,
@@ -226,8 +227,8 @@ async function rollup_by_segment(data, segmentField) {
 
 async function get_all_segment_output(data, segmentField, is_value_only) {
     const option_stats = [
-        'yesterday', 
-        'today',
+        'yesterday_leads', 
+        'today_leads',
         'yesterday_booking_cancelled',
         'yesterday_booking_confirmed',
         'yesterday_booking_total',
@@ -270,11 +271,12 @@ async function format_lead_data(data) {
     is_value_only = true;
     let uae_only_country_output_text = await get_all_segment_output(uae_only_source, 'renting_in_country', is_value_only);
 
-    return (all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text);
-    // return { leads_rollup_by_country, all_countries_output_text, uae_only_output_text, all_source_output_text: [], uae_only_source_output_text: [] };
+    // console.log('group =', all_countries_output_text);
+
+    return {all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text};
 }
 
-format_lead_data(lead_data);
+// format_lead_data(lead_data);
 
 module.exports = {
     format_lead_data,
