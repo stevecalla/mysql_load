@@ -69,7 +69,7 @@ async function execute_query_get_daily_lead_data(pool) {
             } else {
 
                 // console.table(results);
-                // console.log(results);
+                console.log(results);
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
                 resolve(results);
@@ -131,7 +131,7 @@ async function execute_get_daily_lead_data(is_development_pool) {
 }
 
 // Run the main function
-// execute_get_daily_lead_data();
+execute_get_daily_lead_data();
 
 module.exports = {
     execute_get_daily_lead_data,
