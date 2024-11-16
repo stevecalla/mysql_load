@@ -69,7 +69,7 @@ async function execute_query_get_daily_lead_data(pool) {
             } else {
 
                 // console.table(results);
-                console.log(results);
+                // console.log(results);
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
                 resolve(results);
