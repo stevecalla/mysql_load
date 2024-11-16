@@ -9,11 +9,13 @@ async function sendSlackMessage(message) {
 
   const url = process.env.SLACK_WEBHOOK_STEVE_CALLA_CHANNEL_URL;
 
-  const payload = {
-    text: slack_message,
-    icon_emoji: ":ghost:",
-    username: "Steve Calla",
-  };
+  // const payload = {
+  //   text: slack_message,
+  //   icon_emoji: ":ghost:",
+  //   username: "Steve Calla",
+  // };
+
+  const payload = message;
   
   try {
     let response;
@@ -28,8 +30,9 @@ async function sendSlackMessage(message) {
         body: JSON.stringify(payload),
       });
 
+
       if (!response.ok) {
-        throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText}`);
+        throw new Error(`Error sending message to Slack help: ${response.status} ${response.statusText}`);
       }
     } else {
         // Fallback to axios

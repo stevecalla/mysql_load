@@ -87,7 +87,7 @@ app.post('/get-leads', async (req, res) => {
 // Endpoint to handle slash "/leads" command
 app.get('/scheduled-leads', async (req, res) => {
     // TESTING VARIABLES
-    let send_slack_to_calla = false;
+    let send_slack_to_calla = true;
 
     try {
         const getResults = await execute_get_daily_lead_data();
@@ -116,8 +116,6 @@ app.get('/scheduled-leads', async (req, res) => {
             error: error.message || 'Internal Server Error',
         });
     }
-
-
 });
 
 app.get('/scheduled-bookings', async (req, res) => {

@@ -1,6 +1,7 @@
 const dayjs = require('dayjs');
 const { getFormattedDate } = require('../utilities/getCurrentDate');
 const { lead_data } = require('./seed_data');
+const { all } = require('axios');
 
 async function create_summary(data, option, segmentField, is_value_only) {
     let summary = '';
@@ -225,36 +226,103 @@ async function rollup_by_segment(data, segmentField) {
     return finalResult;
 }
 
+// ********** original code ****************
+    // async function get_all_segment_output(data, segmentField, is_value_only) {
+    //     const option_stats = [
+    //         'yesterday_leads', 
+    //         'today_leads',
+    //         'yesterday_booking_cancelled',
+    //         'yesterday_booking_confirmed',
+    //         'yesterday_booking_total',
+    //         'today_booking_cancelled',
+    //         'today_booking_confirmed',
+    //         'today_booking_total',
+    //         'yesterday_booking_conversion',
+    //         'today_booking_conversion',
+    //     ];
+
+    //     // SEGMENT ROLLUPS
+    //     const segment_rollup = await rollup_by_segment(data, segmentField);
+    //     let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
+
+    //     // IF UAE ONLY THEN DISPLAY VALUE ONLY DON'T DISPLAY SEGMENT & VALUE; REMOVES "ALL" & "UAE" KEYS
+    //     segment_rollup_sorted = is_value_only ? segment_rollup_sorted.filter(({renting_in_country}) => renting_in_country === "UAE") : segment_rollup_sorted;
+
+    //     // ALL COUNTRIES WITH YESTERDAY & TODAY
+    //     const output_text = {};
+
+    //     for (let i = 0; i < option_stats.length; i++) {
+    //         const formatted_output = await create_summary(segment_rollup_sorted, option_stats[i], segmentField, is_value_only);
+    //         output_text[option_stats[i]] = formatted_output;
+    //     }
+
+    //     return output_text;
+    // }
+
+    // async function format_lead_data(data) {
+    //     const uae_only_source = data.filter(({ renting_in_country }) => renting_in_country === 'United Arab Emirates');
+    //     let is_value_only = false; // adjust formatting to only include the value / count not the segmentField & value/count
+
+    //     // COUNTRY ROLLUP & OUTPUT TEXT
+    //     let all_countries_output_text = await get_all_segment_output(data, 'renting_in_country', is_value_only);
+    //     let all_source_output_text = await get_all_segment_output(data, 'source_name', is_value_only);
+
+    //     // SOURCE UAE ONLY
+    //     let uae_only_source_output_text = await get_all_segment_output(uae_only_source, 'source_name', is_value_only);
+
+    //     is_value_only = true;
+    //     let uae_only_country_output_text = await get_all_segment_output(uae_only_source, 'renting_in_country', is_value_only);
+
+    //     // console.log('group =', all_countries_output_text);
+
+    //     return {all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text};
+    // }
+
+// ********** original code end ****************
+
+// Example usage
+
+const data_test = [
+    { Month: "January", Savings: "$250", a: "January", b: "$250" },
+    { Month: "February", Savings: "$80", a: "January", b: "$250" },
+    { Month: "March", Savings: "$420", a: "January", b: "$250" },
+];
+
 async function get_all_segment_output(data, segmentField, is_value_only) {
     const option_stats = [
         'yesterday_leads', 
-        'today_leads',
-        'yesterday_booking_cancelled',
-        'yesterday_booking_confirmed',
-        'yesterday_booking_total',
-        'today_booking_cancelled',
-        'today_booking_confirmed',
-        'today_booking_total',
-        'yesterday_booking_conversion',
-        'today_booking_conversion',
+        // 'today_leads',
+        // 'yesterday_booking_cancelled',
+        // 'yesterday_booking_confirmed',
+        // 'yesterday_booking_total',
+        // 'today_booking_cancelled',
+        // 'today_booking_confirmed',
+        // 'today_booking_total',
+        // 'yesterday_booking_conversion',
+        // 'today_booking_conversion',
     ];
 
     // SEGMENT ROLLUPS
     const segment_rollup = await rollup_by_segment(data, segmentField);
     let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
 
-    // IF UAE ONLY THEN DISPLAY VALUE ONLY DON'T DISPLAY SEGMENT & VALUE; REMOVES "ALL" & "UAE" KEYS
-    segment_rollup_sorted = is_value_only ? segment_rollup_sorted.filter(({renting_in_country}) => renting_in_country === "UAE") : segment_rollup_sorted;
+    console.log(segment_rollup_sorted);
 
-    // ALL COUNTRIES WITH YESTERDAY & TODAY
-    const output_text = {};
+    let test_array = segment_rollup_sorted.map(item => {
+        return {
+            country: item.renting_in_country,
+            leads: item.today_leads,
+        }
+    })
 
-    for (let i = 0; i < option_stats.length; i++) {
-        const formatted_output = await create_summary(segment_rollup_sorted, option_stats[i], segmentField, is_value_only);
-        output_text[option_stats[i]] = formatted_output;
-    }
+    console.log(test_array);
 
-    return output_text;
+    let test = await formatTable(test_array);
+    // let test = await formatTable(data_test);
+
+    // console.log(test);
+ 
+    return test;
 }
 
 async function format_lead_data(data) {
@@ -262,21 +330,102 @@ async function format_lead_data(data) {
     let is_value_only = false; // adjust formatting to only include the value / count not the segmentField & value/count
 
     // COUNTRY ROLLUP & OUTPUT TEXT
-    let all_countries_output_text = await get_all_segment_output(data, 'renting_in_country', is_value_only);
-    let all_source_output_text = await get_all_segment_output(data, 'source_name', is_value_only);
+    let all_countries_output_table = await get_all_segment_output(data, 'renting_in_country', is_value_only);
 
-    // SOURCE UAE ONLY
-    let uae_only_source_output_text = await get_all_segment_output(uae_only_source, 'source_name', is_value_only);
+    console.log(all_countries_output_table);
 
-    is_value_only = true;
-    let uae_only_country_output_text = await get_all_segment_output(uae_only_source, 'renting_in_country', is_value_only);
+    await slackResponse(all_countries_output_table);
 
-    // console.log('group =', all_countries_output_text);
-
-    return {all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text};
+    return;
 }
+  
+async function formatTable(data) {
+    if (!data || data.length === 0) {
+      return "No data provided";
+    }
+  
+    // Extract headers from the first object's keys
+    const headers = Object.keys(data[0]);
+  
+    // Calculate the maximum width for each column
+    const columnWidths = headers.map((header) =>
+      Math.max(
+        ...data.map((row) => row[header].toString().length),
+        header.length,
+      ),
+    );
+  
+    // Create the divider
+    const divider =
+      "+" +
+      headers.map((header, i) => "-".repeat(columnWidths[i] + 2)).join("+") +
+      "+";
+  
+    // Create the header row
+    const headerRow =
+      "|" +
+      headers
+        .map((header, i) => ` ${header.padEnd(columnWidths[i])} `)
+        .join("|") +
+      "|";
+  
+    // Generate each row of data
+    const rows = data.map(
+      (row) =>
+        "|" +
+        headers
+          .map(
+            (header, i) => ` ${row[header].toString().padEnd(columnWidths[i])} `,
+          )
+          .join("|") +
+        "|",
+    );
+  
+    // Assemble the full table
+    return [divider, headerRow, divider, ...rows, divider].join("\n");
+  }
 
-// format_lead_data(lead_data);
+  // Send to Slack
+  async function slackResponse(table) {
+    const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
+
+    let message = {    
+        response_type: "in_channel",  // Make the response visible to everyone
+        text: "Lead and Booking Data:",  // Fallback text for Slack clients that don't support blocks
+        icon_emoji: ":ghost:",
+        username: "Steve Calla",
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "*Lead and Booking Data Table*\n\n" + `${table}`
+            }
+          }
+        ]
+    }
+
+    // console.log(message);
+    try {
+        // Attempt to send the message
+        await slack_message_steve_calla_channel(message);
+    } catch (error) {
+        // Check if the error has a response with a 400 status code
+        if (error.response && error.response.status === 400) {
+            // Handle the specific 400 error (Bad Request)
+            console.error('Bad Request (400): ', error.response.data || error.message);
+        } else {
+            // Handle other errors
+            console.error('An unexpected error occurred: ', error);
+        }
+    }
+    
+    
+
+    return message;
+  };
+
+format_lead_data(lead_data);
 
 module.exports = {
     format_lead_data,
