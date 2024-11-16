@@ -8,13 +8,12 @@ function query_lead_stats() {
             ls.source_name,
 
             COUNT(*) AS count_leads,
-            SUM(CASE WHEN st.lead_status IN ('Booking Cancelled') THEN 1 ELSE 0 END) AS count_booking_cancelled,
-            SUM(CASE WHEN st.lead_status IN ('Booking Confirmed') THEN 1 ELSE 0 END) AS count_booking_confirmed,
-            SUM(CASE WHEN st.lead_status IN ('Booking Cancelled', 'Booking Confirmed') THEN 1 ELSE 0 END) AS count_booking_total,
+            -- CAST TO ENSURE RESULT IS A NUMBER NOT TEXT
+            CAST(SUM(CASE WHEN st.lead_status IN ('Booking Cancelled') THEN 1 ELSE 0 END) AS SIGNED) AS count_booking_cancelled,
+            CAST(SUM(CASE WHEN st.lead_status IN ('Booking Confirmed') THEN 1 ELSE 0 END) AS SIGNED) AS count_booking_confirmed,
+            CAST(SUM(CASE WHEN st.lead_status IN ('Booking Cancelled', 'Booking Confirmed') THEN 1 ELSE 0 END) AS SIGNED) AS count_booking_total,
 
             -- CURRENT DATE / TIME GST
-            now(),
-            CURRENT_DATE(),
             DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s') AS queried_at_utc,
             DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS queried_at_gst,
 
@@ -34,6 +33,7 @@ function query_lead_stats() {
             -- st.lead_status IN ('Booking Generated','Booking Confirmed','Booking Cancelled')
             -- AND 
             lm.created_on >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 4 HOUR), '%Y-%m-%d') - INTERVAL 1 DAY
+            AND lm.lead_status_id NOT IN (16)
         GROUP BY 1, 2, 3;
     `;
 }
