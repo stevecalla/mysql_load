@@ -5,19 +5,19 @@ const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_s
 const { execute_get_user_data } = require('./step_1_get_user_data/step_1_sql_getUserData_ssh_loop'); //step_1
 const { execute_load_user_data } = require('./step_2_load_user_data/step_2_sql_load_user_data'); //step_2
 const { execute_create_user_data } = require('./step_3_combine_user_booking_data/step_3_sql_combine_user_booking_data_ssh_loop'); //step_3
-const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/step_4_sql_create_cohort_data_loop'); //stefalse
+const { execute_create_cohort_stats } = require('./step_4_create_cohort_data/step_4_sql_create_cohort_data_loop'); //step 4
 const { execute_create_rfm_ranking_data } = require('./step_5_create_rfm_ranking_data/step_5_sql_create_rfm_ranking_data_ssh_loop'); //step_5
 const { execute_create_rfm_history_data } = require('./step_6_create_rfm_history_data/step_6_sql_create_rfm_history_data_ssh_loop'); //step_6
 const { execute_create_rfm_tracking } = require('./step_7_create_rfm_tracking/step_7_sql_create_rfm_tracking_ssh_loop'); //step 7
 
 //TODO:
-const run_step_1 = true; // retrieve user_data
-const run_step_2 = true; // load user_data
-const run_step_3 = true; // create combined user/booking, user key metrics rollup, user profile
-const run_step_4 = true; // create cohort base and stats
-const run_step_5 = true; // create rfm scores & summary
-const run_step_6 = true; // insert from rfm summary data into history table
-const run_step_7 = true; // create rfm tracking
+const run_step_1 = false; // retrieve user_data
+const run_step_2 = false; // load user_data
+const run_step_3 = false; // create combined user/booking, user key metrics rollup, user profile
+const run_step_4 = true; // create cohort base and stats //fix
+const run_step_5 = false; // create rfm scores & summary
+const run_step_6 = false; // insert from rfm summary data into history table
+const run_step_7 = false; // create rfm tracking
 
 // STEP #1: GET USER DATA
 async function execute_process_user_data() {
