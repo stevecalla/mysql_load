@@ -34,7 +34,32 @@ async function create_daily_booking_slack_message(results) {
 
     // FINAL MESSAGE
     const slackMessage = 
-      `\n**************\n${created_at_message}\n${most_recent_booking_date_message}\n--------------\nUAE ONLY\n${booking_count_message}\n${pacing_message}\n${pacing_status_message}\n${goal_message}\n${today_above_below_goal_message}\n${status_today}\n--------------\n${status_yesterday}\n--------------\n${pacing_threshold}\n**************\nNET BOOKINGS\n${yesterday_not_cancelled}\n${today_not_cancelled}\n  ------------\nCANCELLED BOOKINGS\n${yesterday_cancelled}\n${today_cancelled}\n  ------------\nGROSS BOOKINGS\n${yesterday_total}\n${today_total}\n**************\n`;
+      `\n**************\n` +
+      `${created_at_message}\n` +
+      `${most_recent_booking_date_message}\n` +
+      `--------------\n` +
+      `UAE ONLY\n` +
+      `${booking_count_message}\n` +
+      `${pacing_message}\n` +
+      `${pacing_status_message}\n` +
+      `${goal_message}\n` +
+      `${today_above_below_goal_message}\n` +
+      `${status_today}\n` +
+      `--------------\n`+
+      `${status_yesterday}\n` +
+      `--------------\n` +
+      `${pacing_threshold}\n` +
+      `**************\n` +
+      `NET BOOKINGS\n` +
+      `${yesterday_not_cancelled}\n${today_not_cancelled}\n` +
+      `  ------------\n` +
+      `CANCELLED BOOKINGS\n` +
+      `${yesterday_cancelled}\n${today_cancelled}\n` +
+      `  ------------\n` +
+      `GROSS BOOKINGS\n` +
+      `${yesterday_total}\n${today_total}\n` +
+      `**************\n`
+    ;
 
     console.log(slackMessage);
 
@@ -130,7 +155,7 @@ async function find_target_for_current_hour(currentHourFormatted) {
     const thresholdDate = new Date(`1970-01-01T${hour}:00Z`);
     const difference = Math.abs(thresholdDate - inputDate) / (1000 * 60 * 60); // Convert to hours
     
-    console.log(currentHourFormatted, currentHourFormatted, hour, difference, smallestDifference);
+    // console.log(currentHourFormatted, currentHourFormatted, hour, difference, smallestDifference);
 
       if (difference <= smallestDifference) {
           smallestDifference = difference;
@@ -139,7 +164,7 @@ async function find_target_for_current_hour(currentHourFormatted) {
   }
 
   const target = pacing_thresholds[closestHour];
-  console.log('current hour ', currentHourFormatted, 'closest hour = ', closestHour, 'target = ', target);
+  // console.log('current hour ', currentHourFormatted, 'closest hour = ', closestHour, 'target = ', target);
 
   return target;
 }

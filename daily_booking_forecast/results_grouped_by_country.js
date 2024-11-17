@@ -90,7 +90,7 @@ async function group_by_country(bookings) {
     const today = getFormattedDate(bookings[0].created_at_gst); // '2024-10-19'
     const yesterday = dayjs(today).subtract(1, 'day').format('YYYY-MM-DD'); // '2024-10-18'
     
-    console.log('today =', today, 'yesterday =', yesterday);
+    // console.log('today =', today, 'yesterday =', yesterday);
 
     // Group by country
     const groupedBookings = bookings.reduce((acc, booking) => {
@@ -129,7 +129,7 @@ async function group_by_country(bookings) {
         today: countryData.today || 0
     }));
     
-    console.log(countryData);
+    // console.log(countryData);
 
     let yesterdaySummary = '';
     let todaySummary = '';
@@ -156,10 +156,10 @@ async function group_by_country(bookings) {
     // Extract only the booking values, with defaults in case not found
     const { today: uae_bookings_today = 0, yesterday: uae_bookings_yesterday = 0 } = uaeBookings || {};
     
-    console.log('yesterdaySummary =', yesterdaySummary);
-    console.log('todaySummary =', todaySummary);
-    console.log('uae_bookings_today =', uae_bookings_today);
-    console.log('uae_bookings_yesterday =', uae_bookings_yesterday);
+    // console.log('yesterdaySummary =', yesterdaySummary);
+    // console.log('todaySummary =', todaySummary);
+    // console.log('uae_bookings_today =', uae_bookings_today);
+    // console.log('uae_bookings_yesterday =', uae_bookings_yesterday);
 
     return { yesterdaySummary, todaySummary, uae_bookings_today, uae_bookings_yesterday };
 }

@@ -1,10 +1,6 @@
 const { getFormattedDateAmPm } = require('../utilities/getCurrentDate');
-
-// const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data');
-
 const { lead_data } = require('../daily_lead_setup/seed_data');
-const { format_lead_data } = require('../daily_lead_setup/utility_group_data');
-
+const { group_and_format_data_for_slack } = require('../daily_lead_setup/utility_group_and_format_data_for_slack');
 
 function generateLeadSummary(outputText, segment) {
   // Destructure the values from the output object
@@ -23,19 +19,28 @@ function generateLeadSummary(outputText, segment) {
 
   // Generate the lead summary based on the segment
   let leadSummary = '';
-  
-  if (segment === 'uae_country') {
+
+  if (segment === 'all') {
+    leadSummary = `LEADS - ALL COUNTRIES\n` +
+      `${today_leads}, Bookings Confirmed - ${today_booking_confirmed}, Conversion - ${today_booking_conversion}\n` +
+      `${yesterday_leads}, Bookings Confirmed - ${yesterday_booking_confirmed}, Conversion - ${yesterday_booking_conversion}\n` +
+      `--------------`;
+  } else if (segment === 'uae_country') {
     leadSummary = `LEADS - UAE ONLY\n` +
-      `${yesterday_leads}, Confirmed Bookings ${yesterday_booking_confirmed}, Conversion ${yesterday_booking_conversion}\n` +
-      `${today_leads}, Confirmed Bookings ${today_booking_confirmed}, Conversion ${today_booking_conversion}\n--------------`;
+      `${today_leads}, Bookings Confirmed - ${today_booking_confirmed}, Conversion - ${today_booking_conversion}\n` +
+      `${yesterday_leads}, Bookings Confirmed- ${yesterday_booking_confirmed}, Conversion - ${yesterday_booking_conversion}\n` +
+      `--------------`;
   } else if (segment === 'uae_source') {
     leadSummary = `SOURCE - UAE ONLY\n` +
+      `${today_leads}\n${today_booking_conversion} (conversion)\n` +
       `${yesterday_leads}\n${yesterday_booking_conversion} (conversion)\n` +
-      `${today_leads}\n${today_booking_conversion} (conversion)\n--------------`;
+      `--------------`;
   } else if (segment === 'all_countries') {
     leadSummary = `LEADS - ALL COUNTRIES\n` +
+      `${today_leads}\n${today_booking_conversion} (conversion)\n` + 
       `${yesterday_leads}\n${yesterday_booking_conversion} (conversion)\n` +
-      `${today_leads}\n${today_booking_conversion} (conversion)\nUNK: Unknown = country blank\n--------------`;
+      `UNK: Unknown = country blank\n` +
+      `--------------`;
   } else if (segment === 'all_source') {
     leadSummary = `SOURCE - ALL COUNTRIES\n` +
       `${yesterday_leads}\n${yesterday_booking_conversion} (conversion)\n` +
@@ -43,37 +48,6 @@ function generateLeadSummary(outputText, segment) {
   }
 
   return leadSummary;
-}
-
-async function create_daily_lead_slack_message(data) {
-  const { all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text } = await format_lead_data(data);
-
-  const lead_uae_country = generateLeadSummary(uae_only_country_output_text, 'uae_country');
-  const lead_uae_source = generateLeadSummary(uae_only_source_output_text, 'uae_source');
-  const lead_all_countries = generateLeadSummary(all_countries_output_text, 'all_countries');
-  const lead_all_source = generateLeadSummary(all_source_output_text, 'all_source');
-
-  let { queried_at_message, most_recent_date_message } = await date_info(data);
-
-  // FINAL MESSAGE
-  // \n${most_recent_date_message} // took this out because the most recent lead at looks wrong
-  const slackMessage = 
-    `\n**************\n` +
-    `LEADS DATA\n${queried_at_message}` +
-    `\n--------------\n` +
-    `${lead_uae_country}\n` +
-    `${lead_uae_source}\n` +
-    `${lead_all_countries}\n` +
-    `${lead_all_source}\n` +
-    `--------------\n` +
-    `Response Time: IN PROGRESS\n` +
-    `Conversion - Same Day: IN PROGRESS\n` +
-    `**************\n`
-  ;
-
-  console.log(slackMessage);
-
-  return slackMessage;
 }
 
 // CREATE DATE INFO
@@ -88,18 +62,77 @@ async function date_info(data) {
   return { queried_at_message, most_recent_date_message };
 }
 
-// used to test
-// async function main() {
-//   // TEST WITH SEED DATA
-//   create_daily_lead_slack_message(lead_data);
+async function create_daily_lead_slack_message(data) {
 
-//   // TEST VIA THE API
-//   // let data = await execute_get_daily_lead_data();
+  // TEXT OUTPUT
+  const { only_all_countries_output_text, all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text, table_output_by_country, table_output_by_source } = await group_and_format_data_for_slack(data);
 
-//   // create_daily_lead_slack_message(data);
+  const all_summary = generateLeadSummary(only_all_countries_output_text, 'all');
+  const lead_uae_country = generateLeadSummary(uae_only_country_output_text, 'uae_country');
+  // const lead_uae_source = generateLeadSummary(uae_only_source_output_text, 'uae_source');
+  // const lead_all_countries = generateLeadSummary(all_countries_output_text, 'all_countries');
+  // const lead_all_source = generateLeadSummary(all_source_output_text, 'all_source');
+
+  // TABLES OUTPUT
+  const { today_table_by_segment: today_table_by_country, yesterday_table_by_segment: yesterday_table_by_country } = table_output_by_country;
+  const { today_table_by_segment: today_table_by_source, yesterday_table_by_segment: yesterday_table_by_source } = table_output_by_source;
+
+  let { queried_at_message, most_recent_date_message } = await date_info(data);
+
+  // FINAL MESSAGE
+  const slackMessage = 
+  `\n**************\n` +
+  `LEADS DATA\n` +
+  `${queried_at_message}\n` +
+  //`${most_recent_date_message}\n` + // took this out because the most recent lead at looks wrong
+  `--------------\n` +
+  `${lead_uae_country}\n` +
+  `${all_summary}\n` +
+    // `${lead_uae_source}\n` +
+    // `${lead_all_countries}\n` +
+    // `${lead_all_source}\n` + 
+    "*Today - By Country:* \n" + 
+    `\`\`\`${today_table_by_country}\`\`\`` + `\n` + 
+    // "*Yesterday - By Country:* \n" + 
+    // `\`\`\`${yesterday_table_by_country}\`\`\`` + `\n`+
+    "*Today - By Source:* \n" +
+    `\`\`\`${today_table_by_source}\`\`\`` + `\n`+
+
+    `"Conv %" = Conversion Ratio; "Conf" = Confirmed; "Same" = Same \n` +
+    `**************\n` +
+    // `"Conf" = Confirmed\n` +
+    // `"Same" = Same Day\n` +  
+    `Response Time: IN PROGRESS\n` +
+    `Conversion - Same Day: IN PROGRESS\n` +
+    `**************\n`
+  ;
+
+  console.log(slackMessage);
+
+  return slackMessage;
+}
+
+// TESTING FUNCTION
+// async function testing() {
+  // TEST WITH SEED DATA
+  // let slack_message = await create_daily_lead_slack_message(lead_data);
+  
+  // // console.log(slack_message);
+  
+  // const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
+  // await slack_message_steve_calla_channel(slack_message);
+  
+  // TEST VIA THE API
+  // const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data');
+  // let data = await execute_get_daily_lead_data();
+
+  // let slack_message= await create_daily_lead_slack_message(data);
+  
+  // const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
+  // await slack_message_steve_calla_channel(slack_message);
 // }
 
-// main();
+// testing();
 
 module.exports = {
   create_daily_lead_slack_message,
