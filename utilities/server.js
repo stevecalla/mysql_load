@@ -30,12 +30,13 @@ const PORT = process.env.PORT || 8000; // You can change this port if needed
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Endpoint to handle slash "bookings" command
+// Endpoint to handle slash "/bookings" command
 app.post('/get-bookings', async (req, res) => {
     console.log('Received request for stats:', {
         body: req.body,
         headers: req.headers,
     });
+    console.log('/get-bookings route req.rawHeaders = ', req.rawHeaders);
 
     // Acknowledge the command from Slack immediately to avoid a timeout
     const processingMessage = "Retrieving booking information. Will respond shortly."; // Example data
@@ -67,6 +68,7 @@ app.post('/get-leads', async (req, res) => {
         body: req.body,
         headers: req.headers,
     });
+    console.log('/get-leads route req.rawHeaders = ', req.rawHeaders);
 
     // Acknowledge the command from Slack immediately to avoid a timeout
     const processingMessage = "Retrieving lead information. Will respond shortly."; // Example data
@@ -84,10 +86,12 @@ app.post('/get-leads', async (req, res) => {
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
 });
 
-// Endpoint to handle slash "/leads" command
+// Endpoint to handle crontab scheduled job
 app.get('/scheduled-leads', async (req, res) => {
     // TESTING VARIABLES
     let send_slack_to_calla = true;
+    
+    console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     try {
         const getResults = await execute_get_daily_lead_data();
@@ -118,7 +122,11 @@ app.get('/scheduled-leads', async (req, res) => {
     }
 });
 
+// Endpoint to handle crontab scheduled job
 app.get('/scheduled-bookings', async (req, res) => {
+
+    console.log('/scheduled-bookings route req.rawHeaders = ', req.rawHeaders);
+
     try {
         // Call the function to run the most recent check
         await run_most_recent_check();
