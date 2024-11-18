@@ -4,14 +4,18 @@
 const { BigQuery } = require('@google-cloud/bigquery');
 const { Storage } = require('@google-cloud/storage');
 
-const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
+const dotenv = require('dotenv');
+dotenv.config({ path: "../../.env" }); // add path to read.env file
+
+// const BQ_CREDENTIALS_PATH = require('../auth_certs/cool-ship-418513-cadf086380e7_key2.json');
+const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 const datasetId = "my_states_dataset3";
 const tableId = "my_states_table";
 
 // Import a GCS file into a table with manually defined schema.
 async function execute_load_csv_to_big_query() {
     // Instantiate clients
-    const bigqueryClient = new BigQuery({ credentials: BQ_CREDENTIALS_PATH, });
+    const bigqueryClient = new BigQuery({ credentials: GOOGLE_SERVICE_ACCOUNT, });
     const storageClient = new Storage();
 
     /**

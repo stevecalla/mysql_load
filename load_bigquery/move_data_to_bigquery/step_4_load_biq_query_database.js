@@ -19,8 +19,6 @@ const datasetId = "ezhire_metrics";
 //TODO:
 const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data", "rfm_tracking_data", "rfm_tracking_most_recent_data", "rfm_tracking_offers_data", "rfm_tracking_offers_v2_data", "rfm_tracking_offers_v3_data"];
 
-// const tableIds = ["rfm_tracking_data"];
-
 // Import a GCS file into a table with manually defined schema.
 async function execute_load_big_query_database() {
     const startTime = performance.now();
@@ -104,7 +102,7 @@ async function execute_load_big_query_database() {
     return elapsedTime; // RETURN ELAPSED TIME AFTER ALL UPLOADS COMPLETE
 }
 
-// execute_load_big_query_database();
+execute_load_big_query_database();
 
 module.exports = {
     execute_load_big_query_database,
