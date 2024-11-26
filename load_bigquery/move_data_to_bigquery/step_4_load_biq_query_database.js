@@ -102,7 +102,7 @@ async function execute_load_big_query_database() {
     return elapsedTime; // RETURN ELAPSED TIME AFTER ALL UPLOADS COMPLETE
 }
 
-execute_load_big_query_database();
+// execute_load_big_query_database();
 
 module.exports = {
     execute_load_big_query_database,
