@@ -1,6 +1,7 @@
 function query_lead_stats() {
     return `
-        -- LEADS BY COUNTRY, SOURCE WITH LEADS COUNT, BOOKING COUNTS FOR CANCEL, CONFIRMED, TOTAL
+        -- #5) LEADS BY COUNTRY, SOURCE WITH LEADS COUNT, BOOKING COUNTS FOR CANCEL, CONFIRMED, TOTAL
+        -- c:\Users\calla\development\ezhire\mysql_queries\leads\discovery_leads_111324.sql
         SELECT 
             DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_gst, -- in GST, not in UST so no timezone conversion needed
             lm.renting_in_country,

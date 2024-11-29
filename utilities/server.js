@@ -12,10 +12,6 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
 const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 
-// USAT SALES SETUP
-const { execute_get_promo_data } = require('../../../usat/sql_programs/src/daily_promo_data/step_1_sql_get_promo_data.js');
-// const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_lead_message');
-
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
@@ -145,42 +141,6 @@ app.get('/scheduled-bookings', async (req, res) => {
         // Send an error response
         res.status(500).json({
             message: 'An error occurred while running the hourly report check.',
-            error: error.message || 'Internal Server Error',
-        });
-    }
-});
-
-// Endpoint to handle crontab usat promo data job
-app.get('/scheduled-usat-sales', async (req, res) => {
-    // TESTING VARIABLES
-    // let send_slack_to_calla = false;
-    
-    console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
-
-    try {
-        const get_usat_sales_results = await execute_get_promo_data();;
-
-        if (getResults) {
-            const slack_message = await create_daily_lead_slack_message(getResults);
-
-            // if (send_slack_to_calla) {
-            //     await slack_message_steve_calla_channel(slack_message);
-            //   } else {
-            //     await slack_message_400_bookings_channel(slack_message);
-            //     await slack_message_350_bookings_channel(slack_message);
-            //   }
-        };
-        
-        // Send a success response
-        res.status(200).json({
-            message: 'Leads queried & sent successfully.',
-        });
-    } catch (error) {
-        console.error('Error quering or sending leads:', error);
-        
-        // Send an error response
-        res.status(500).json({
-            message: 'Error quering or sending leads.',
             error: error.message || 'Internal Server Error',
         });
     }

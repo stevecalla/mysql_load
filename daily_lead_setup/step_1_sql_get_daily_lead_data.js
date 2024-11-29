@@ -8,7 +8,8 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfigLeadsProduction, sshConfigLeadsProduction  } = require('../utilities/config');
 
-const { query_lead_stats } = require('./query_lead_stats_111524');
+// const { query_lead_stats } = require('./query_lead_stats_111524');
+const { query_lead_stats } = require('./query_lead_stats_112924');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
