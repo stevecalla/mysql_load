@@ -487,36 +487,37 @@ const lead_data = [
   }
 ];
 
-function calculateTotalCountValidLeadsByDate(data, filterType) {
-  if (!['min', 'max'].includes(filterType)) {
-    throw new Error("Invalid filterType. Use 'min' or 'max'.");
-  }
+// function calculateTotalCountValidLeadsByDate(data, filterType) {
+//   if (!['min', 'max'].includes(filterType)) {
+//     throw new Error("Invalid filterType. Use 'min' or 'max'.");
+//   }
 
-  // Find the min or max created_on_pst
-  let targetDate = data.reduce((result, item) => {
-    const currentDate = new Date(item.created_on_pst);
-    if (!result) return currentDate;
-    return filterType === 'min' 
-      ? (currentDate < result ? currentDate : result)
-      : (currentDate > result ? currentDate : result);
-  }, null);
+//   // Find the min or max created_on_pst
+//   let targetDate = data.reduce((result, item) => {
+//     const currentDate = new Date(item.created_on_pst);
+//     if (!result) return currentDate;
+//     return filterType === 'min' 
+//       ? (currentDate < result ? currentDate : result)
+//       : (currentDate > result ? currentDate : result);
+//   }, null);
 
-  if (!targetDate) return 0;
+//   if (!targetDate) return 0;
 
   // Format target date to compare
-  const targetDateString = targetDate.toISOString().split("T")[0]; // Keep only the date part
+//   const targetDateString = targetDate.toISOString().split("T")[0]; // Keep only the date part
 
-  // Filter data for matching `created_on_pst` and sum `count_leads_valid`
-  let total = data
-    .filter(item => new Date(item.created_on_pst).toISOString().split("T")[0] === targetDateString)
-    .reduce((sum, item) => sum + (item.count_booking_same_day_rental_status_not_cancelled_distinct || 0), 0);
+//   // Filter data for matching `created_on_pst` and sum `count_leads_valid`
+//   let total = data
+//     .filter(item => new Date(item.created_on_pst).toISOString().split("T")[0] === targetDateString)
+//     .reduce((sum, item) => sum + (item.count_booking_same_day_rental_status_not_cancelled_distinct || 0), 0);
 
-  console.log(total);
+//   console.log('reduce on seed data =', total);
 
-  return total;
-}
+//   return total;
+// }
 
-calculateTotalCountValidLeadsByDate(lead_data, "min");
+// test function to reduce counts on seed object
+// calculateTotalCountValidLeadsByDate(lead_data, "min");
 
 module.exports = {
     lead_data
