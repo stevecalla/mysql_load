@@ -30,7 +30,17 @@ function query_lead_stats() {
                     AND lm.lead_status_id NOT IN (16)
                     AND TIMESTAMPDIFF(DAY, lm.created_on, CONVERT_TZ(bm.booking_created_on, '+00:00', '+05:00')) <= 7
                 THEN bm.Booking_id 
-            END) AS count_booking_same_day_not_cancelled_distinct,
+            END) AS count_booking_same_day_not_cancelled_distinct, 
+
+            -- Count distinct booking IDs where booking_created_on matches lm.created_on
+            COUNT(DISTINCT CASE 
+                WHEN 
+                    DATE_FORMAT(CONVERT_TZ(bm.booking_created_on, '+00:00', '+05:00'), '%Y-%m-%d') = DATE_FORMAT(lm.created_on, '%Y-%m-%d')
+                    -- AND bm.rental_status NOT IN (8)
+                    AND lm.lead_status_id NOT IN (16)
+                    AND TIMESTAMPDIFF(DAY, lm.created_on, CONVERT_TZ(bm.booking_created_on, '+00:00', '+05:00')) <= 7
+                THEN bm.Booking_id 
+            END) AS count_booking_same_day_distinct_total,
 
             -- Count booking IDs where booking_created_on matches lm.created_on
             COUNT(CASE 
@@ -62,7 +72,7 @@ function query_lead_stats() {
             (
                 SELECT 
                     -- DATE_FORMAT(MAX(created_on), '%Y-%m-%d %H:%i:%s') -- pst
-                    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 HOUR), '%Y-%m-%d %H:%i:%s') AS queried_at_gst -- PST (Pakistan Standard Time) to GST
+                    DATE_FORMAT(DATE_SUB(MAX(created_on), INTERVAL 1 HOUR), '%Y-%m-%d %H:%i:%s') AS queried_at_gst -- PST (Pakistan Standard Time) to GST
                 FROM leads_master 
                 LIMIT 1
             ) AS max_created_on_gst

@@ -1,5 +1,5 @@
 const dayjs = require('dayjs');
-const { lead_data } = require('./seed_data');
+const { lead_data } = require('./seed_data_112924');
 
 async function create_summary(data, option, segmentField, is_value_only) {
     let summary = '';
@@ -130,7 +130,7 @@ async function rollup_by_segment(data, segmentField) {
 
     // Step 1: Gather all unique dates and segments from the data
     data.forEach(item => {
-        const { created_on_gst, count_leads, count_booking_cancelled, count_booking_confirmed, count_booking_total } = item;
+        const { created_on_pst, count_leads_valid, count_booking_id_cancelled_total, count_booking_id_not_cancelled_total, count_booking_id_total } = item;
         let segmentValue = item[segmentField] || 'UNKNOWN';  // Get the segment value dynamically (e.g., renting_in_country, source_name, etc.)
 
         // Handle any special cases (e.g., converting "UNI" to "UAE")
@@ -139,28 +139,28 @@ async function rollup_by_segment(data, segmentField) {
         }
 
         // Add to unique sets
-        uniqueDates.add(created_on_gst);
+        uniqueDates.add(created_on_pst);
         uniqueSegments.add(segmentValue);
 
-        const key = `${created_on_gst}_${segmentValue}`;  // Create a unique key based on the date and segment value
+        const key = `${created_on_pst}_${segmentValue}`;  // Create a unique key based on the date and segment value
 
         // If the key does not exist in the result, initialize it
         if (!result[key]) {
             result[key] = {
-                created_on_gst,
+                created_on_pst,
                 [segmentField]: segmentValue,
                 total_leads: 0,
-                count_booking_cancelled: 0,
-                count_booking_confirmed: 0,
-                count_booking_total: 0,
+                count_booking_id_cancelled_total: 0,
+                count_booking_id_not_cancelled_total: 0,
+                count_booking_id_total: 0,
             };
         }
         
-        // Add the count_leads and other values to the totals for that key
-        result[key].total_leads += count_leads;
-        result[key].count_booking_cancelled += count_booking_cancelled;
-        result[key].count_booking_confirmed += count_booking_confirmed;
-        result[key].count_booking_total += count_booking_total;
+        // Add the count_leads_valid and other values to the totals for that key
+        result[key].total_leads += count_leads_valid;
+        result[key].count_booking_id_cancelled_total += count_booking_id_cancelled_total;
+        result[key].count_booking_id_not_cancelled_total += count_booking_id_not_cancelled_total;
+        result[key].count_booking_id_total += count_booking_id_total;
     });
 
     // Step 2: Ensure each segment has entries for "Yesterday" and "Today" with total_leads set to 0 if missing
@@ -173,22 +173,22 @@ async function rollup_by_segment(data, segmentField) {
         // Create entries for "Yesterday" and "Today" for each segment
         if (!result[`${minDateStr}_${segment}`]) {
             result[`${minDateStr}_${segment}`] = {
-                created_on_gst: "Yesterday",
+                created_on_pst: "Yesterday",
                 [segmentField]: segment,
                 total_leads: 0,
-                count_booking_cancelled: 0,
-                count_booking_confirmed: 0,
-                count_booking_total: 0,
+                count_booking_id_cancelled_total: 0,
+                count_booking_id_not_cancelled_total: 0,
+                count_booking_id_total: 0,
             };
         }
         if (!result[`${maxDateStr}_${segment}`]) {
             result[`${maxDateStr}_${segment}`] = {
-                created_on_gst: "Today",
+                created_on_pst: "Today",
                 [segmentField]: segment,
                 total_leads: 0,
-                count_booking_cancelled: 0,
-                count_booking_confirmed: 0,
-                count_booking_total: 0,
+                count_booking_id_cancelled_total: 0,
+                count_booking_id_not_cancelled_total: 0,
+                count_booking_id_total: 0,
             };
         }
     });
@@ -208,14 +208,14 @@ async function rollup_by_segment(data, segmentField) {
         const yesterdayLeads = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].total_leads : 0;
         const todayLeads = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].total_leads : 0;
 
-        const yesterday_booking_cancelled = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_cancelled : 0;
-        const today_booking_cancelled = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_cancelled : 0;
+        const yesterday_booking_cancelled = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_id_cancelled_total : 0;
+        const today_booking_cancelled = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_id_cancelled_total : 0;
 
-        const yesterday_booking_confirmed = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_confirmed : 0;
-        const today_booking_confirmed = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_confirmed : 0;
+        const yesterday_booking_confirmed = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_id_not_cancelled_total : 0;
+        const today_booking_confirmed = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_id_not_cancelled_total : 0;
 
-        const yesterday_booking_total = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_total : 0;
-        const today_booking_total = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_total : 0;       
+        const yesterday_booking_total = result[`${minDateStr}_${segment}`] ? result[`${minDateStr}_${segment}`].count_booking_id_total : 0;
+        const today_booking_total = result[`${maxDateStr}_${segment}`] ? result[`${maxDateStr}_${segment}`].count_booking_id_total : 0;       
 
         const yesterdayBookingConversion = conversion(yesterday_booking_confirmed, yesterdayLeads) || "error";
         const todayBookingConversion = conversion(today_booking_confirmed, todayLeads) || "error";

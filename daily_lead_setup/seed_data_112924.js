@@ -8,13 +8,14 @@ const lead_data = [
     count_leads_valid: 3,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -25,13 +26,14 @@ const lead_data = [
     count_leads_valid: 3,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -42,13 +44,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -59,13 +62,14 @@ const lead_data = [
     count_leads_valid: 1,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -76,13 +80,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -93,13 +98,14 @@ const lead_data = [
     count_leads_valid: 16,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 2,
+    count_booking_same_day_distinct_total: 2,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 2,
     count_booking_id_total: 2,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -110,13 +116,14 @@ const lead_data = [
     count_leads_valid: 7,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -127,13 +134,14 @@ const lead_data = [
     count_leads_valid: 1,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-30',
@@ -144,13 +152,14 @@ const lead_data = [
     count_leads_valid: 14,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -161,13 +170,14 @@ const lead_data = [
     count_leads_valid: 3,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 1,
+    count_booking_same_day_distinct_total: 1,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 1,
     count_booking_id_total: 1,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -178,13 +188,14 @@ const lead_data = [
     count_leads_valid: 7,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -195,13 +206,14 @@ const lead_data = [
     count_leads_valid: 19,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 1,
+    count_booking_same_day_distinct_total: 1,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 1,
     count_booking_id_total: 1,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -212,13 +224,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -229,13 +242,14 @@ const lead_data = [
     count_leads_valid: 6,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 1,
+    count_booking_same_day_distinct_total: 1,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 1,
     count_booking_id_total: 1,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -246,13 +260,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -263,13 +278,14 @@ const lead_data = [
     count_leads_valid: 7,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -280,13 +296,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -297,13 +314,14 @@ const lead_data = [
     count_leads_valid: 3,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -314,13 +332,14 @@ const lead_data = [
     count_leads_valid: 1,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 0,
+    count_booking_same_day_distinct_total: 0,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 0,
     count_booking_id_total: 0,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -331,13 +350,14 @@ const lead_data = [
     count_leads_valid: 17,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 2,
+    count_booking_same_day_distinct_total: 2,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 2,
     count_booking_id_total: 2,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -348,13 +368,14 @@ const lead_data = [
     count_leads_valid: 9,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 1,
+    count_booking_same_day_distinct_total: 1,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 1,
     count_booking_id_total: 1,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -365,13 +386,14 @@ const lead_data = [
     count_leads_valid: 197,
     count_booking_same_day_rental_status_cancelled_distinct: 2,
     count_booking_same_day_not_cancelled_distinct: 29,
+    count_booking_same_day_distinct_total: 31,
     count_booking_id_cancelled_total: 2,
     count_booking_id_not_cancelled_total: 30,
     count_booking_id_total: 32,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -382,13 +404,14 @@ const lead_data = [
     count_leads_valid: 125,
     count_booking_same_day_rental_status_cancelled_distinct: 1,
     count_booking_same_day_not_cancelled_distinct: 7,
+    count_booking_same_day_distinct_total: 8,
     count_booking_id_cancelled_total: 1,
     count_booking_id_not_cancelled_total: 7,
     count_booking_id_total: 8,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -399,13 +422,14 @@ const lead_data = [
     count_leads_valid: 47,
     count_booking_same_day_rental_status_cancelled_distinct: 2,
     count_booking_same_day_not_cancelled_distinct: 18,
+    count_booking_same_day_distinct_total: 20,
     count_booking_id_cancelled_total: 2,
     count_booking_id_not_cancelled_total: 18,
     count_booking_id_total: 20,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -416,13 +440,14 @@ const lead_data = [
     count_leads_valid: 24,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 8,
+    count_booking_same_day_distinct_total: 8,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 8,
     count_booking_id_total: 8,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -433,13 +458,14 @@ const lead_data = [
     count_leads_valid: 2,
     count_booking_same_day_rental_status_cancelled_distinct: 0,
     count_booking_same_day_not_cancelled_distinct: 1,
+    count_booking_same_day_distinct_total: 1,
     count_booking_id_cancelled_total: 0,
     count_booking_id_not_cancelled_total: 1,
     count_booking_id_total: 1,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   },
   {
     created_on_pst: '2024-11-29',
@@ -450,13 +476,14 @@ const lead_data = [
     count_leads_valid: 188,
     count_booking_same_day_rental_status_cancelled_distinct: 1,
     count_booking_same_day_not_cancelled_distinct: 28,
+    count_booking_same_day_distinct_total: 29,
     count_booking_id_cancelled_total: 1,
     count_booking_id_not_cancelled_total: 31,
     count_booking_id_total: 32,
-    queried_at_utc: '2024-11-29 23:51:59',
-    queried_at_gst: '2024-11-30 03:51:59',
-    queried_at_pst: '2024-11-30 04:51:59',
-    max_created_on_gst: '2024-11-29 22:51:59'
+    queried_at_utc: '2024-11-30 00:28:42',
+    queried_at_gst: '2024-11-30 04:28:42',
+    queried_at_pst: '2024-11-30 05:28:42',
+    max_created_on_gst: '2024-11-30 03:45:29'
   }
 ];
 
