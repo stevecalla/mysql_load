@@ -15,25 +15,6 @@ async function sendSlackMessage(message) {
     username: "Steve Calla",
   };
 
-  // MIGHT NEED THIS TO SEND TABLE AS BLOCK BUT SEEMS TO BE WORKING FROM ABOVE
-    // const payload = message;
-    // let payload = {
-    //   response_type: "in_channel",  // Make the response visible to everyone
-    //   icon_emoji: ":ghost:",
-    //   username: "Steve Calla",
-
-    //   text: "Lead and Booking Data:",  // Fallback text for Slack clients that don't support blocks
-    //   blocks: [
-    //     {
-    //       type: "section",
-    //       text: {
-    //         type: "mrkdwn",
-    //         text: message
-    //       }
-    //     }
-    //   ]
-    // }
-
   try {
     let response;
 
