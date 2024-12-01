@@ -36,7 +36,7 @@ async function sendSlackMessage(message = "test message") {
     }
 
     if (response.ok || response.status === 200) {
-      console.log('Message sent to eZhire Slack 350 Bookings Channel');
+      console.log('Message sent to eZhire Slack 400 Bookings Channel');
     } else {
       throw new Error(`Error sending message to Slack: ${response.status} ${response.statusText || response.status}`);
     }
