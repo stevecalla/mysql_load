@@ -18,6 +18,7 @@ const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to 
 const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
 const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
 const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
+const { slack_message_bilal_adhi_channel} = require('../schedule_slack/slack_bilal_adhi_channel');
 
 // NGROK TUNNEL
 const ngrok = require('ngrok');
@@ -104,6 +105,7 @@ app.get('/scheduled-leads', async (req, res) => {
               } else {
                 await slack_message_400_bookings_channel(slack_message);
                 await slack_message_350_bookings_channel(slack_message);
+                await slack_message_bilal_adhi_channel(slackMessage);
               }
         };
         

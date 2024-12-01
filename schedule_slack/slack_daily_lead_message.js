@@ -137,10 +137,12 @@ async function testing() {
   // console.log(slack_message);
   
   const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
+  const { slack_message_bilal_adhi_channel } = require('./slack_bilal_adhi_channel');
   await slack_message_steve_calla_channel(slack_message);
+  await slack_message_bilal_adhi_channel(slack_message);
 }
 
-// testing();
+testing();
 
 module.exports = {
   create_daily_lead_slack_message,
