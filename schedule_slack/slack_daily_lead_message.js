@@ -109,7 +109,8 @@ async function create_daily_lead_slack_message(data) {
     `\`\`\`${today_table_by_source}\`\`\`` + `\n` +
 
     `\`\`\`Differs from ERP report due to (a) duplicate elimination, (b) time zone...\n` +
-    `... adjustment, (c) timing, and (d) booking rental status = cancel\`\`\`` + `\n` +  
+    `... adjustment, (c) timing, and (d) booking rental status = cancel\`\`\`` + `\n` +      
+    `**************\n`
     `Response Time: IN PROGRESS\n` +
     `**************\n`
   ;
@@ -138,6 +139,7 @@ async function testing() {
   
   const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
   const { slack_message_bilal_adhi_channel } = require('./slack_bilal_adhi_channel');
+
   await slack_message_steve_calla_channel(slack_message);
   await slack_message_bilal_adhi_channel(slack_message);
 }
