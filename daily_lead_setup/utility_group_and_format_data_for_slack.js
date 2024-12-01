@@ -526,6 +526,9 @@ async function group_and_format_data_for_slack(data) {
     const table_output_by_country = await create_table_output(data, country, is_value_only);
     const table_output_by_source = await create_table_output(data, source, is_value_only);
 
+    console.log(table_output_by_country);
+    console.log(table_output_by_source);
+
     return { only_all_countries_output_text, all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text, table_output_by_country, table_output_by_source };
 }
 

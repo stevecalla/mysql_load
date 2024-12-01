@@ -6,8 +6,7 @@ function query_lead_stats() {
         -- #5) QUERY TO FIND THE (a) BOOKINGS WITH MULTIPLE LEADS (b) BOOKINGS WITH 1 LEAD (c) LEADS WITH NO BOOKINGS; COMBINE THE DATA THEN CALCULATE STATS
         -- C:\Users\calla\development\ezhire\mysql_queries\leads\discovery_leads_final_attempt_112924.sql
 
-        -- SET @date_interval = 1; -- one day ago
-        -- const date_interval = 1; -- for javascript sql script; also change the variable to {date_interval}
+        -- const date_interval = 1; -- for javascript sql script; also change @date_interval to {date_interval}
         -- modify "=" to ">=" or similar
 
         SELECT
@@ -23,6 +22,7 @@ function query_lead_stats() {
             , CAST(SUM(CASE WHEN lead_status_id IN (16) THEN count_lead_id END) AS UNSIGNED) AS count_leads_invalid
             , CAST(SUM(CASE WHEN lead_status_id NOT IN (16) THEN count_lead_id END) AS UNSIGNED) AS count_leads_valid
 
+            
             -- SAME DAY COUNTS
             , COUNT(DISTINCT CASE 
                 WHEN 
@@ -90,15 +90,19 @@ function query_lead_stats() {
                 DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_pst,
                 bm.Booking_id AS booking_id,
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', 'NULL', bm.rental_status)), ',', 1) AS rental_status,
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', 'NULL', lm.lead_status_id)), ',', 1) AS lead_status_id,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', NULL, bm.rental_status)), ',', 1) AS rental_status,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', NULL, lm.lead_status_id)), ',', 1) AS lead_status_id,
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', 'NULL', lm.lead_id)), ',', 1) AS lead_id,
+                -- GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', NULL, lm.lead_id)) AS lead_id_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', NULL, lm.lead_id)), ',', 1) AS lead_id,
+            
+                -- GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', NULL, lm.renting_in_country)) AS renting_in_country_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', NULL, lm.renting_in_country)), ',', 1) AS renting_in_country, -- first non null renting in country
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', 'NULL', lm.renting_in_country)), ',', 1) AS renting_in_country,
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', 'NULL', ls.source_name)), ',', 1) AS source_name,
-
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.booking_created_on IS NULL OR bm.booking_created_on = '', 'NULL', bm.booking_created_on)), ',', 1) AS booking_created_on_utc,
+                -- GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', NULL, ls.source_name)) AS source_name_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', NULL, ls.source_name)), ',', 1) AS source_name,
+        
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.booking_created_on IS NULL OR bm.booking_created_on = '', NULL, bm.booking_created_on)), ',', 1) AS booking_created_on_utc,
 
                 COUNT(lm.lead_id) AS count_lead_id,
                 'Multiple Leads per Booking' AS query_source
@@ -128,15 +132,19 @@ function query_lead_stats() {
                 DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_pst,
                 bm.Booking_id AS booking_id,
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', 'NULL', bm.rental_status)), ',', 1) AS rental_status,
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', 'NULL', lm.lead_status_id)), ',', 1) AS lead_status_id,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', NULL, bm.rental_status)), ',', 1) AS rental_status,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', NULL, lm.lead_status_id)), ',', 1) AS lead_status_id,
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', 'NULL', lm.lead_id)), ',', 1) AS lead_id,
+                -- GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', NULL, lm.lead_id)) AS lead_id_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_id IS NULL OR lm.lead_id = '', NULL, lm.lead_id)), ',', 1) AS lead_id,
+            
+                -- GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', NULL, lm.renting_in_country)) AS renting_in_country_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', NULL, lm.renting_in_country)), ',', 1) AS renting_in_country,
+                
+                -- GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', NULL, ls.source_name)) AS source_name_list,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', NULL, ls.source_name)), ',', 1) AS source_name,
 
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.renting_in_country IS NULL OR lm.renting_in_country = '', 'NULL', lm.renting_in_country)), ',', 1) AS renting_in_country,
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(ls.source_name IS NULL OR ls.source_name = '', 'NULL', ls.source_name)), ',', 1) AS source_name,
-
-                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.booking_created_on IS NULL OR bm.booking_created_on = '', 'NULL', bm.booking_created_on)), ',', 1) AS booking_created_on_utc,
+                SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.booking_created_on IS NULL OR bm.booking_created_on = '', NULL, bm.booking_created_on)), ',', 1) AS booking_created_on_utc,
 
                 COUNT(lm.lead_id) AS count_lead_id,
                 'Single Lead per Booking' AS query_source
@@ -199,7 +207,7 @@ function query_lead_stats() {
         GROUP BY created_on_pst, 2, 3, 4
         ORDER BY created_on_pst DESC
         ;
-        -- *******************************************
+    -- *******************************************
     `;
 }
 
