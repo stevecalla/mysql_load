@@ -2,8 +2,10 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const { Client } = require('ssh2');
 const sshClient = new Client();
+
 const { forwardConfig , dbConfig, sshConfig, csvExportPath } = require('../utilities/config');
 const { queryBookingData } = require('./query_BookingData');
+
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming } = require('../utilities/getCurrentDate');
 
@@ -64,6 +66,7 @@ async function executeQueryForDateRange(pool, startDate, endDate) {
                 // results.forEach(result => console.log(result));
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
+                // console.log(results);
 
                 generateLogFile('booking_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, csvExportPath);
                 exportResultsToCSV(results, startDate, endDate);
@@ -194,7 +197,7 @@ async function execute_get_booking_data() {
             { startDate: '2024-02-01', endDate: '2024-02-29' }, // OKAY
             { startDate: '2024-01-01', endDate: '2024-01-31' }, // OKAY
 
-            // 2023
+            // // 2023
             { startDate: '2023-12-01', endDate: '2023-12-31' }, // OKAY
             { startDate: '2023-11-01', endDate: '2023-11-30' }, // OKAY
             { startDate: '2023-10-01', endDate: '2023-10-31' }, // OKAY
@@ -232,7 +235,7 @@ async function execute_get_booking_data() {
             { startDate: '2020-07-01', endDate: '2020-12-31' }, // OKAY
             { startDate: '2020-01-01', endDate: '2020-06-30' }, // OKAY
 
-            // // 2017 - 2020
+            // 2017 - 2020
             { startDate: '2019-01-01', endDate: '2019-12-31' }, // 
             { startDate: '2018-01-01', endDate: '2018-12-31' }, // 
             { startDate: '2017-01-01', endDate: '2017-12-31' }, // 

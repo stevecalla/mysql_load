@@ -266,7 +266,7 @@ SELECT
                 '1900-01-01 12:00:00',
                 promocode_created_date),
                 '1900-01-01 12:00:00') AS promocode_created_date,
-    promo_code_description,
+    REPLACE(promo_code_description, ',', '') AS promo_code_description,
     
     car_avail_id,
     car_cat_id,

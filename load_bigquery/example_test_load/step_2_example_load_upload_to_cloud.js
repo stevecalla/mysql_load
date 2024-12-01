@@ -1,7 +1,10 @@
 const { exec } = require('child_process');
 const { generateLogFile } = require('../../utilities/generateLogFile');
 
-const localFilePath = "\"C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/programs/load_bigquery/example_test/example_test_csv_file.csv\"";
+// const localFilePath = "\"C:/Users/calla/Google Drive/Resume & Stuff/ezhire/sql_analysis/programs/load_bigquery/example_test/example_test_csv_file.csv\"";
+const localFilePath = "\"C:/Users/calla/development/ezhire/programs/load_bigquery/example_test_load/example_test_csv_file.csv\"";
+// C:\Users\calla\development\ezhire\programs\load_bigquery\example_test_load\example_test_csv_file.csv
+
 const bucketName = 'testing_bucket_v2';
 const destinationPath = `gs://${bucketName}/`;
 
