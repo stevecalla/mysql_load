@@ -105,7 +105,7 @@ app.get('/scheduled-leads', async (req, res) => {
               } else {
                 await slack_message_400_bookings_channel(slack_message);
                 await slack_message_350_bookings_channel(slack_message);
-                await slack_message_bilal_adhi_channel(slackMessage);
+                await slack_message_bilal_adhi_channel(slack_message);
               }
         };
         
