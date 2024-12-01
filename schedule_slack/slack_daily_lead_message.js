@@ -121,7 +121,7 @@ async function create_daily_lead_slack_message(data) {
 }
 
 // TESTING FUNCTION WITH SEED DATA
-async function testing() {
+// async function testing() {
   // let slack_message = await create_daily_lead_slack_message(lead_data);
   
   // console.log(slack_message);
@@ -130,21 +130,19 @@ async function testing() {
   // await slack_message_steve_calla_channel(slack_message);
   
   // TEST VIA THE API
-  const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data');
-  let data = await execute_get_daily_lead_data();
+  // const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data');
+  // let data = await execute_get_daily_lead_data();
 
-  let slack_message = await create_daily_lead_slack_message(data);
+  // let slack_message = await create_daily_lead_slack_message(data);
 
   // console.log(slack_message);
   
-  const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
-  const { slack_message_bilal_adhi_channel } = require('./slack_bilal_adhi_channel');
+//   const { slack_message_steve_calla_channel } = require('./slack_steve_calla_channel');
 
-  await slack_message_steve_calla_channel(slack_message);
-  await slack_message_bilal_adhi_channel(slack_message);
-}
+//   await slack_message_steve_calla_channel(slack_message);
+// }
 
-testing();
+// testing();
 
 module.exports = {
   create_daily_lead_slack_message,
