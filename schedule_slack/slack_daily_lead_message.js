@@ -90,10 +90,11 @@ async function create_daily_lead_slack_message(data) {
     `\n**************\n` +
     `LEADS DATA\n` +
     `${queried_at_message}\n` +
-    `${most_recent_date_message}\n` + // took this out because the most recent lead at looks wrong
+    `${most_recent_date_message}\n` +
     `--------------\n` +
     `${lead_uae_country}\n` +
     `${all_summary}\n` +
+
     // `${lead_uae_source}\n` +
     // `${lead_all_countries}\n` +
     // `${lead_all_source}\n` + 
@@ -110,7 +111,7 @@ async function create_daily_lead_slack_message(data) {
 
     `\`\`\`Differs from ERP report due to (a) duplicate elimination, (b) time zone...\n` +
     `... adjustment, (c) timing, and (d) booking rental status = cancel\`\`\`` + `\n` +      
-    `**************\n`
+    
     `Response Time: IN PROGRESS\n` +
     `**************\n`
   ;
