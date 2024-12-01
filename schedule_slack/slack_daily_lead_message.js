@@ -140,7 +140,7 @@ async function testing() {
   await slack_message_steve_calla_channel(slack_message);
 }
 
-testing();
+// testing();
 
 module.exports = {
   create_daily_lead_slack_message,
