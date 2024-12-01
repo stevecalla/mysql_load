@@ -8,7 +8,8 @@ JS_FILE="/home/steve-calla/development/ezhire/mysql_load/scheduled_jobs/cron_dai
 
 # SLACK_BOOKINGS_POST=""
 
-# EXECUTE THE JS FILE USING NODE
-/usr/bin/node "$JS_FILE"
+# EXECUTE THE JS FILE USING NODE; USE WHICH NODE TO FIND THE PATH
+# /usr/bin/node "$JS_FILE"
+/home/steve-calla/.nvm/versions/node/v18.20.4/bin/node "$JS_FILE"
 
 # /usr/bin/node "$SLACK_BOOKINGS_POST"
