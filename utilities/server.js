@@ -199,7 +199,13 @@ async function startNgrok() {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
-    startNgrok();
+    console.log(`Tunnel using cloudflare https://ezhire.kidderwise.org/get-bookings`)
+    console.log(`Tunnel using cloudflare https://usat-sales.kidderwise.org/get-leads`)
+    console.log(`http://192.168.1.220:8000`);
+
+    // switched to cloudflare; see notes.txt
+
+    // startNgrok();
 });
 
 
