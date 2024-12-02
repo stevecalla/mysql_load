@@ -84,7 +84,7 @@ app.post('/get-leads', async (req, res) => {
     // console.log(slackMessage);
 
     // Send a follow-up message to Slack
-    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
 
 // Endpoint to handle crontab scheduled job
@@ -149,7 +149,7 @@ app.get('/scheduled-bookings', async (req, res) => {
 });
 
 // Function to send follow-up message to Slack
-async function sendFollowUpMessage(channelId, channelName, userId, message) {
+async function sendFollowUpMessage(channelId, channelName, userId, userName, message) {
     try {
         if(channelId && message && channelName !== "directmessage"){
             await slackClient.chat.postEphemeral({
@@ -163,7 +163,7 @@ async function sendFollowUpMessage(channelId, channelName, userId, message) {
                 channel: userId,
                 text: message,
             });
-            console.log(`Message sent to Slack (channel name = ${channelName})`);
+            console.log(`Message sent to Slack (channel name = ${channelName}; user name = ${userName})`);
         } else {
             console.error('Channel ID or message is missing');
         }
