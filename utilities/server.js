@@ -157,13 +157,13 @@ async function sendFollowUpMessage(channelId, channelName, userId, message) {
                 user: userId,
                 text: message,
             });
-            console.log(`Message sent to Slack (channel name = ${channelName}; channel id = ${channelId} $user id = ${userId}`);
+            console.log(`Message sent to Slack (channel name = ${channelName})`);
         } else if (channelId && message && channelName === "directmessage") {
             await slackClient.chat.postMessage({
                 channel: userId,
                 text: message,
             });
-            console.log(`Message sent to Slack (channel name = ${channelName}; channel id = ${channelId} $user id = ${userId}`);
+            console.log(`Message sent to Slack (channel name = ${channelName})`);
         } else {
             console.error('Channel ID or message is missing');
         }
