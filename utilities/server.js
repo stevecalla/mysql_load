@@ -57,10 +57,10 @@ app.post('/get-bookings', async (req, res) => {
 
     const getResults = await execute_get_daily_booking_data(is_development_pool);
     const slackMessage = await create_daily_booking_slack_message(getResults);
-    // console.log(slackMessage);
+    // console.log('slack message = ', slackMessage);
 
     // Send a follow-up message to Slack
-    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, slackMessage);
+    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
 
 // Endpoint to handle slash "/leads" command
