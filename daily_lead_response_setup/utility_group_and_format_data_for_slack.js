@@ -40,7 +40,7 @@ async function create_summary(data, option, segmentField, is_value_only) {
 
 async function sort_segment(data, criteria) {
     // Validate criteria to be either 'renting_in_country' or 'source_name'
-    if (criteria !== 'renting_in_country' && criteria !== 'source_name') {
+    if (criteria !== 'renting_in_country' && criteria !== 'source_name' && criteria !== 'shift' && criteria !== 'response_time_bin') {
         throw new Error("Invalid sort criteria. Use 'renting_in_country' or 'source_name'.");
     }
 
@@ -473,9 +473,12 @@ async function create_table_output(data, segmentField, is_value_only) {
 
     // Helper function to map data based on whether it is "Today" or "Yesterday"
     const mapDataBySegment = (segmentData, dateType) => {
+
+        console.log(segmentData);
+
         return segmentData.map(item => {
             return {
-                [dateType]: item.renting_in_country || item.source_name, // Changed 'renting_in_country' to 'renting_in_segment'
+                [dateType]: item.renting_in_country || item.source_name || item.shift || item.response_time_bin, // Changed 'renting_in_country' to 'renting_in_segment'
                 
                 "All": item[`${dateType.toLowerCase()}_leads_total`] === 0 ? "" : item[`${dateType.toLowerCase()}_leads_total`],
                 Valid: item[`${dateType.toLowerCase()}_leads_valid`] === 0 ? "" : item[`${dateType.toLowerCase()}_leads_valid`],
@@ -484,7 +487,7 @@ async function create_table_output(data, segmentField, is_value_only) {
                 "% Conv": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
 
                 "Same": item[`${dateType.toLowerCase()}_same_day_confirmed`] === 0 ? "" : item[`${dateType.toLowerCase()}_same_day_confirmed`],
-                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
+                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion_same_day`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion_same_day`],
             };
         });
     };
@@ -503,6 +506,8 @@ async function create_table_output(data, segmentField, is_value_only) {
 async function group_and_format_data_for_slack(data) {
     const country = 'renting_in_country';
     const source = 'source_name';
+    const shift = 'shift';
+    const response_time_bin = 'response_time_bin';
     let is_value_only = false; // adjust formatting to only include the value / count not the segmentField & value/count
 
     // // COUNTRY ROLLUP & OUTPUT TEXT
@@ -523,16 +528,21 @@ async function group_and_format_data_for_slack(data) {
     // CREATE TABLE OUTPUT
     is_value_only = false;
     // CREATES A TABLE FOR TODAY & YESTERDAY BY COUNTRY
-    const table_output_by_country = await create_table_output(data, country, is_value_only);
-    const table_output_by_source = await create_table_output(data, source, is_value_only);
+    // const table_output_by_country = await create_table_output(data, country, is_value_only);
+    // const table_output_by_source = await create_table_output(data, source, is_value_only);
 
-    console.log(table_output_by_country);
-    console.log(table_output_by_source);
+    const table_output_by_shift = await create_table_output(data, shift, is_value_only);
+    const table_output_by_response_time = await create_table_output(data, response_time_bin, is_value_only);
+
+    // console.log(table_output_by_country);
+    // console.log(table_output_by_source);
+    console.log(table_output_by_shift);
+    console.log(table_output_by_response_time);
 
     return { only_all_countries_output_text, all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text, table_output_by_country, table_output_by_source };
 }
 
-// group_and_format_data_for_slack(lead_data);
+group_and_format_data_for_slack(lead_data);
 
 module.exports = {
     group_and_format_data_for_slack,

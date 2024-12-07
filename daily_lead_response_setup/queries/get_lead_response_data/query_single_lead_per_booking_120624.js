@@ -33,7 +33,7 @@ async function query_single_lead_per_booking(date) {
                         
                 -- Response Time Binning
                 , CASE
-                    WHEN MIN(acl.Created_On) IS NULL THEN '0) No response time MIN(acl.Created_On) is NULL'
+                    WHEN MIN(acl.Created_On) IS NULL THEN '0) No response time'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) <= 2 THEN '1) 0-2 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 3 AND 5 THEN '2) 3-5 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 6 AND 10 THEN '3) 6-10 minutes'

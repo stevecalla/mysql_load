@@ -484,7 +484,7 @@ async function create_table_output(data, segmentField, is_value_only) {
                 "% Conv": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
 
                 "Same": item[`${dateType.toLowerCase()}_same_day_confirmed`] === 0 ? "" : item[`${dateType.toLowerCase()}_same_day_confirmed`],
-                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
+                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion_same_day`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion_same_day`],
             };
         });
     };

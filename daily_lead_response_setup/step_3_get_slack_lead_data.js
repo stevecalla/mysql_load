@@ -43,7 +43,7 @@ async function execute_query_get_lead_data(pool, query) {
             } else {
 
                 // console.table(results);
-                console.log(results[0]);
+                // console.log(results[0]);
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
