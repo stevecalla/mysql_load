@@ -3,7 +3,7 @@ async function query_single_lead_per_booking(date) {
         -- #3) Second subquery: Handles cases where a single lead is associated with a booking
             SELECT
                 DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_pst,
-                bm.Booking_id,
+                NULLIF(bm.Booking_id, '') AS booking_id,
             
                 SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', NULL, bm.rental_status)), ',', 1) AS rental_status, -- first non null rental_status
                 SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', NULL, lm.lead_status_id)), ',', 1) AS lead_status_id, -- first non null lead status id

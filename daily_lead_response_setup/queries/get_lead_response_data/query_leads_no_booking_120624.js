@@ -3,7 +3,7 @@ async function query_leads_no_booking(date) {
         -- #4) Third subquery: Handles cases where leads do not have associated bookings
             SELECT
                 DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_pst,
-                bm.Booking_id,
+                NULLIF(bm.Booking_id, '') AS booking_id,
 
                 bm.rental_status,
                 lm.lead_status_id,
@@ -56,6 +56,8 @@ async function query_leads_no_booking(date) {
             WHERE 
                 DATE_FORMAT(lm.created_on, '%Y-%m-%d') = '${date}' -- UTC to PST (Pakistan Standard Time)
 
+                AND bm.Booking_id IS NULL
+                
                 -- To remove marketing promo leads
                 AND 
                 (

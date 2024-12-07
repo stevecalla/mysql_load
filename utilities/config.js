@@ -98,6 +98,15 @@ const localPacingDbConfig = {
     //https://stackoverflow.com/questions/46756829/node-application-how-to-increase-timeout-for-mysql2-when-debbuging
 };
 
+const localLeadDbConfig = {
+    host: process.env.LOCAL_HOST,
+    port: parseInt(process.env.MYSQL_PORT),
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    database: '',
+    connectionLimit: connectionLimitThrottle,
+};
+
 const local_mock_rfm_db_config = {
     host: process.env.LOCAL_HOST,
     port: 3306,
@@ -132,6 +141,7 @@ module.exports = {
     localKeyMetricsDbConfig,
     localPacingDbConfig,
     localUserDbConfig,
+    localLeadDbConfig,
     local_mock_rfm_db_config,
     csvExportPath,
 };

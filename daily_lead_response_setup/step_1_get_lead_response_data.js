@@ -13,14 +13,13 @@ const { create_directory } = require('../utilities/createDirectory');
 
 const fastcsv = require('fast-csv');
 
-const { query_multiple_leads_per_booking } = require('./queries/query_multiple_leads_per_booking_120624');
-const { query_single_lead_per_booking } = require('./queries/query_single_lead_per_booking_120624');
-const { query_leads_no_booking } = require('./queries/query_leads_no_booking_120624');
+const { query_multiple_leads_per_booking } = require('./queries/get_lead_response_data/query_multiple_leads_per_booking_120624');
+const { query_single_lead_per_booking } = require('./queries/get_lead_response_data/query_single_lead_per_booking_120624');
+const { query_leads_no_booking } = require('./queries/get_lead_response_data/query_leads_no_booking_120624');
 
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming, getPakistanTime } = require('../utilities/getCurrentDate');
 const { runTimer, stopTimer } = require('../utilities/timer');
-const { getPackedSettings } = require('http2');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection() {
@@ -163,7 +162,7 @@ async function execute_query_get_usat_sales_data(pool, query) {
 
         // Log results and elapsed time
         // console.log(`\n\nQuery results: `);
-        console.table(results);
+        // console.table(results);
         console.log(`\nQuery results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
         // Additional operations (optional)
@@ -292,7 +291,7 @@ async function export_results_to_csv_fast_csv(results, file_name, i) {
 }
 
 // Main function to handle SSH connection and execute queries
-async function execute_get_sales_data(date) {
+async function execute_get_lead_response_data(date) {
     let pool;
     const startTime = performance.now();
     const logPath = await determineOSPath();
@@ -400,8 +399,9 @@ async function execute_get_sales_data(date) {
 }
 
 // Run the main function
-execute_get_sales_data('2024-12-05');
+// execute_get_lead_response_data('2024-12-05');
+execute_get_lead_response_data('2024-11-27');
 
 module.exports = {
-    execute_get_sales_data,
+    execute_get_lead_response_data,
 }

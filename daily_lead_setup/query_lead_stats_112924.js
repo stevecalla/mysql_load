@@ -67,8 +67,14 @@ function query_lead_stats() {
                     AND TIMESTAMPDIFF(DAY, created_on_pst, CONVERT_TZ(booking_created_on_utc, '+00:00', '+05:00')) <= 7
                 THEN booking_id 
             END) AS count_booking_id_not_cancelled_total
-            
-            , COUNT(booking_id) AS count_booking_id_total
+        
+            -- , COUNT(booking_id) AS count_booking_id_total
+            , COUNT(CASE 
+                WHEN
+                    booking_id IS NOT NULL
+                    AND lead_status_id NOT IN (16)
+                    AND TIMESTAMPDIFF(DAY, created_on_pst, CONVERT_TZ(booking_created_on_utc, '+00:00', '+05:00')) <= 7 THEN booking_id 
+            END) AS count_booking_id_total
 
             -- CURRENT DATE / TIME PST (Pakistan Standard Time)
             , DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s') AS queried_at_utc
