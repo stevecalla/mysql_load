@@ -9,11 +9,12 @@ const derived_fields = `
     booking_created_on_utc,
     count_lead_id,
     @min_lead_created_on_pst, -- fix Thu Dec 05 2024 12:02:52 GMT-0700 (Mountain Standard Time)
-    @min_call_log_min_created_on_pst, -- fix Thu Dec 05 2024 12:02:52 GMT-0700 (Mountain Standard Time)
+    @min_call_log_min_created_on_pst, -- fix 
     response_time,
     response_time_bin,
     shift,
-    query_source
+    query_source,
+    max_created_on_gst
 `;
 
 const transform_fields = `

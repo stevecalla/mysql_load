@@ -399,8 +399,7 @@ async function execute_get_lead_response_data(date) {
 }
 
 // Run the main function
-// execute_get_lead_response_data('2024-12-05');
-execute_get_lead_response_data('2024-11-27');
+execute_get_lead_response_data('2024-12-05');
 
 module.exports = {
     execute_get_lead_response_data,

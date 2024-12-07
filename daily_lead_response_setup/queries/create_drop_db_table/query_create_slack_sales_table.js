@@ -13,7 +13,8 @@ const derived_fields = `
   response_time VARCHAR(50),
   response_time_bin VARCHAR(255),
   shift VARCHAR(50),
-  query_source VARCHAR(255)
+  query_source VARCHAR(255),
+  max_created_on_gst DATETIME
 `;
 
 const index_fields = `

@@ -42,7 +42,7 @@ async function query_multiple_leads_per_booking(date) {
                     
                 -- Response Time Binning
                 , CASE
-                    WHEN MIN(acl.Created_On) IS NULL THEN '0) MIN(acl.Created_On) is NULL'
+                    WHEN MIN(acl.Created_On) IS NULL THEN '0) No response time'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) <= 2 THEN '1) 0-2 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 3 AND 5 THEN '2) 3-5 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 6 AND 10 THEN '3) 6-10 minutes'
@@ -58,7 +58,15 @@ async function query_multiple_leads_per_booking(date) {
                         ELSE NULL
                 END AS shift
 
-                , 'Multiple Leads per Booking' AS query_source
+                , 'Multiple Leads per Booking' AS query_source, 
+
+                -- Max created_on for all records (without per-grouping)
+                (	
+                    SELECT 
+                        DATE_SUB(DATE_FORMAT(MAX(created_on), '%Y-%m-%d %H:%i:%s'), INTERVAL 1 HOUR) -- convert pst to gst
+                    FROM leads_master 
+                    LIMIT 1
+                ) AS max_created_on_gst
 
             FROM leads_master AS lm
                 LEFT JOIN booking_master AS bm ON lm.app_booking_id = bm.Booking_id
