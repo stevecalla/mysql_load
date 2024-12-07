@@ -3,7 +3,7 @@ const derived_fields = `
   Booking_id VARCHAR(50),
   rental_status VARCHAR(255),
   lead_status_id VARCHAR(255),
-  lead_id INT,
+  lead_id VARCHAR(50),
   renting_in_country VARCHAR(255),
   source_name VARCHAR(255),
   booking_created_on_utc DATETIME,
@@ -19,10 +19,8 @@ const derived_fields = `
 
 const index_fields = `
   PRIMARY KEY (lead_id),
-
-  -- Individual Indexes
-  INDEX idx_booking_id (Booking_id),
   INDEX idx_created_on_pst (created_on_pst),
+  INDEX idx_Booking_id (Booking_id),
   INDEX idx_rental_status (rental_status),
   INDEX idx_lead_status_id (lead_status_id),
   INDEX idx_renting_in_country (renting_in_country),
@@ -36,7 +34,8 @@ const table = `lead_response_data`;
 
 const query_create_lead_response_table = `
   CREATE TABLE IF NOT EXISTS ${table} (
-    ${derived_fields}
+    ${derived_fields},
+    ${index_fields}
   );
 `;
 

@@ -1,5 +1,4 @@
 const fsp = require('fs').promises; // promses necessary for "fs.readdir"
-// const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" });
 const path = require('path');
@@ -13,7 +12,7 @@ const { query_drop_database, query_drop_table } = require('./queries/create_drop
 const { query_create_database } = require('./queries/create_drop_db_table/queries_create_db');
 const { query_load_lead_data } = require('./queries/load_data/query_load_lead_data');
 
-const { tables_library } = require('./queries/create_drop_db_table/query_create_slack_sales_table');
+const { tables_library } = require('./queries/create_drop_db_table/query_create_lead_data_table');
 
 const { runTimer, stopTimer } = require('../utilities/timer');
 
