@@ -472,7 +472,7 @@ async function create_table_output(data, segmentField, is_value_only) {
     let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
 
     // Helper function to map data based on whether it is "Today" or "Yesterday"
-    const mapDataBySegment = (segmentData, dateType) => {
+    // const mapDataBySegment = (segmentData, dateType) => {
         return segmentData.map(item => {
             return {
                 [dateType]: item.renting_in_country || item.source_name, // Changed 'renting_in_country' to 'renting_in_segment'
