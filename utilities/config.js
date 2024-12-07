@@ -103,7 +103,7 @@ const localLeadDbConfig = {
     port: parseInt(process.env.MYSQL_PORT),
     user: process.env.LOCAL_MYSQL_USER,
     password: process.env.LOCAL_MYSQL_PASSWORD,
-    database: '',
+    database: process.env.LOCAL_EZHIRE_LEADS_RESPONSE_DB,
     connectionLimit: connectionLimitThrottle,
 };
 

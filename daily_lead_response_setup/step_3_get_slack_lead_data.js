@@ -5,7 +5,7 @@ dotenv.config();
 const { localLeadDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 
-const { query_slack_sales_data } = require('../queries/slack_sales_data/get_sales_data_112524');
+const { query_lead_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_120624');
 // const { create_slack_sales_message } = require('../../utilities/slack_sales_message');
 // const { slack_message_api } = require('../../utilities/slack_message_api');
 
@@ -28,7 +28,7 @@ async function create_connection() {
 }
 
 // STEP #1: GET / QUERY DAILY PROMO DATA
-async function execute_query_get_sales_data(pool, query) {
+async function execute_query_get_lead_data(pool, query) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
@@ -43,7 +43,7 @@ async function execute_query_get_sales_data(pool, query) {
             } else {
 
                 // console.table(results);
-                // console.log(results);
+                console.log(results[0]);
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
@@ -58,14 +58,13 @@ async function execute_get_lead_data(is_cron_job = true) {
     let results;
     const startTime = performance.now();
 
-
     try {
         // STEP #1: GET / QUERY Promo DATA & RETURN RESULTS
         pool = await create_connection();
 
         // STEP #2: GET DATA FOR SLACK MESSAGE
-        // const query = query_slack_sales_data();
-        // results = await execute_query_get_sales_data(pool, query);
+        const query = await query_lead_data();
+        results = await execute_query_get_lead_data(pool, query);
 
         // if (results) {
         //     // STEP #3: CREATE SLACK MESSAGE
@@ -75,7 +74,7 @@ async function execute_get_lead_data(is_cron_job = true) {
         //     // STEP #4: SEND CRON SCHEDULED MESSAGE TO SLACK
         //     // ONLY EXECUTE IF is_cron_job is true
 
-        //     // TESTING VARIABLEj
+        //     // TESTING VARIABLE
         //     const send_slack_to_calla = false;
 
         //     console.log('send slack to calla =', send_slack_to_calla);
@@ -100,8 +99,8 @@ async function execute_get_lead_data(is_cron_job = true) {
     } catch (error) {
         console.error('Error:', error);
 
-        const slack_message = `Error - No results: error`;
-        await slack_message_api(slack_message, "steve_calla_slack_channel");
+        // const slack_message = `Error - No results: error`;
+        // await slack_message_api(slack_message, "steve_calla_slack_channel");
 
         throw error;
 
