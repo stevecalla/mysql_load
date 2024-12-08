@@ -29,7 +29,7 @@ async function create_daily_lead_slack_message(data, tables) {
     `${queried_at_message}\n` +
     `${most_recent_date_message}\n` +
     `${booking_date_message}\n` +
-    `Country: ${countryFilter === "All Countries" ? "All Countries" : countryFilter.toUpperCase()}\n` +
+    `Country: ${!countryFilter ? "All Countries" : countryFilter.toUpperCase()}\n` +
 
     `--------------\n` +
 
@@ -73,7 +73,7 @@ async function create_daily_lead_response_slack_message(data, tables) {
     `${queried_at_message}\n` +
     `${most_recent_date_message}\n` +
     `${booking_date_message}\n` +
-    `Country: ${countryFilter === "All Countries" ? "All Countries" : countryFilter.toUpperCase()}\n` +
+    `Country: ${!countryFilter ? "All Countries" : countryFilter.toUpperCase()}\n` +
     `--------------\n` +
 
     `*Response by Shift  - Leads:* \n` + 

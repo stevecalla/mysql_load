@@ -4,7 +4,7 @@ const derived_fields = `
     rental_status,
     lead_status_id,
     lead_id,
-    renting_in_country,
+    @renting_in_country,
     -- renting_in_country_abb,
     source_name,
     @booking_created_on_utc,
@@ -20,9 +20,19 @@ const derived_fields = `
 
 const transform_fields = `
   -- ABBREVIATION LOGIC FOR RENTING IN COUNTRY
+  renting_in_country = 
+    CASE
+      WHEN LOWER(@renting_in_country) = 'united arab emirates' THEN 'UAE'
+      WHEN LOWER(@renting_in_country) IN ('null', 'unknown', '') THEN 'Unknown'
+      ELSE @renting_in_country
+    END
+    ,
+
+  -- ABBREVIATION LOGIC FOR RENTING IN COUNTRY
   renting_in_country_abb = 
     CASE
-      WHEN renting_in_country = 'United Arab Emirates' THEN LOWER('UAE')
+      WHEN LOWER(renting_in_country) = 'united arab emirates' THEN LOWER('UAE')
+      WHEN LOWER(@renting_in_country) IN ('null', 'unknown', '') THEN 'Unknown'
       ELSE LOWER(SUBSTRING(renting_in_country, 1, 3))
     END
     ,
@@ -31,8 +41,7 @@ const transform_fields = `
     booking_created_on_utc = 
       CASE 
           WHEN @booking_created_on_utc = 'NULL' THEN NULL
-          ELSE
-              @booking_created_on_utc
+          ELSE @booking_created_on_utc
       END
     ,
 

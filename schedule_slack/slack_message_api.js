@@ -41,7 +41,7 @@ async function sendSlackMessage(message, slack_channel_url, channel) {
       });
     }
 
-    console.log(`Message sent to USAT ${channel}`);
+    console.log(`Message sent to EZHIRE ${channel}`);
   } catch (error) {
     console.error('Error sending message to Slack - slack message api 2:', error.response ? error.response.data : error.message);
   }

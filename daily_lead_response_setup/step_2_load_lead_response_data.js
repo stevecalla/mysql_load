@@ -184,7 +184,6 @@ async function execute_load_lead_response_data() {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
         console.log(`\nSTEP #5C = TIME LOG. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
-        // return elapsedTime;
 
         // STEP #6: CLOSE CONNECTION/POOL
         // Ensure cleanup happens even if there is an error
@@ -202,6 +201,7 @@ async function execute_load_lead_response_data() {
             });
         }
 
+        return elapsedTime;
         // process.exit();
     }
 }

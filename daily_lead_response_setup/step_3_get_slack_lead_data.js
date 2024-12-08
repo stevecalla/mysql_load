@@ -54,7 +54,7 @@ async function execute_query_get_lead_data(pool, query) {
     });
 }
 
-async function execute_get_lead_data() {
+async function execute_get_lead_data(country, date) {
     let pool;
     let results;
     const startTime = performance.now();
@@ -71,7 +71,16 @@ async function execute_get_lead_data() {
 
         // STEP #3: CREATE SLACK MESSAGE
         if (results) {
-            const tables = await group_and_format_data_for_slack(results, '', '');
+            
+            // 2rd parameter is count by first 3 characters or uae, 3nd parameter is date ie 2024-12-05
+            const tables = await group_and_format_data_for_slack(results, country, date);
+
+            if (tables.no_data_message) {
+
+                const no_data_message = tables.no_data_message;
+
+                return { no_data_message };
+            }
 
             const slack_message_leads = await create_daily_lead_slack_message(results, tables);
 
