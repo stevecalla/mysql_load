@@ -328,8 +328,6 @@ async function execute_get_lead_response_data(date_interval) {
 
             let { query, file_name } = query_logic[i];
             
-            // if (!date) date = await getPakistanTime();
-
             query = await query(date_interval);
 
             results = await execute_query_get_usat_sales_data(pool, query, date_interval);
@@ -394,7 +392,7 @@ async function execute_get_lead_response_data(date_interval) {
 
         // process.exit();
 
-        // return elapsedTime;
+        return elapsedTime;
     }
 }
 

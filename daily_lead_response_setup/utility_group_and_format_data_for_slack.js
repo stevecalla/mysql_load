@@ -367,6 +367,114 @@ async function create_response_time_vs_shift_booking_table(data) {
     return format_table(sortedTableData);
 }
 
+// async function create_response_time_vs_shift_conversion_table(data) {
+//     // Initialize the result object
+//     const pivotTable = {};
+
+//     // Step 1: Aggregate data by response_time_bin and shift
+//     data.forEach(item => {
+//         const responseTimeBin = item.response_time_bin || "Unknown";
+//         const shift = item.shift || "Unknown";
+
+//         // Initialize the row if it doesn't exist
+//         if (!pivotTable[responseTimeBin]) {
+//             pivotTable[responseTimeBin] = {
+//                 response_time_bin: responseTimeBin,
+//                 total_valid_leads: 0,
+//                 total_not_cancelled: 0,
+//                 conversion: "0%",
+//             };
+//         }
+
+//         // Initialize the shift column if it doesn't exist
+//         if (!pivotTable[responseTimeBin][shift]) {
+//             pivotTable[responseTimeBin][shift] = {
+//                 valid_leads: 0,
+//                 not_cancelled: 0,
+//             };
+//         }
+
+//         // Update counts for the current shift
+//         pivotTable[responseTimeBin][shift].valid_leads += item.count_leads_valid || 0;
+//         pivotTable[responseTimeBin][shift].not_cancelled += item.count_booking_id_not_cancelled_total || 0;
+
+//         // Update row totals
+//         pivotTable[responseTimeBin].total_valid_leads += item.count_leads_valid || 0;
+//         pivotTable[responseTimeBin].total_not_cancelled += item.count_booking_id_not_cancelled_total || 0;
+//     });
+
+//     // Step 2: Calculate column totals and prepare the table
+//     const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+//     const columnTotals = {
+//         response_time_bin: "Total",
+//         total_valid_leads: 0,
+//         total_not_cancelled: 0,
+//         conversion: "0%",
+//     };
+
+//     const tableData = Object.values(pivotTable).map(row => {
+//         const rowData = {
+//             response_time_bin: row.response_time_bin,
+//         };
+
+//         allShifts.forEach(shift => {
+//             const shiftData = row[shift] || { valid_leads: 0, not_cancelled: 0 };
+
+//             // Calculate conversion percentage for each shift
+//             rowData[shift] = shiftData.valid_leads > 0
+//                 ? ((shiftData.not_cancelled / shiftData.valid_leads) * 100).toFixed(0) + "%"
+//                 : "";
+
+//             // Update column totals
+//             columnTotals[shift] = columnTotals[shift] || { valid_leads: 0, not_cancelled: 0 };
+//             columnTotals[shift].valid_leads += shiftData.valid_leads;
+//             columnTotals[shift].not_cancelled += shiftData.not_cancelled;
+
+//             // Add to overall totals
+//             columnTotals.total_valid_leads += shiftData.valid_leads;
+//             columnTotals.total_not_cancelled += shiftData.not_cancelled;
+//         });
+
+//         // Calculate row conversion
+//         rowData.total = row.total_valid_leads > 0
+//             ? ((row.total_not_cancelled / row.total_valid_leads) * 100).toFixed(0) + "%"
+//             : "";
+
+//         return rowData;
+//     });
+
+//     // Calculate column conversion percentages
+//     const formattedColumnTotals = {
+//         response_time_bin: "Total",
+//     };
+
+//     allShifts.forEach(shift => {
+//         const shiftTotals = columnTotals[shift];
+//         formattedColumnTotals[shift] = shiftTotals.valid_leads > 0
+//             ? ((shiftTotals.not_cancelled / shiftTotals.valid_leads) * 100).toFixed(0) + "%"
+//             : "";
+//     });
+
+//     // Calculate overall conversion percentage
+//     formattedColumnTotals.total = columnTotals.total_valid_leads > 0
+//         ? ((columnTotals.total_not_cancelled / columnTotals.total_valid_leads) * 100).toFixed(0) + "%"
+//         : "";
+
+//     // Add column totals as the last row
+//     tableData.push(formattedColumnTotals);
+
+//     // Step 3: Sort rows by response_time_bin, keeping the total row last
+//     const sortedTableData = tableData.filter(row => row.response_time_bin !== "Total").sort((a, b) => {
+//         return a.response_time_bin.localeCompare(b.response_time_bin);
+//     });
+
+//     // Add the total row at the end
+//     sortedTableData.push(formattedColumnTotals);
+
+//     // Step 4: Format the table
+//     return format_table(sortedTableData);
+// }
+
 async function create_response_time_vs_shift_conversion_table(data) {
     // Initialize the result object
     const pivotTable = {};
@@ -382,7 +490,6 @@ async function create_response_time_vs_shift_conversion_table(data) {
                 response_time_bin: responseTimeBin,
                 total_valid_leads: 0,
                 total_not_cancelled: 0,
-                conversion: "0%",
             };
         }
 
@@ -409,7 +516,6 @@ async function create_response_time_vs_shift_conversion_table(data) {
         response_time_bin: "Total",
         total_valid_leads: 0,
         total_not_cancelled: 0,
-        conversion: "0%",
     };
 
     const tableData = Object.values(pivotTable).map(row => {
@@ -421,9 +527,10 @@ async function create_response_time_vs_shift_conversion_table(data) {
             const shiftData = row[shift] || { valid_leads: 0, not_cancelled: 0 };
 
             // Calculate conversion percentage for each shift
-            rowData[shift] = shiftData.valid_leads > 0
+            const conversion = shiftData.valid_leads > 0
                 ? ((shiftData.not_cancelled / shiftData.valid_leads) * 100).toFixed(0) + "%"
                 : "";
+            rowData[shift] = conversion === "0%" ? "" : conversion;
 
             // Update column totals
             columnTotals[shift] = columnTotals[shift] || { valid_leads: 0, not_cancelled: 0 };
@@ -436,9 +543,10 @@ async function create_response_time_vs_shift_conversion_table(data) {
         });
 
         // Calculate row conversion
-        rowData.total = row.total_valid_leads > 0
+        const rowConversion = row.total_valid_leads > 0
             ? ((row.total_not_cancelled / row.total_valid_leads) * 100).toFixed(0) + "%"
             : "";
+        rowData.total = rowConversion === "0%" ? "" : rowConversion;
 
         return rowData;
     });
@@ -450,15 +558,17 @@ async function create_response_time_vs_shift_conversion_table(data) {
 
     allShifts.forEach(shift => {
         const shiftTotals = columnTotals[shift];
-        formattedColumnTotals[shift] = shiftTotals.valid_leads > 0
+        const shiftConversion = shiftTotals.valid_leads > 0
             ? ((shiftTotals.not_cancelled / shiftTotals.valid_leads) * 100).toFixed(0) + "%"
             : "";
+        formattedColumnTotals[shift] = shiftConversion === "0%" ? "" : shiftConversion;
     });
 
     // Calculate overall conversion percentage
-    formattedColumnTotals.total = columnTotals.total_valid_leads > 0
+    const overallConversion = columnTotals.total_valid_leads > 0
         ? ((columnTotals.total_not_cancelled / columnTotals.total_valid_leads) * 100).toFixed(0) + "%"
         : "";
+    formattedColumnTotals.total = overallConversion === "0%" ? "" : overallConversion;
 
     // Add column totals as the last row
     tableData.push(formattedColumnTotals);
@@ -475,8 +585,8 @@ async function create_response_time_vs_shift_conversion_table(data) {
     return format_table(sortedTableData);
 }
 
-async function group_and_format_data_for_slack(data, date = null, countryFilter = null) {
 
+async function group_and_format_data_for_slack(data, date = null, countryFilter = null) {
     // Step 1: Find the max created_on_pst
     const maxCreatedOnPst = data.reduce((max, item) => {
         return item.created_on_pst > max ? item.created_on_pst : max;
@@ -498,40 +608,42 @@ async function group_and_format_data_for_slack(data, date = null, countryFilter 
     const country_rollup = await rollup_by_segment(filteredData, country);
     const country_sorted_rollup = await sort_segment(country_rollup, country);
     const country_table_output = await create_table_output(country_sorted_rollup, country);
-    // console.log(country_table_output);
+
 
     // SOURCE ROLLUP
     const source = 'source_name';
     const source_rollup = await rollup_by_segment(filteredData, source);
     const source_sorted_rollup = await sort_segment(source_rollup, source);
     const source_table_output = await create_table_output(source_sorted_rollup, source);
-    // console.log(source_table_output);
 
     // SHIFT ROLLUP
     const shift = 'shift';
     const shift_rollup = await rollup_by_segment(filteredData, shift);
     const shift_sorted_rollup = await sort_segment(shift_rollup, shift);
     const shift_table_output = await create_table_output(shift_sorted_rollup, shift);
-    // console.log(shift_table_output);
 
     // RESPONSE TIME ROLLUP
     const response_time = 'response_time_bin';
     const response_time_rollup = await rollup_by_segment(filteredData, response_time);
     const response_time_sorted_rollup = await sort_segment(response_time_rollup, response_time);
     const response_time_table_output = await create_table_output(response_time_sorted_rollup, response_time);
-    // console.log(response_time_table_output);
 
     // RESPONSE TIME VS SHIFT - LEADS
     const response_time_by_shift_leads_output = await create_response_time_vs_shift_lead_table(filteredData);
-    // console.log(response_time_by_shift_leads_output);
 
     // RESPONSE TIME VS SHIFT - BOOKINGS
     const response_time_by_shift_bookings_output = await create_response_time_vs_shift_booking_table(filteredData);
-    // console.log(response_time_by_shift_bookings_output);
 
     // RESPONSE TIME VS SHIFT - CONVERSION
     const response_time_by_shift_conversion_output = await create_response_time_vs_shift_conversion_table(filteredData);
-    // console.log(response_time_by_shift_conversion_output);
+    
+    console.log(country_table_output);
+    console.log(source_table_output);
+    console.log(shift_table_output);
+    console.log(response_time_table_output);    
+    console.log(response_time_by_shift_leads_output);
+    console.log(response_time_by_shift_bookings_output);
+    console.log(response_time_by_shift_conversion_output);
 
     return { effectiveDate, countryFilter, country_table_output, source_table_output, shift_table_output, response_time_table_output, response_time_by_shift_leads_output, response_time_by_shift_bookings_output, response_time_by_shift_conversion_output }
 }

@@ -202,7 +202,7 @@ async function execute_load_lead_response_data() {
             });
         }
 
-        process.exit();
+        // process.exit();
     }
 }
 

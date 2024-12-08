@@ -69,7 +69,7 @@ async function create_daily_lead_response_slack_message(data, tables) {
   // FINAL MESSAGE
   const slackMessage = 
     `\n**************\n` +
-    `LEADS DATA\n` +
+    `LEADS - RESPONSE TIME BY SHIFT\n` +
     `${queried_at_message}\n` +
     `${most_recent_date_message}\n` +
     `${booking_date_message}\n` +
