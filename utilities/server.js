@@ -12,16 +12,21 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
 const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 
+const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
+const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
+const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_get_slack_lead_data.js');
+
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
-const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
-const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
-const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
-const { slack_message_bilal_adhi_channel} = require('../schedule_slack/slack_bilal_adhi_channel');
+// const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
+// const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
+// const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
+// const { slack_message_bilal_adhi_channel} = require('../schedule_slack/slack_bilal_adhi_channel');
 
 // NGROK TUNNEL
 const ngrok = require('ngrok');
+const { slack_message_api } = require('../schedule_slack/slack_message_api.js');
 
 // EXPRESS SERVER
 const app = express();
@@ -30,6 +35,30 @@ const PORT = process.env.PORT || 8000; // You can change this port if needed
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Endpoint to handle crontab scheduled job
+app.get('/scheduled-bookings', async (req, res) => {
+
+    console.log('/scheduled-bookings route req.rawHeaders = ', req.rawHeaders);
+
+    try {
+        // Call the function to run the most recent check
+        await run_most_recent_check();
+
+        // Send a success response
+        res.status(200).json({
+            message: 'Hourly report check completed successfully.',
+        });
+    } catch (error) {
+        console.error('Error running most recent check:', error);
+
+        // Send an error response
+        res.status(500).json({
+            message: 'An error occurred while running the hourly report check.',
+            error: error.message || 'Internal Server Error',
+        });
+    }
+});
 
 // Endpoint to handle slash "/bookings" command
 app.post('/get-bookings', async (req, res) => {
@@ -63,12 +92,153 @@ app.post('/get-bookings', async (req, res) => {
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
 
-// Endpoint to handle slash "/leads" command
-app.post('/get-leads', async (req, res) => {
-    console.log('Received request for stats:', {
+// Endpoint to handle "/update-leads" command
+app.post('/update-leads/:interval?', async (req, res) => {
+    console.log('Update leads route received request to update stats:', {
         body: req.body,
         headers: req.headers,
+        param: req.params,  
     });
+
+    try {
+
+        const date_interval = req.params.interval || 3; // retrieves most recent 4 days of data
+
+        // STEP #1 GET LEADS DATA FROM EZHIRE ERP DB
+        const elapsed_time_get_data = await execute_get_lead_response_data(date_interval);
+
+        // STEP #2 LOAD LEADS DATA INTO LOCAL DB
+        const elapsed_time_load_data = await execute_load_lead_response_data();
+
+        // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
+        const now = new Date().toLocaleString(); // Get the current local date and time as a string
+
+        const slack_message = `🔔 Updated leads data with date interval of ${date_interval}. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
+
+
+        await slack_message_api(slack_message, 'steve_calla_slack_channel');
+
+        // Acknowledge the command from Slack immediately to avoid a timeout
+        const processingMessage = `Successfully processed leads data update.`
+
+        res.status(200).json({
+            text: processingMessage,
+        });
+
+    } catch (error) {
+        const error_message = `Error in execute_get_lead_response_data. ${error}.`
+
+        // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
+        console.error(error_message);
+        await slack_message_api(error_message, 'steve_calla_slack_channel');
+
+        res.status(500).json({
+            text: `Failed to update lead data. Check server logs for details.`,
+        });
+    }
+
+});
+
+// Middleware to address missing country via /scheduled-leads// or /schedule-leads//2024-12-08
+app.use((req, res, next) => {
+    // Normalize URLs with multiple slashes and replace "//" with "/null/" to handle empty parameters
+    // curl http://localhost:8000/scheduled-leads//2024-12-08 is not recognize properly
+    req.url = req.url.replace(/\/\//g, '/null/');
+    console.log(req.url);
+    next();
+});
+
+// Function to handle sending the lead data as test or production
+async function slack_send(message, test) {
+    if (test) {
+        await slack_message_api(message, "steve_calla_slack_channel");
+        return;
+    }
+
+    await slack_message_api(message, "350_slack_channel");
+    await slack_message_api(message, "400_slack_channel");
+    await slack_message_api(message, "bilal_adhi_slack_channel");
+
+    return;
+}
+
+// Endpoint to handle crontab scheduled job
+app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
+    console.log('Received request for stats - /scheduled-leads route:', {
+        body: req.body,
+        headers: req.headers,
+        param: req.params,
+    });
+
+    console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
+
+    // TESTING VARIABLES
+    let send_slack_to_calla_test = true;
+
+    let { country, date } = req.params;
+    let countryFilter = '';
+
+    // Default values for empty parameters
+    if (country === "all") {
+        country = '';
+    } else {
+        countryFilter = country?.trim() || '';
+    }
+    
+    const dateFilter = date?.trim() || '';
+
+    // Validate country format
+    const valid_countries = ['bah', 'qat', 'sau', 'uae'];
+    if (country && !valid_countries.includes(country.toLowerCase())) {
+        const error_message = '⚠️ Invalid country. Please enter one of the following: BAH, QAT, SAU, or UAE.';
+        await slack_send(error_message, send_slack_to_calla_test);
+        return res.status(400).json({ message: error_message });
+    }
+
+    // Validate date format
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const error_message = '⚠️ Invalid date format. Expected YYYY-MM-DD.';
+        await slack_send(error_message, send_slack_to_calla_test);
+        return res.status(400).json({ message: error_message });
+    }
+
+    try {
+        // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
+        const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
+
+        if (no_data_message) {
+            await slack_send(no_data_message, send_slack_to_calla_test);
+        }
+
+        if (slack_message_leads && slack_message_lead_response) {
+            await slack_send(slack_message_leads, send_slack_to_calla_test);
+            await slack_send(slack_message_lead_response, send_slack_to_calla_test);
+        };
+
+        // Send a success response
+        res.status(200).json({
+            message: 'Leads queried & sent successfully.',
+        });
+    } catch (error) {
+        console.error('Error quering or sending leads:', error);
+
+        // Send an error response
+        res.status(500).json({
+            message: 'Error quering or sending leads.',
+            error: error.message || 'Internal Server Error',
+        });
+    }
+});
+
+// Endpoint to handle slash "/leads" command
+app.post('/get-leads/:country?/:date?', async (req, res) => {
+    console.log('Received request for stats - /get-leads route:', {
+        body: req.body,
+        headers: req.headers,
+        param: req.params,
+        text: req.body.text,
+    });
+
     console.log('/get-leads route req.rawHeaders = ', req.rawHeaders);
 
     // Acknowledge the command from Slack immediately to avoid a timeout
@@ -79,79 +249,96 @@ app.post('/get-leads', async (req, res) => {
         text: processingMessage,
     });
 
-    const getResults = await execute_get_daily_lead_data();
-    const slackMessage = await create_daily_lead_slack_message(getResults); 
-    // console.log(slackMessage);
+    let countryFilter = '';
+    let dateFilter = '';
 
-    // Send a follow-up message to Slack
-    await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
-});
+    let channel_id = '';
+    let channel_name = '';
+    let user_id = '';
+    let user_name = '';
 
-// Endpoint to handle crontab scheduled job
-app.get('/scheduled-leads', async (req, res) => {
-    // TESTING VARIABLES
-    let send_slack_to_calla = false;
+    let text = '';
+    let country = '';
+    let date = '';
+
+    if (req.body && Object.keys(req.body).length > 0) {
+
+        channel_id = req.body.channel_id;
+        channel_name = req.body.channel_name;
+        user_id = req.body.user_id;
+        user_name = req.body.user_name;
+        text = req.body.text;
+
+        if (text) {
+            [country, date] = text.split(' '); // Split the text by spaces and destructure into variables
+
+            console.log(`server js 266; Country: ${country}, Date: ${date}`);
+        } else {
+            console.log('Text is missing in the request body.');
+        }
+
+        // Default values for empty parameters
+        if (country === "all") {
+            country = '';
+        } else {
+            countryFilter = country?.trim() || '';
+        }
+        
+        dateFilter = date?.trim() || '';
+        console.log(`server js 279; Country: ${countryFilter}, Date: ${dateFilter}`);
+        // Validate country format
+        const valid_countries = ['bah', 'qat', 'sau', 'uae'];
+        if (country && !valid_countries.includes(country.toLowerCase())) {
+            const error_message = '⚠️ Invalid country. Please enter one of the following: BAH, QAT, SAU, or UAE.';
+
+            // Send a follow-up message to Slack
+            await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, error_message);
+
+            return;
+        }
+
+        // Validate date format
+        if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            const error_message = '⚠️ Invalid date format. Expected YYYY-MM-DD.';
+
+            // Send a follow-up message to Slack
+            await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, error_message);
+
+            return;
+        }
+    }
+
+    setTimeout( async () => {
+        try {
+            // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
+            
+            console.log(`server js 306; Country: ${countryFilter}, Date: ${dateFilter}`);
+
+            const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
     
-    console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
-
-    try {
-        const getResults = await execute_get_daily_lead_data();
-
-        if (getResults) {
-            const slack_message = await create_daily_lead_slack_message(getResults);
-
-            if (send_slack_to_calla) {
-                await slack_message_steve_calla_channel(slack_message);
-              } else {
-                await slack_message_400_bookings_channel(slack_message);
-                await slack_message_350_bookings_channel(slack_message);
-                await slack_message_bilal_adhi_channel(slack_message);
-              }
-        };
-        
-        // Send a success response
-        res.status(200).json({
-            message: 'Leads queried & sent successfully.',
-        });
-    } catch (error) {
-        console.error('Error quering or sending leads:', error);
-        
-        // Send an error response
-        res.status(500).json({
-            message: 'Error quering or sending leads.',
-            error: error.message || 'Internal Server Error',
-        });
-    }
-});
-
-// Endpoint to handle crontab scheduled job
-app.get('/scheduled-bookings', async (req, res) => {
-
-    console.log('/scheduled-bookings route req.rawHeaders = ', req.rawHeaders);
-
-    try {
-        // Call the function to run the most recent check
-        await run_most_recent_check();
-        
-        // Send a success response
-        res.status(200).json({
-            message: 'Hourly report check completed successfully.',
-        });
-    } catch (error) {
-        console.error('Error running most recent check:', error);
-        
-        // Send an error response
-        res.status(500).json({
-            message: 'An error occurred while running the hourly report check.',
-            error: error.message || 'Internal Server Error',
-        });
-    }
+            if (no_data_message) {
+                // Send a follow-up message to Slack
+                await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, no_data_message);
+            }
+    
+            if (slack_message_leads && slack_message_lead_response) {
+    
+                // Send a follow-up message to Slack
+                await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, slack_message_leads);
+                await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, slack_message_lead_response);
+            };
+    
+        } catch (error) {
+            console.error('Error quering or sending leads:', error);
+    
+        }
+    }, 3000);
 });
 
 // Function to send follow-up message to Slack
 async function sendFollowUpMessage(channelId, channelName, userId, userName, message) {
     try {
-        if(channelId && message && channelName !== "directmessage"){
+        if (channelId && message && channelName !== "directmessage") {
             await slackClient.chat.postEphemeral({
                 channel: channelId,
                 user: userId,
@@ -173,14 +360,14 @@ async function sendFollowUpMessage(channelId, channelName, userId, userName, mes
 }
 
 async function startNgrok() {
-    try { 
+    try {
         const ngrokUrl = await ngrok.connect(PORT);
         console.log(`Ngrok tunnel established at: ${ngrokUrl}`);
 
         // Fetch tunnel details from the ngrok API
         const apiUrl = 'http://127.0.0.1:4040/api/tunnels';
         const response = await axios.get(apiUrl);
-        
+
         // Log tunnel information
         response.data.tunnels.forEach(tunnel => {
             // console.log({tunnel});
@@ -194,6 +381,17 @@ async function startNgrok() {
         console.error(`Could not create ngrok tunnel: ${error}`);
     }
 }
+
+// Clean up on exit
+async function cleanup() {
+    console.log('\nGracefully shutting down...');
+
+    process.exit();
+}
+
+// Handle termination signals
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
 
 // Start the server
 app.listen(PORT, () => {

@@ -5,7 +5,6 @@ dotenv.config({ path: "../.env" }); // adding the path ensures each folder will 
 const mysql = require('mysql2');
 const { Client } = require('ssh2');
 const sshClient = new Client();
-
 const { forwardConfig, dbConfigLeadsProduction, sshConfigLeadsProduction  } = require('../utilities/config');
 
 // const { query_lead_stats } = require('./query_lead_stats_111524');

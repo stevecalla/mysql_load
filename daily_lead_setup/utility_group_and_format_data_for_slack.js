@@ -472,7 +472,7 @@ async function create_table_output(data, segmentField, is_value_only) {
     let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
 
     // Helper function to map data based on whether it is "Today" or "Yesterday"
-    const mapDataBySegment = (segmentData, dateType) => {
+    // const mapDataBySegment = (segmentData, dateType) => {
         return segmentData.map(item => {
             return {
                 [dateType]: item.renting_in_country || item.source_name, // Changed 'renting_in_country' to 'renting_in_segment'
@@ -484,7 +484,7 @@ async function create_table_output(data, segmentField, is_value_only) {
                 "% Conv": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
 
                 "Same": item[`${dateType.toLowerCase()}_same_day_confirmed`] === 0 ? "" : item[`${dateType.toLowerCase()}_same_day_confirmed`],
-                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
+                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion_same_day`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion_same_day`],
             };
         });
     };
