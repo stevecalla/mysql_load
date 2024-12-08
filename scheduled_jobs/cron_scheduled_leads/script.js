@@ -1,4 +1,4 @@
-console.log(`\nHello - RUN DAILY BOOKING JOB`);
+console.log(`\nHello - RUN SCHEDULED LEADS JOB`);
 console.log("Current Date and Time:", new Date().toLocaleString());
 
 fetch('http://localhost:8000/scheduled-leads')

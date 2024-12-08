@@ -93,7 +93,7 @@ app.post('/get-bookings', async (req, res) => {
 });
 
 // Endpoint to handle "/update-leads" command
-app.post('/update-leads/:interval', async (req, res) => {
+app.post('/update-leads/:interval?', async (req, res) => {
     console.log('Update leads route received request to update stats:', {
         body: req.body,
         headers: req.headers,
