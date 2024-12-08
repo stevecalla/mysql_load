@@ -6,6 +6,7 @@ async function query_lead_data() {
             -- COMMENT OUT THE THREE FIELDS BELOW AS WELL AS THE RELATED GROUP BY TO SEE A ROLLUP OF THE DATA
             , query_source
             , renting_in_country
+            , renting_in_country_abb
             , source_name
             , shift
             , response_time_bin
@@ -82,7 +83,7 @@ async function query_lead_data() {
             ) AS max_created_on_gst
 
         FROM lead_response_data
-        GROUP BY created_on_pst, 2, 3, 4, 5, 6
+        GROUP BY created_on_pst, 2, 3, 4, 5, 6, 7
         -- GROUP BY created_on_pst
         ORDER BY created_on_pst DESC
     `;

@@ -1,41 +1,18 @@
 const dayjs = require('dayjs');
-const { lead_data } = require('./seed_data_112924');
+const { lead_data } = require('./seed_data_120624');
 
 async function create_summary(data, option, segmentField, is_value_only) {
     let summary = '';
-    let emoji = option.includes('today') ? '⏳' : '🍿';
-    const day_label = option.includes('today') ? 'Today:       ' : 'Yesterday: ';
-  
-    if (segmentField === 'renting_in_country') {
-        data.forEach(item => {
-            const { renting_in_country } = item;
-    
-            // Get the first three characters in uppercase or 'UAE' for United Arab Emirates
-            const countryCode = renting_in_country === 'United Arab Emirates' ? 'UAE' : renting_in_country.slice(0, 3).toUpperCase();
-    
-            // Dynamically access the value using the 'option' key
-            const value = item[option] || 0;  // Default to 0 if the key is not found
-    
-            // Append to summary
-            is_value_only ? summary += `${value}, ` : summary += `${countryCode}: ${value}, `;
-            // is_value_only && option.includes('booking') ? summary += `${value}, ` : summary += `${countryCode}: ${value}, `;
-        })
-    } else if (
-        data.forEach(item => {
-            const { source_name } = item;
-    
-            // Dynamically access the value using the 'option' key
-            const value = item[option] || 0;  // Default to 0 if the key is not found
-    
-            // Append to summary
-            is_value_only ? summary += `${value}, ` : summary += `${source_name}: ${value}, `;
-            // is_value_only && option.includes('booking') ? summary += `${value}, ` : summary += `${source_name}: ${value}, `;
-        })
-    );
 
-    summary =  option.includes('booking') && is_value_only ? `${summary.slice(0, -2)}` : `${emoji} ${day_label} ${summary.slice(0, -2)}`;
-    
-    return summary
+    data.forEach(item => {
+        const segmentValue = item[segmentField] || "Unknown";
+        const value = item[option] || 0; // Get the value dynamically
+
+        // Append to the summary
+        is_value_only ? (summary += `${value}, `) : (summary += `${segmentValue}: ${value}, `);
+    });
+
+    return summary.slice(0, -2); // Remove trailing comma and space
 }
 
 async function sort_segment(data, criteria) {
@@ -121,428 +98,446 @@ function conversion(booking_confirmed, leads) {
 }
 
 async function rollup_by_segment(data, segmentField) {
-    // Create a result object to store the rolled-up data for Yesterday and Today
+    // Create a result object to store the rolled-up data by `created_on_pst` and segmentField
     const result = {};
 
-    // Track unique dates and segment values (e.g., country, source, etc.)
-    const uniqueDates = new Set();
-    const uniqueSegments = new Set();
-
-    // Step 1: Gather all unique dates and segments from the data
+    // Step 1: Iterate over the data and aggregate by `created_on_pst` and segmentField
     data.forEach(item => {
         const {
             created_on_pst,
-            
             count_leads_total,
             count_leads_invalid,
             count_leads_valid,
-
             count_booking_id_cancelled_total,
             count_booking_id_not_cancelled_total,
             count_booking_id_total,
-
             count_booking_same_day_rental_status_cancelled_distinct,
             count_booking_same_day_rental_status_not_cancelled_distinct,
             count_booking_same_day_rental_status_distinct_total,
         } = item;
 
-        let segmentValue = item[segmentField] || "Unknown"; // Get the segment value dynamically (e.g., renting_in_country, source_name, etc.)
+        const segmentValue = item[segmentField] || "Unknown"; // Get the segment value dynamically
 
-        // Handle any special cases (e.g., converting "UNI" to "UAE")
-        if (segmentField === "renting_in_country" && segmentValue.slice(0, 3).toUpperCase() === "UNI") {
-            segmentValue = "UAE";
-        }
-
-        // Add to unique sets
-        uniqueDates.add(created_on_pst);
-        uniqueSegments.add(segmentValue);
-
-        const key = `${created_on_pst}_${segmentValue}`; // Create a unique key based on the date and segment value
+        // Create a unique key based on the date and segment value
+        const key = `${created_on_pst}_${segmentValue}`;
 
         // If the key does not exist in the result, initialize it
         if (!result[key]) {
             result[key] = {
                 created_on_pst,
                 [segmentField]: segmentValue,
-
                 leads_total: 0,
                 leads_invalid: 0,
                 leads_valid: 0,
-
                 count_booking_id_cancelled_total: 0,
                 count_booking_id_not_cancelled_total: 0,
                 count_booking_id_total: 0,
-
                 count_booking_same_day_rental_status_cancelled_distinct: 0,
                 count_booking_same_day_rental_status_not_cancelled_distinct: 0,
                 count_booking_same_day_rental_status_distinct_total: 0,
             };
         }
 
-        // Add the count_leads_valid and other values to the totals for that key
+        // Aggregate values
         result[key].leads_total += count_leads_total;
         result[key].leads_invalid += count_leads_invalid;
         result[key].leads_valid += count_leads_valid;
-
         result[key].count_booking_id_cancelled_total += count_booking_id_cancelled_total;
         result[key].count_booking_id_not_cancelled_total += count_booking_id_not_cancelled_total;
         result[key].count_booking_id_total += count_booking_id_total;
-
         result[key].count_booking_same_day_rental_status_cancelled_distinct += count_booking_same_day_rental_status_cancelled_distinct;
         result[key].count_booking_same_day_rental_status_not_cancelled_distinct += count_booking_same_day_rental_status_not_cancelled_distinct;
         result[key].count_booking_same_day_rental_status_distinct_total += count_booking_same_day_rental_status_distinct_total;
     });
 
-    // Step 2: Ensure each segment has entries for "Yesterday" and "Today" with leads_valid set to 0 if missing
-    const minDate = Math.min(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
-    const maxDate = Math.max(...Array.from(uniqueDates).map(d => new Date(d).getTime()));
-    const minDateStr = new Date(minDate).toISOString().split("T")[0]; // format as 'YYYY-MM-DD'
-    const maxDateStr = new Date(maxDate).toISOString().split("T")[0]; // format as 'YYYY-MM-DD'
-
-    uniqueSegments.forEach(segment => {
-        // Create entries for "Yesterday" and "Today" for each segment
-        if (!result[`${minDateStr}_${segment}`]) {
-            result[`${minDateStr}_${segment}`] = {
-                created_on_pst: "Yesterday",
-                [segmentField]: segment,
-                leads_total: 0,
-                leads_invalid: 0,
-                leads_valid: 0,
-
-                count_booking_id_cancelled_total: 0,
-                count_booking_id_not_cancelled_total: 0,
-                count_booking_id_total: 0,
-
-                count_booking_same_day_rental_status_cancelled_distinct: 0,
-                count_booking_same_day_rental_status_not_cancelled_distinct: 0,
-                count_booking_same_day_rental_status_distinct_total: 0,
-            };
-        }
-        if (!result[`${maxDateStr}_${segment}`]) {
-            result[`${maxDateStr}_${segment}`] = {
-                created_on_pst: "Today",
-                [segmentField]: segment,
-                leads_total: 0,
-                leads_invalid: 0,
-                leads_valid: 0,
-
-                count_booking_id_cancelled_total: 0,
-                count_booking_id_not_cancelled_total: 0,
-                count_booking_id_total: 0,
-
-                count_booking_same_day_rental_status_cancelled_distinct: 0,
-                count_booking_same_day_rental_status_not_cancelled_distinct: 0,
-                count_booking_same_day_rental_status_distinct_total: 0,
-            };
-        }
-    });
-
-    // Step 3: Organize the final output as [{ segment, yesterday: value, today: value }]
-    const finalResult = [];
-    let overallYesterdayTotal = 0;
-    let overallYesterdayInvalid = 0;
-    let overallYesterdayValid = 0;
-
-    let overallTodayTotal = 0;
-    let overallTodayInvalid = 0;
-    let overallTodayValid = 0;
-
-    let overallYesterdayBookingCancelled = 0;
-    let overallYesterdayBookingTotal = 0;
-    let overallYesterdayBookingConfirmed = 0;
-
-    let overallTodayBookingCancelled = 0;
-    let overallTodayBookingConfirmed = 0;
-    let overallTodayBookingTotal = 0;
-
-    let overallYesterdaySameDayCancelledDistinct = 0;
-    let overallYesterdaySameDayNotCancelledDistinct = 0;
-    let overallYesterdaySameDayDistinctTotal = 0;
-
-    let overallTodaySameDayCancelledDistinct = 0;
-    let overallTodaySameDayNotCancelledDistinct = 0;
-    let overallTodaySameDayDistinctTotal = 0;
-
-    uniqueSegments.forEach(segment => {
-        const yesterdayData = result[`${minDateStr}_${segment}`] || {};
-        const todayData = result[`${maxDateStr}_${segment}`] || {};
-
-        const yesterdayLeadsTotal = yesterdayData.leads_total || 0;
-        const yesterdayLeadsInvalid = yesterdayData.leads_invalid || 0;
-        const yesterdayLeadsValid = yesterdayData.leads_valid || 0;
-
-        const todayLeadsTotal = todayData.leads_total || 0;
-        const todayLeadsInvalid = todayData.leads_invalid || 0;
-        const todayLeadsValid = todayData.leads_valid || 0;
-
-        const yesterday_booking_cancelled = yesterdayData.count_booking_id_cancelled_total || 0;
-        const yesterday_booking_confirmed = yesterdayData.count_booking_id_not_cancelled_total || 0;
-        const yesterday_booking_total = yesterdayData.count_booking_id_total || 0;
-
-        const today_booking_cancelled = todayData.count_booking_id_cancelled_total || 0;
-        const today_booking_confirmed = todayData.count_booking_id_not_cancelled_total || 0;
-        const today_booking_total = todayData.count_booking_id_total || 0;
-
-        const yesterdayBookingConversion = conversion(yesterday_booking_confirmed, yesterdayLeadsValid) || "error";
-        const todayBookingConversion = conversion(today_booking_confirmed, todayLeadsValid) || "error";
-
-        const yesterday_same_day_cancelled = yesterdayData.count_booking_same_day_rental_status_cancelled_distinct || 0;
-        const yesterday_same_day_confirmed = yesterdayData.count_booking_same_day_rental_status_not_cancelled_distinct || 0;
-        const yesterday_same_day_total = yesterdayData.count_booking_same_day_rental_status_distinct_total || 0;
-        
-        const today_same_day_cancelled = todayData.count_booking_same_day_rental_status_cancelled_distinct || 0;
-        const today_same_day_confirmed = todayData.count_booking_same_day_rental_status_not_cancelled_distinct || 0;
-        const today_same_day_total = todayData.count_booking_same_day_rental_status_distinct_total || 0;
-
-        const yesterdaySameDayBookingConversion = conversion(yesterday_same_day_confirmed, yesterdayLeadsValid) || "error";
-        const todaySameDAyBookingConversion = conversion(today_same_day_confirmed, todayLeadsValid) || "error";
-
-        finalResult.push({
-            [segmentField]: segment,
-
-            yesterday_leads_total: yesterdayLeadsTotal,
-            yesterday_leads_invalid: yesterdayLeadsInvalid,
-            yesterday_leads_valid: yesterdayLeadsValid,
-            
-            today_leads_total: todayLeadsTotal,
-            today_leads_invalid: todayLeadsInvalid,
-            today_leads_valid: todayLeadsValid,
-
-            yesterday_booking_cancelled,
-            yesterday_booking_confirmed,
-            yesterday_booking_total,
-
-            today_booking_cancelled,
-            today_booking_confirmed,
-            today_booking_total,
-
-            yesterday_booking_conversion: yesterdayBookingConversion,
-            today_booking_conversion: todayBookingConversion,
-
-            yesterday_same_day_cancelled,
-            yesterday_same_day_confirmed,
-            yesterday_same_day_total,
-
-            today_same_day_cancelled,
-            today_same_day_confirmed,
-            today_same_day_total,
-
-            yesterday_booking_conversion_same_day: yesterdaySameDayBookingConversion,
-            today_booking_conversion_same_day: todaySameDAyBookingConversion,
-        });
-
-        // Accumulate overall totals
-        overallYesterdayTotal += yesterdayLeadsTotal;
-        overallYesterdayInvalid += yesterdayLeadsInvalid;
-        overallYesterdayValid += yesterdayLeadsValid;
-
-        overallTodayTotal += todayLeadsTotal;
-        overallTodayInvalid += todayLeadsInvalid;
-        overallTodayValid += todayLeadsValid;
-
-        overallYesterdayBookingCancelled += yesterday_booking_cancelled;
-        overallYesterdayBookingConfirmed += yesterday_booking_confirmed;
-        overallYesterdayBookingTotal += yesterday_booking_total;
-
-        overallTodayBookingCancelled += today_booking_cancelled;
-        overallTodayBookingConfirmed += today_booking_confirmed;
-        overallTodayBookingTotal += today_booking_total;
-
-        overallYesterdaySameDayCancelledDistinct += yesterday_same_day_cancelled;
-        overallYesterdaySameDayNotCancelledDistinct += yesterday_same_day_confirmed;
-        overallYesterdaySameDayDistinctTotal += yesterday_same_day_total;
-
-        overallTodaySameDayCancelledDistinct += today_same_day_cancelled;
-        overallTodaySameDayNotCancelledDistinct += today_same_day_confirmed;
-        overallTodaySameDayDistinctTotal += today_same_day_total;
-    });
-
-    // Step 4: Add the "ALL" total entry
-    const overallYesterdayBookingConversion = conversion(overallYesterdayBookingConfirmed, overallYesterdayValid) || "error";
-    const overallTodayBookingConversion = conversion(overallTodayBookingConfirmed, overallTodayValid) || "error";
-
-    const overallYesterdayBookingConversionSameDay = conversion(overallYesterdaySameDayNotCancelledDistinct, overallYesterdayValid) || "error";
-    const overallTodayBookingConversionSameDay = conversion(overallTodaySameDayNotCancelledDistinct, overallTodayValid) || "error";
-
-    finalResult.push({
-        [segmentField]: "ALL",
-        
-        yesterday_leads_total: overallYesterdayTotal,
-        yesterday_leads_invalid: overallYesterdayInvalid,
-        yesterday_leads_valid: overallYesterdayValid,
-
-        today_leads_total: overallTodayTotal,
-        today_leads_invalid: overallTodayInvalid,
-        today_leads_valid: overallTodayValid,
-
-        yesterday_booking_cancelled: overallYesterdayBookingCancelled,
-        yesterday_booking_confirmed: overallYesterdayBookingConfirmed,
-        yesterday_booking_total: overallYesterdayBookingTotal,
-
-        today_booking_cancelled: overallTodayBookingCancelled,
-        today_booking_confirmed: overallTodayBookingConfirmed,
-        today_booking_total: overallTodayBookingTotal,
-
-        yesterday_booking_conversion: overallYesterdayBookingConversion,
-        today_booking_conversion: overallTodayBookingConversion,
-
-        yesterday_same_day_cancelled: overallYesterdaySameDayCancelledDistinct,
-        yesterday_same_day_confirmed: overallYesterdaySameDayNotCancelledDistinct,
-        yesterday_same_day_total: overallYesterdaySameDayDistinctTotal,
-        
-        today_same_day_cancelled: overallTodaySameDayCancelledDistinct,
-        today_same_day_confirmed: overallTodaySameDayNotCancelledDistinct,
-        today_same_day_total: overallTodaySameDayDistinctTotal,
-
-        yesterday_booking_conversion_same_day: overallYesterdayBookingConversionSameDay,
-        today_booking_conversion_same_day: overallTodayBookingConversionSameDay,
-    });
-
-    // Step 5: Return the final result
-    return finalResult;
+    // Step 2: Convert the result object to an array
+    return Object.values(result);
 }
 
-async function create_text_output(data, segmentField, is_value_only) {
-    const option_stats = [
-        'yesterday_leads_valid', 
-        'today_leads_valid',
-        'yesterday_booking_cancelled',
-        'yesterday_booking_confirmed',
-        'yesterday_booking_total',
-        'today_booking_cancelled',
-        'today_booking_confirmed',
-        'today_booking_total',
-        'yesterday_booking_conversion',
-        'today_booking_conversion',
-    ];
-
-    // SEGMENT ROLLUPS
-    const segment_rollup = await rollup_by_segment(data, segmentField);
-    let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
-
-    // Remove 'ALL' if there are only two objects in the array
-    segment_rollup_sorted = segment_rollup_sorted.length === 2 ? segment_rollup_sorted.filter(item => item.renting_in_country !== 'ALL') : segment_rollup_sorted;
-
-    // ALL COUNTRIES WITH YESTERDAY & TODAY
-    const output_text = {};
-
-    for (let i = 0; i < option_stats.length; i++) {
-        const formatted_output = await create_summary(segment_rollup_sorted, option_stats[i], segmentField, is_value_only);
-        output_text[option_stats[i]] = formatted_output;
-    }
-
-    return output_text;
-}
-
-async function create_all_country_rollup_text_output(data, segmentField, is_value_only) {
-    const option_stats = [
-        'yesterday_leads_valid', 
-        'today_leads_valid',
-        'yesterday_booking_cancelled',
-        'yesterday_booking_confirmed',
-        'yesterday_booking_total',
-        'today_booking_cancelled',
-        'today_booking_confirmed',
-        'today_booking_total',
-        'yesterday_booking_conversion',
-        'today_booking_conversion',
-    ];
-
-    // SEGMENT ROLLUPS
-    const segment_rollup = await rollup_by_segment(data, segmentField);
-    let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
-
-    // Remove 'ALL' if there are only two objects in the array
-    segment_rollup_sorted = segment_rollup_sorted.filter(item => item.renting_in_country === 'ALL');
-
-    // ALL COUNTRIES WITH YESTERDAY & TODAY
-    const output_text = {};
-
-    for (let i = 0; i < option_stats.length; i++) {
-        const formatted_output = await create_summary(segment_rollup_sorted, option_stats[i], segmentField, is_value_only);
-        output_text[option_stats[i]] = formatted_output;
-    }
-
-    return output_text;
-}
-
-async function create_table_output(data, segmentField, is_value_only) {
-    // SEGMENT ROLLUPS
-    const segment_rollup = await rollup_by_segment(data, segmentField);
-    let segment_rollup_sorted = await sort_segment(segment_rollup, segmentField);
-
-    // Helper function to map data based on whether it is "Today" or "Yesterday"
-    const mapDataBySegment = (segmentData, dateType) => {
-
-        console.log(segmentData);
-
-        return segmentData.map(item => {
-            return {
-                [dateType]: item.renting_in_country || item.source_name || item.shift || item.response_time_bin, // Changed 'renting_in_country' to 'renting_in_segment'
-                
-                "All": item[`${dateType.toLowerCase()}_leads_total`] === 0 ? "" : item[`${dateType.toLowerCase()}_leads_total`],
-                Valid: item[`${dateType.toLowerCase()}_leads_valid`] === 0 ? "" : item[`${dateType.toLowerCase()}_leads_valid`],
-
-                "Conf": item[`${dateType.toLowerCase()}_booking_confirmed`] === 0 ? "" : item[`${dateType.toLowerCase()}_booking_confirmed`],
-                "% Conv": item[`${dateType.toLowerCase()}_booking_conversion`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion`],
-
-                "Same": item[`${dateType.toLowerCase()}_same_day_confirmed`] === 0 ? "" : item[`${dateType.toLowerCase()}_same_day_confirmed`],
-                "% Conv ": item[`${dateType.toLowerCase()}_booking_conversion_same_day`] === "0%" ? "" : item[`${dateType.toLowerCase()}_booking_conversion_same_day`],
-            };
-        });
+async function create_table_output(data, segmentField) {
+    // Initialize totals for columns
+    const columnTotals = {
+        [segmentField]: "Total", // Label for the totals row
+        All: 0,
+        Valid: 0,
+        Conf: 0,
+        "% Conv": "",
+        Same: 0,
+        "% Conv ": "",
     };
 
-    // Get "Today" and "Yesterday" data by segment
-    let today_data_by_segment = mapDataBySegment(segment_rollup_sorted, "Today");
-    let yesterday_data_by_segment = mapDataBySegment(segment_rollup_sorted, "Yesterday");
+    // Map data and calculate row totals
+    const tableData = data.map(item => {
+        const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
 
-    // Format the tables
-    let today_table_by_segment = await format_table(today_data_by_segment);
-    let yesterday_table_by_segment = await format_table(yesterday_data_by_segment);
-    
-    return { today_table_by_segment, yesterday_table_by_segment };
+        const row = {
+            [segmentField]: item[segmentField] || "Unknown",
+            All: formatValue(item.leads_total || 0),
+            Valid: formatValue(item.leads_valid || 0),
+            Conf: formatValue(item.count_booking_id_not_cancelled_total || 0),
+            "% Conv": formatValue(conversion(item.count_booking_id_not_cancelled_total, item.leads_valid)),
+            Same: formatValue(item.count_booking_same_day_rental_status_not_cancelled_distinct || 0),
+            "% Conv ": formatValue(conversion(item.count_booking_same_day_rental_status_not_cancelled_distinct, item.leads_valid)),
+        };
+
+        // Update column totals
+        columnTotals.All += item.leads_total || 0;
+        columnTotals.Valid += item.leads_valid || 0;
+        columnTotals.Conf += item.count_booking_id_not_cancelled_total || 0;
+        columnTotals.Same += item.count_booking_same_day_rental_status_not_cancelled_distinct || 0;
+
+        return row;
+    });
+
+    // Add a column total for "% Conv" and "% Conv "
+    columnTotals["% Conv"] = conversion(columnTotals.Conf, columnTotals.Valid);
+    columnTotals["% Conv "] = conversion(columnTotals.Same, columnTotals.Valid);
+
+    // Format the totals row
+    for (const key in columnTotals) {
+        if (key !== segmentField && key !== "% Conv" && key !== "% Conv ") {
+            columnTotals[key] = columnTotals[key] === 0 ? "" : columnTotals[key];
+        }
+    }
+
+    // Add a "Total" column to each row
+    tableData.forEach(row => {
+        row.Total = row.All || ""; // Use "All" as the row total for simplicity, replace 0 with ""
+    });
+
+    // Add the overall total for the "Total" column
+    columnTotals.Total = columnTotals.All || "";
+
+    // Append the totals row at the end
+    tableData.push(columnTotals);
+
+    // Format and return the table
+    return format_table(tableData);
 }
 
-async function group_and_format_data_for_slack(data) {
+async function create_response_time_vs_shift_lead_table(data) {
+    // Initialize the result object
+    const pivotTable = {};
+
+    // Step 1: Aggregate data by response_time_bin and shift
+    data.forEach(item => {
+        const responseTimeBin = item.response_time_bin || "Unknown";
+        const shift = item.shift || "Unknown";
+
+        // Initialize the row if it doesn't exist
+        if (!pivotTable[responseTimeBin]) {
+            pivotTable[responseTimeBin] = { response_time_bin: responseTimeBin, total: 0 };
+        }
+
+        // Add the count for this shift
+        if (!pivotTable[responseTimeBin][shift]) {
+            pivotTable[responseTimeBin][shift] = 0;
+        }
+
+        pivotTable[responseTimeBin][shift] += item.count_leads_valid || 0; // Use confirmed/valid leads
+        pivotTable[responseTimeBin].total += item.count_leads_valid || 0; // Update row total
+    });
+
+    // Step 2: Convert the pivotTable object into an array and calculate column totals
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const columnTotals = { response_time_bin: "Total", total: 0 };
+
+    const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
+
+    const tableData = Object.values(pivotTable).map(row => {
+        allShifts.forEach(shift => {
+            if (!row[shift]) {
+                row[shift] = 0; // Fill missing columns with 0
+            }
+            columnTotals[shift] = (columnTotals[shift] || 0) + row[shift]; // Update column total
+        });
+        columnTotals.total += row.total; // Update overall total
+
+        // Format row values
+        allShifts.forEach(shift => {
+            row[shift] = formatValue(row[shift]);
+        });
+        row.total = formatValue(row.total);
+
+        return row;
+    });
+
+    // Add the column totals as the last row
+    allShifts.forEach(shift => {
+        columnTotals[shift] = formatValue(columnTotals[shift]);
+    });
+    columnTotals.total = formatValue(columnTotals.total);
+    tableData.push(columnTotals);
+
+    // Step 3: Sort rows by response_time_bin
+    tableData.sort((a, b) => {
+        if (a.response_time_bin === "Total") return 1; // Ensure "Grand Total" is always last
+        if (b.response_time_bin === "Total") return -1;
+        return a.response_time_bin.localeCompare(b.response_time_bin); // Alphabetical order
+    });
+
+    // Step 4: Sort column headers (shifts)
+    const sortedTableData = tableData.map(row => {
+        const sortedRow = {};
+        sortedRow.response_time_bin = row.response_time_bin;
+        allShifts.forEach(shift => {
+            sortedRow[shift] = row[shift]; // Preserve sorted column order
+        });
+        sortedRow.total = row.total; // Append row total
+        return sortedRow;
+    });
+
+    // Step 5: Format the table
+    return format_table(sortedTableData);
+}
+
+async function create_response_time_vs_shift_booking_table(data) {
+    // Initialize the result object
+    const pivotTable = {};
+
+    // Step 1: Aggregate data by response_time_bin and shift
+    data.forEach(item => {
+        const responseTimeBin = item.response_time_bin || "Unknown";
+        const shift = item.shift || "Unknown";
+
+        // Initialize the row if it doesn't exist
+        if (!pivotTable[responseTimeBin]) {
+            pivotTable[responseTimeBin] = { response_time_bin: responseTimeBin, total: 0 };
+        }
+
+        // Add the count for this shift
+        if (!pivotTable[responseTimeBin][shift]) {
+            pivotTable[responseTimeBin][shift] = 0;
+        }
+
+        pivotTable[responseTimeBin][shift] += item.count_booking_id_not_cancelled_total || 0; // Use bookings
+        pivotTable[responseTimeBin].total += item.count_booking_id_not_cancelled_total || 0; // Update row total
+    });
+
+    // Step 2: Convert the pivotTable object into an array and calculate column totals
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const columnTotals = { response_time_bin: "Total", total: 0 };
+
+    const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
+
+    const tableData = Object.values(pivotTable).map(row => {
+        allShifts.forEach(shift => {
+            if (!row[shift]) {
+                row[shift] = 0; // Fill missing columns with 0
+            }
+            columnTotals[shift] = (columnTotals[shift] || 0) + row[shift]; // Update column total
+        });
+        columnTotals.total += row.total; // Update overall total
+
+        // Format row values
+        allShifts.forEach(shift => {
+            row[shift] = formatValue(row[shift]);
+        });
+        row.total = formatValue(row.total);
+
+        return row;
+    });
+
+    // Add the column totals as the last row
+    allShifts.forEach(shift => {
+        columnTotals[shift] = formatValue(columnTotals[shift]);
+    });
+    columnTotals.total = formatValue(columnTotals.total);
+    tableData.push(columnTotals);
+
+    // Step 3: Sort rows by response_time_bin
+    tableData.sort((a, b) => {
+        if (a.response_time_bin === "Total") return 1; // Ensure "Grand Total" is always last
+        if (b.response_time_bin === "Total") return -1;
+        return a.response_time_bin.localeCompare(b.response_time_bin); // Alphabetical order
+    });
+
+    // Step 4: Sort column headers (shifts)
+    const sortedTableData = tableData.map(row => {
+        const sortedRow = {};
+        sortedRow.response_time_bin = row.response_time_bin;
+        allShifts.forEach(shift => {
+            sortedRow[shift] = row[shift]; // Preserve sorted column order
+        });
+        sortedRow.total = row.total; // Append row total
+        return sortedRow;
+    });
+
+    // Step 5: Format the table
+    return format_table(sortedTableData);
+}
+
+async function create_response_time_vs_shift_conversion_table(data) {
+    // Initialize the result object
+    const pivotTable = {};
+
+    // Step 1: Aggregate data by response_time_bin and shift
+    data.forEach(item => {
+        const responseTimeBin = item.response_time_bin || "Unknown";
+        const shift = item.shift || "Unknown";
+
+        // Initialize the row if it doesn't exist
+        if (!pivotTable[responseTimeBin]) {
+            pivotTable[responseTimeBin] = {
+                response_time_bin: responseTimeBin,
+                total_valid_leads: 0,
+                total_not_cancelled: 0,
+                conversion: "0%",
+            };
+        }
+
+        // Initialize the shift column if it doesn't exist
+        if (!pivotTable[responseTimeBin][shift]) {
+            pivotTable[responseTimeBin][shift] = {
+                valid_leads: 0,
+                not_cancelled: 0,
+            };
+        }
+
+        // Update counts for the current shift
+        pivotTable[responseTimeBin][shift].valid_leads += item.count_leads_valid || 0;
+        pivotTable[responseTimeBin][shift].not_cancelled += item.count_booking_id_not_cancelled_total || 0;
+
+        // Update row totals
+        pivotTable[responseTimeBin].total_valid_leads += item.count_leads_valid || 0;
+        pivotTable[responseTimeBin].total_not_cancelled += item.count_booking_id_not_cancelled_total || 0;
+    });
+
+    // Step 2: Calculate column totals and prepare the table
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const columnTotals = {
+        response_time_bin: "Total",
+        total_valid_leads: 0,
+        total_not_cancelled: 0,
+        conversion: "0%",
+    };
+
+    const tableData = Object.values(pivotTable).map(row => {
+        const rowData = {
+            response_time_bin: row.response_time_bin,
+        };
+
+        allShifts.forEach(shift => {
+            const shiftData = row[shift] || { valid_leads: 0, not_cancelled: 0 };
+
+            // Calculate conversion percentage for each shift
+            rowData[shift] = shiftData.valid_leads > 0
+                ? ((shiftData.not_cancelled / shiftData.valid_leads) * 100).toFixed(0) + "%"
+                : "";
+
+            // Update column totals
+            columnTotals[shift] = columnTotals[shift] || { valid_leads: 0, not_cancelled: 0 };
+            columnTotals[shift].valid_leads += shiftData.valid_leads;
+            columnTotals[shift].not_cancelled += shiftData.not_cancelled;
+
+            // Add to overall totals
+            columnTotals.total_valid_leads += shiftData.valid_leads;
+            columnTotals.total_not_cancelled += shiftData.not_cancelled;
+        });
+
+        // Calculate row conversion
+        rowData.total = row.total_valid_leads > 0
+            ? ((row.total_not_cancelled / row.total_valid_leads) * 100).toFixed(0) + "%"
+            : "";
+
+        return rowData;
+    });
+
+    // Calculate column conversion percentages
+    const formattedColumnTotals = {
+        response_time_bin: "Total",
+    };
+
+    allShifts.forEach(shift => {
+        const shiftTotals = columnTotals[shift];
+        formattedColumnTotals[shift] = shiftTotals.valid_leads > 0
+            ? ((shiftTotals.not_cancelled / shiftTotals.valid_leads) * 100).toFixed(0) + "%"
+            : "";
+    });
+
+    // Calculate overall conversion percentage
+    formattedColumnTotals.total = columnTotals.total_valid_leads > 0
+        ? ((columnTotals.total_not_cancelled / columnTotals.total_valid_leads) * 100).toFixed(0) + "%"
+        : "";
+
+    // Add column totals as the last row
+    tableData.push(formattedColumnTotals);
+
+    // Step 3: Sort rows by response_time_bin, keeping the total row last
+    const sortedTableData = tableData.filter(row => row.response_time_bin !== "Total").sort((a, b) => {
+        return a.response_time_bin.localeCompare(b.response_time_bin);
+    });
+
+    // Add the total row at the end
+    sortedTableData.push(formattedColumnTotals);
+
+    // Step 4: Format the table
+    return format_table(sortedTableData);
+}
+
+async function group_and_format_data_for_slack(data, date = null, countryFilter = null) {
+
+    // Step 1: Find the max created_on_pst
+    const maxCreatedOnPst = data.reduce((max, item) => {
+        return item.created_on_pst > max ? item.created_on_pst : max;
+    }, data[0]?.created_on_pst || null);
+
+    // Use the provided date parameter or the max created_on_pst as default
+    const effectiveDate = date || maxCreatedOnPst;
+
+    // Step 2: Filter data by date
+    let filteredData = data.filter(item => item.created_on_pst === effectiveDate);
+
+    // Step 3: Apply country filter if provided
+    if (countryFilter) {
+        filteredData = filteredData.filter(item => item.renting_in_country_abb === countryFilter);
+    }
+
+    // COUNTRY ROLLUP
     const country = 'renting_in_country';
+    const country_rollup = await rollup_by_segment(filteredData, country);
+    const country_sorted_rollup = await sort_segment(country_rollup, country);
+    const country_table_output = await create_table_output(country_sorted_rollup, country);
+    // console.log(country_table_output);
+
+    // SOURCE ROLLUP
     const source = 'source_name';
+    const source_rollup = await rollup_by_segment(filteredData, source);
+    const source_sorted_rollup = await sort_segment(source_rollup, source);
+    const source_table_output = await create_table_output(source_sorted_rollup, source);
+    // console.log(source_table_output);
+
+    // SHIFT ROLLUP
     const shift = 'shift';
-    const response_time_bin = 'response_time_bin';
-    let is_value_only = false; // adjust formatting to only include the value / count not the segmentField & value/count
+    const shift_rollup = await rollup_by_segment(filteredData, shift);
+    const shift_sorted_rollup = await sort_segment(shift_rollup, shift);
+    const shift_table_output = await create_table_output(shift_sorted_rollup, shift);
+    // console.log(shift_table_output);
 
-    // // COUNTRY ROLLUP & OUTPUT TEXT
-    const all_countries_output_text = await create_text_output(data, country, is_value_only);
-    const all_source_output_text = await create_text_output(data, source, is_value_only);
+    // RESPONSE TIME ROLLUP
+    const response_time = 'response_time_bin';
+    const response_time_rollup = await rollup_by_segment(filteredData, response_time);
+    const response_time_sorted_rollup = await sort_segment(response_time_rollup, response_time);
+    const response_time_table_output = await create_table_output(response_time_sorted_rollup, response_time);
+    // console.log(response_time_table_output);
 
-    // SOURCE UAE ONLY ROLLUP & OUTPUT TEXT
-    const uae_only_source = data.filter(({ renting_in_country }) => renting_in_country === 'United Arab Emirates');
-    const uae_only_source_output_text = await create_text_output(uae_only_source, source, is_value_only);
+    // RESPONSE TIME VS SHIFT - LEADS
+    const response_time_by_shift_leads_output = await create_response_time_vs_shift_lead_table(filteredData);
+    // console.log(response_time_by_shift_leads_output);
 
-    is_value_only = true;
-    const uae_only_country_output_text = await create_text_output(uae_only_source, country, is_value_only);
+    // RESPONSE TIME VS SHIFT - BOOKINGS
+    const response_time_by_shift_bookings_output = await create_response_time_vs_shift_booking_table(filteredData);
+    // console.log(response_time_by_shift_bookings_output);
 
-    // CREATE ALL SUMMARY
-    is_value_only = true;
-    const only_all_countries_output_text = await create_all_country_rollup_text_output(data, country, is_value_only);
+    // RESPONSE TIME VS SHIFT - CONVERSION
+    const response_time_by_shift_conversion_output = await create_response_time_vs_shift_conversion_table(filteredData);
+    // console.log(response_time_by_shift_conversion_output);
 
-    // CREATE TABLE OUTPUT
-    is_value_only = false;
-    // CREATES A TABLE FOR TODAY & YESTERDAY BY COUNTRY
-    // const table_output_by_country = await create_table_output(data, country, is_value_only);
-    // const table_output_by_source = await create_table_output(data, source, is_value_only);
-
-    const table_output_by_shift = await create_table_output(data, shift, is_value_only);
-    const table_output_by_response_time = await create_table_output(data, response_time_bin, is_value_only);
-
-    // console.log(table_output_by_country);
-    // console.log(table_output_by_source);
-    console.log(table_output_by_shift);
-    console.log(table_output_by_response_time);
-
-    return { only_all_countries_output_text, all_countries_output_text, all_source_output_text, uae_only_country_output_text, uae_only_source_output_text, table_output_by_country, table_output_by_source };
+    return { effectiveDate, countryFilter, country_table_output, source_table_output, shift_table_output, response_time_table_output, response_time_by_shift_leads_output, response_time_by_shift_bookings_output, response_time_by_shift_conversion_output }
 }
 
-group_and_format_data_for_slack(lead_data);
+// 2nd parameter is date ie 2024-12-05; 3rd parameter is count by first 3 characters or uae
+// group_and_format_data_for_slack(lead_data, '', 'uae');
 
 module.exports = {
     group_and_format_data_for_slack,

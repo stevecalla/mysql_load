@@ -5,6 +5,7 @@ const derived_fields = `
   lead_status_id VARCHAR(255),
   lead_id VARCHAR(50),
   renting_in_country VARCHAR(255),
+  renting_in_country_abb VARCHAR(10),
   source_name VARCHAR(255),
   booking_created_on_utc DATETIME,
   count_lead_id INT,

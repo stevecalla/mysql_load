@@ -1,4 +1,7 @@
-async function query_leads_no_booking(date) {
+const date_interval = 3;
+const date = '2024-12-05';
+
+async function query_leads_no_booking(interval = date_interval) {
     return `
         -- #4) Third subquery: Handles cases where leads do not have associated bookings
             SELECT
@@ -29,7 +32,7 @@ async function query_leads_no_booking(date) {
                         
                 -- Response Time Binning
                 , CASE
-                    WHEN MIN(acl.Created_On) IS NULL THEN '0) No response time'
+                    WHEN MIN(acl.Created_On) IS NULL THEN '0) No response data'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) <= 2 THEN '1) 0-2 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 3 AND 5 THEN '2) 3-5 minutes'
                     WHEN TIMESTAMPDIFF(MINUTE, MIN(lm.created_on), MIN(acl.Created_On)) BETWEEN 6 AND 10 THEN '3) 6-10 minutes'
@@ -39,9 +42,9 @@ async function query_leads_no_booking(date) {
 
                 -- SHIFT BASED ON CREATED TIME
                 , CASE 
-                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '00:00:00' AND '07:59:59') THEN 'AM Shift 12a-8a'
-                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '08:00:00' AND '15:59:59') THEN 'Day Shift 8a-4p'
-                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '16:00:00' AND '23:59:59') THEN 'Night Shift 4p-12a'
+                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '00:00:00' AND '07:59:59') THEN 'AM: 12a-8a'
+                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '08:00:00' AND '15:59:59') THEN 'Day: 8a-4p '
+                        WHEN (CAST(lm.created_on AS TIME) BETWEEN '16:00:00' AND '23:59:59') THEN 'Night: 4p-12a'
                         ELSE NULL
                 END AS shift
 
@@ -62,7 +65,8 @@ async function query_leads_no_booking(date) {
                 LEFT JOIN lead_aswat_Call_Logs acl ON lm.lead_id = acl.Lead_id
 
             WHERE 
-                DATE_FORMAT(lm.created_on, '%Y-%m-%d') = '${date}' -- UTC to PST (Pakistan Standard Time)
+                -- DATE_FORMAT(lm.created_on, '%Y-%m-%d') = '${date}' -- UTC to PST (Pakistan Standard Time)
+                DATE_FORMAT(lm.created_on, '%Y-%m-%d') >= DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 5 HOUR), '%Y-%m-%d') - INTERVAL ${interval} DAY
 
                 AND bm.Booking_id IS NULL
                 

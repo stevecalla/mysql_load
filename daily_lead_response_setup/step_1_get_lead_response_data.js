@@ -291,7 +291,7 @@ async function export_results_to_csv_fast_csv(results, file_name, i) {
 }
 
 // Main function to handle SSH connection and execute queries
-async function execute_get_lead_response_data(date) {
+async function execute_get_lead_response_data(date_interval) {
     let pool;
     const startTime = performance.now();
     const logPath = await determineOSPath();
@@ -328,11 +328,11 @@ async function execute_get_lead_response_data(date) {
 
             let { query, file_name } = query_logic[i];
             
-            if (!date) date = await getPakistanTime();
+            // if (!date) date = await getPakistanTime();
 
-            query = await query(date);
+            query = await query(date_interval);
 
-            results = await execute_query_get_usat_sales_data(pool, query, date);
+            results = await execute_query_get_usat_sales_data(pool, query, date_interval);
 
             stopTimer(`0_get_data`);
 
@@ -343,13 +343,13 @@ async function execute_get_lead_response_data(date) {
             // STEP #4: EXPORT RESULTS TO CSV
             runTimer(`0_export`);
 
-            let file_name_date = `${file_name}_${date}`
+            let file_name_date_interval = `${file_name}_${date_interval}`
 
             // added to catch block in export_results_to_csv
-            // await export_results_to_csv(results, file_name_date, i); 
-            await export_results_to_csv_fast_csv(results, file_name_date, i); 
+            // await export_results_to_csv(results, file_name_interval, i); 
+            await export_results_to_csv_fast_csv(results, file_name_date_interval, i); 
             
-            console.log(file_name_date, date);
+            console.log(file_name_date_interval, date_interval);
 
             stopTimer(`0_export`); 
         }
@@ -399,7 +399,8 @@ async function execute_get_lead_response_data(date) {
 }
 
 // Run the main function
-execute_get_lead_response_data('2024-12-05');
+// let date_interval = 1
+// execute_get_lead_response_data(date_interval);
 
 module.exports = {
     execute_get_lead_response_data,

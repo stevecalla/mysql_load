@@ -5,6 +5,7 @@ const derived_fields = `
     lead_status_id,
     lead_id,
     renting_in_country,
+    -- renting_in_country_abb,
     source_name,
     @booking_created_on_utc,
     count_lead_id,
@@ -18,6 +19,14 @@ const derived_fields = `
 `;
 
 const transform_fields = `
+  -- ABBREVIATION LOGIC FOR RENTING IN COUNTRY
+  renting_in_country_abb = 
+    CASE
+      WHEN renting_in_country = 'United Arab Emirates' THEN LOWER('UAE')
+      ELSE LOWER(SUBSTRING(renting_in_country, 1, 3))
+    END
+    ,
+
 -- ensures nulls show as null
     booking_created_on_utc = 
       CASE 
@@ -61,8 +70,6 @@ function query_load_lead_data(filePath, table) {
     `
   }
     
-  module.exports = {
-    query_load_lead_data,
-  };    
-    
-
+module.exports = {
+  query_load_lead_data,
+};
