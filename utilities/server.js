@@ -9,9 +9,6 @@ const { execute_get_daily_booking_data } = require('../daily_booking_forecast/st
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 // LEADS SETUP
-const { execute_get_daily_lead_data } = require('../daily_lead_setup/step_1_sql_get_daily_lead_data.js');
-const { create_daily_lead_slack_message } = require('../schedule_slack/slack_daily_lead_message');
-
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
 const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_get_slack_lead_data.js');
@@ -19,14 +16,10 @@ const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_g
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
 const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN); // Make sure to set your token; Initialize Slack Web API client
-// const { slack_message_steve_calla_channel } = require('../schedule_slack/slack_steve_calla_channel.js');
-// const { slack_message_400_bookings_channel } = require('../schedule_slack/slack_400_bookings_channel');
-// const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_350_bookings_channel');
-// const { slack_message_bilal_adhi_channel} = require('../schedule_slack/slack_bilal_adhi_channel');
+const { slack_message_api } = require('../schedule_slack/slack_message_api.js');
 
 // NGROK TUNNEL
 const ngrok = require('ngrok');
-const { slack_message_api } = require('../schedule_slack/slack_message_api.js');
 
 // EXPRESS SERVER
 const app = express();
@@ -173,7 +166,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     // TESTING VARIABLES
-    let send_slack_to_calla_test = true;
+    let send_slack_to_calla_test = false;
 
     let { country, date } = req.params;
     let countryFilter = '';
