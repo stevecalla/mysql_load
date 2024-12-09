@@ -93,6 +93,11 @@ app.post('/update-leads/:interval?', async (req, res) => {
         param: req.params,  
     });
 
+    // Immediate acknowledgment to the client
+    res.status(202).json({
+        message: 'Update-leads job started successfully.',
+    });
+
     try {
 
         const date_interval = req.params.interval || 3; // retrieves most recent 4 days of data
@@ -108,28 +113,15 @@ app.post('/update-leads/:interval?', async (req, res) => {
 
         const slack_message = `🔔 Updated leads data with date interval of ${date_interval}. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
 
-
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
-        // Acknowledge the command from Slack immediately to avoid a timeout
-        const processingMessage = `Successfully processed leads data update.`
-
-        res.status(200).json({
-            text: processingMessage,
-        });
-
     } catch (error) {
-        const error_message = `Error in execute_get_lead_response_data. ${error}.`
+        const error_message = `Error in execute_get_lead_response_data. ${error}.`;
 
-        // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
+        // STEP #3 SEND ERROR MESSAGE TO S. CALLA
         console.error(error_message);
         await slack_message_api(error_message, 'steve_calla_slack_channel');
-
-        res.status(500).json({
-            text: `Failed to update lead data. Check server logs for details.`,
-        });
     }
-
 });
 
 // Middleware to address missing country via /scheduled-leads// or /schedule-leads//2024-12-08
@@ -143,6 +135,9 @@ app.use((req, res, next) => {
 
 // Function to handle sending the lead data as test or production
 async function slack_send(message, test) {
+
+    console.log('send to calla ', test);
+
     if (test) {
         await slack_message_api(message, "steve_calla_slack_channel");
         return;
@@ -184,6 +179,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     const valid_countries = ['bah', 'qat', 'sau', 'uae'];
     if (country && !valid_countries.includes(country.toLowerCase())) {
         const error_message = '⚠️ Invalid country. Please enter one of the following: BAH, QAT, SAU, or UAE.';
+        send_slack_to_calla_test = true;
         await slack_send(error_message, send_slack_to_calla_test);
         return res.status(400).json({ message: error_message });
     }
@@ -191,6 +187,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     // Validate date format
     if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         const error_message = '⚠️ Invalid date format. Expected YYYY-MM-DD.';
+        send_slack_to_calla_test = true;
         await slack_send(error_message, send_slack_to_calla_test);
         return res.status(400).json({ message: error_message });
     }
@@ -200,6 +197,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
         const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
 
         if (no_data_message) {
+            send_slack_to_calla_test = true;
             await slack_send(no_data_message, send_slack_to_calla_test);
         }
 
