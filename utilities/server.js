@@ -86,7 +86,7 @@ app.post('/get-bookings', async (req, res) => {
 });
 
 // Endpoint to handle "/update-leads" command
-app.post('/update-leads/:interval?', async (req, res) => {
+app.post('/update-leads', async (req, res) => {
     console.log('Update leads route received request to update stats:', {
         body: req.body,
         headers: req.headers,
@@ -100,10 +100,8 @@ app.post('/update-leads/:interval?', async (req, res) => {
 
     try {
 
-        const date_interval = req.params.interval || 3; // retrieves most recent 4 days of data
-
         // STEP #1 GET LEADS DATA FROM EZHIRE ERP DB
-        const elapsed_time_get_data = await execute_get_lead_response_data(date_interval);
+        const elapsed_time_get_data = await execute_get_lead_response_data(); // currently 2024 data
 
         // STEP #2 LOAD LEADS DATA INTO LOCAL DB
         const elapsed_time_load_data = await execute_load_lead_response_data();
@@ -111,7 +109,7 @@ app.post('/update-leads/:interval?', async (req, res) => {
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated leads data with date interval of ${date_interval}. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
+        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
 
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
@@ -396,7 +394,3 @@ app.listen(PORT, () => {
 
     // startNgrok();
 });
-
-
-
-
