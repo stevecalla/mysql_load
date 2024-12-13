@@ -1,66 +1,55 @@
 const derived_fields = `
     created_on_pst,
-    Booking_id,
+    
+    booking_id_bm,
+
+    lead_id_lm_list,
+    lead_id,
+
+    created_on_pst_lm_list,
+    created_on_timestamp_pst_lm,
+
+    created_on_utc_bm_list,
+
+    booking_created_on_utc_bm,
+
+    created_on_pst_bm_list,
+    booking_created_on_pst_bm,
+
     rental_status,
     lead_status_id,
-    lead_id,
-    @renting_in_country,
-    -- renting_in_country_abb,
-    source_name,
-    @booking_created_on_utc,
-    count_lead_id,
-    @min_lead_created_on_pst, -- fix Thu Dec 05 2024 12:02:52 GMT-0700 (Mountain Standard Time)
-    @min_call_log_min_created_on_pst, -- fix 
+
+    renting_in_country,
+    renting_in_country_abb,
+    renting_in_country_list_lm,
+    renting_in_country_lm,
+    country_list_bm,
+    country_bm,
+
+    source_name_list_lm,
+    source_name_lm,
+
+    min_lead_created_on_pst,
+    min_created_on_pst_list_cl,
+    min_created_on_pst_cl,
+
     response_time,
     response_time_bin,
+
+    shift_list,
     shift,
-    query_source,
-    max_created_on_gst
+
+    max_created_on_gst,
+
+    count_bookings,
+    count_leads,
+    
+    created_on_timestamp_utc
 `;
 
 const transform_fields = `
-  -- ABBREVIATION LOGIC FOR RENTING IN COUNTRY
-  renting_in_country = 
-    CASE
-      WHEN LOWER(@renting_in_country) = 'united arab emirates' THEN 'UAE'
-      WHEN LOWER(@renting_in_country) IN ('null', 'unknown', '') THEN 'Unknown'
-      ELSE @renting_in_country
-    END
-    ,
-
-  -- ABBREVIATION LOGIC FOR RENTING IN COUNTRY
-  renting_in_country_abb = 
-    CASE
-      WHEN LOWER(renting_in_country) = 'united arab emirates' THEN LOWER('UAE')
-      WHEN LOWER(@renting_in_country) IN ('null', 'unknown', '') THEN 'Unknown'
-      ELSE LOWER(SUBSTRING(renting_in_country, 1, 3))
-    END
-    ,
-
--- ensures nulls show as null
-    booking_created_on_utc = 
-      CASE 
-          WHEN @booking_created_on_utc = 'NULL' THEN NULL
-          ELSE @booking_created_on_utc
-      END
-    ,
-
--- CONVERTS "Fri Jun 11 2021 12:03:17 GMT-0600 (Mountain Daylight Time)" TO '2021-06-11 12:03:17' TO MAINTAIN MTN TIME
-    min_lead_created_on_pst = 
-      CASE 
-        WHEN @min_lead_created_on_pst IS NOT NULL AND @min_lead_created_on_pst != 'Invalid Date' THEN 
-            STR_TO_DATE(SUBSTRING_INDEX(SUBSTRING_INDEX(@min_lead_created_on_pst, ' GMT', 1), ' ', -5), '%a %b %d %Y %H:%i:%s')
-        ELSE
-            NULL
-      END,
-    min_call_log_min_created_on_pst = 
-      CASE
-        WHEN @min_call_log_min_created_on_pst IS NOT NULL AND @min_call_log_min_created_on_pst != 'Invalid Date' THEN 
-            STR_TO_DATE(SUBSTRING_INDEX(SUBSTRING_INDEX(@min_call_log_min_created_on_pst, ' GMT', 1), ' ', -5), '%a %b %d %Y %H:%i:%s')
-        ELSE
-            NULL
-      END
-    ;
+  -- HANDLE CREATED_ON_TIMESTAMP IN UTC
+  created_on_timestamp_utc = UTC_TIMESTAMP()
 `;
 
 function query_load_lead_data(filePath, table) {
@@ -68,17 +57,22 @@ function query_load_lead_data(filePath, table) {
     LOAD DATA LOCAL INFILE '${filePath}'
     INTO TABLE ${table}
     FIELDS TERMINATED BY ','
-    ENCLOSED BY ''
+    ENCLOSED BY '"'
     LINES TERMINATED BY '\\n'
     IGNORE 1 LINES
     (
-      ${derived_fields}
-    ) 
+      ${derived_fields} 
+    )
       SET
-        ${transform_fields}  
+        ${transform_fields} 
     `
   }
     
 module.exports = {
   query_load_lead_data,
 };
+
+// @booking_created_on_utc,
+// @min_lead_created_on_pst, -- fix Thu Dec 05 2024 12:02:52 GMT-0700 (Mountain Standard Time)
+// @min_call_log_min_created_on_pst, -- fix 
+

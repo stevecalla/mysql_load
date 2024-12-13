@@ -14,9 +14,6 @@ const { create_directory } = require('../utilities/createDirectory');
 const fastcsv = require('fast-csv');
 
 const { query_all_lead_data } = require('./queries/get_lead_response_data/query_all_lead_data_121324');
-const { query_multiple_leads_per_booking } = require('./queries/get_lead_response_data/query_multiple_leads_per_booking_120624');
-const { query_single_lead_per_booking } = require('./queries/get_lead_response_data/query_single_lead_per_booking_120624');
-const { query_leads_no_booking } = require('./queries/get_lead_response_data/query_leads_no_booking_120624');
 
 const { generateLogFile } = require('../utilities/generateLogFile');
 const { getCurrentDateTimeForFileNaming, getPakistanTime } = require('../utilities/getCurrentDate');
@@ -394,7 +391,7 @@ async function execute_get_lead_response_data() {
 }
 
 // Run the main function
-execute_get_lead_response_data();
+// execute_get_lead_response_data();
 
 module.exports = {
     execute_get_lead_response_data,

@@ -117,9 +117,9 @@ async function execute_load_lead_response_data() {
             const drop_query = await query_drop_table(table_name);
 
             const drop_info = `${step} DROP ${step_info.toUpperCase()} TABLE`;
-            const create_info = `${step} CREATE ${step_info.toUpperCase()} TABLE`;
-
             await execute_mysql_working_query(pool, db_name, drop_query, drop_info);
+
+            const create_info = `${step} CREATE ${step_info.toUpperCase()} TABLE`;
             await execute_mysql_working_query(pool, db_name, create_query, create_info);
         }
 
@@ -157,7 +157,7 @@ async function execute_load_lead_response_data() {
                 
                 const query_load = query_load_lead_data(filePath, table_name);
 
-                // // Insert file into "" table
+                // Insert file into "" table
                 let query = await execute_mysql_working_query(pool, db_name, query_load, filePath, rows_added, i);
 
                 // track number of rows added

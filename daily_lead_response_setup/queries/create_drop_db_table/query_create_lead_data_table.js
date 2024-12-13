@@ -1,32 +1,60 @@
 const derived_fields = `
   created_on_pst DATE NOT NULL,
-  Booking_id VARCHAR(50),
+
+  booking_id_bm VARCHAR(50),
+
+  lead_id_lm_list VARCHAR(255),
+  lead_id VARCHAR(50),
+
+  created_on_pst_lm_list VARCHAR(255),
+  created_on_timestamp_pst_lm VARCHAR(255),
+
+  created_on_utc_bm_list VARCHAR(255),
+  booking_created_on_utc_bm VARCHAR(255),
+  created_on_pst_bm_list VARCHAR(255),
+  booking_created_on_pst_bm VARCHAR(255),
+
   rental_status VARCHAR(255),
   lead_status_id VARCHAR(255),
-  lead_id VARCHAR(50),
+
   renting_in_country VARCHAR(255),
   renting_in_country_abb VARCHAR(10),
-  source_name VARCHAR(255),
-  booking_created_on_utc DATETIME,
-  count_lead_id INT,
-  min_lead_created_on_pst DATETIME,
-  min_call_log_min_created_on_pst DATETIME,
+  renting_in_country_list_lm VARCHAR(255),
+  renting_in_country_lm VARCHAR(255),
+  country_list_bm VARCHAR(255),
+  country_bm VARCHAR(255),
+  
+  source_name_list_lm VARCHAR(255),
+  source_name_lm VARCHAR(255),
+
+  min_lead_created_on_pst VARCHAR(255),
+  min_created_on_pst_list_cl VARCHAR(255),
+  min_created_on_pst_cl VARCHAR(255),
+
   response_time VARCHAR(50),
   response_time_bin VARCHAR(255),
+
+  shift_list VARCHAR(255),
   shift VARCHAR(50),
-  query_source VARCHAR(255),
-  max_created_on_gst DATETIME
+
+  max_created_on_gst VARCHAR(255),
+
+  count_bookings INT,
+  count_leads INT,
+  
+  created_on_timestamp_utc VARCHAR(255)
 `;
 
 const index_fields = `
   PRIMARY KEY (lead_id),
   INDEX idx_created_on_pst (created_on_pst),
-  INDEX idx_Booking_id (Booking_id),
+  INDEX idx_booking_id_bm (booking_id_bm),
   INDEX idx_rental_status (rental_status),
   INDEX idx_lead_status_id (lead_status_id),
   INDEX idx_renting_in_country (renting_in_country),
-  INDEX idx_source_name (source_name),
-  INDEX idx_booking_created_on_utc (booking_created_on_utc),
+  INDEX idx_renting_in_country_abb (renting_in_country_abb),
+  INDEX idx_source_name_lm (source_name_lm),
+  INDEX idx_booking_created_on_utc_bm (booking_created_on_utc_bm),
   INDEX idx_shift (shift),
   INDEX idx_response_time_bin (response_time_bin)
 `;
