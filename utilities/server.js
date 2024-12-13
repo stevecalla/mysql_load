@@ -109,7 +109,7 @@ app.post('/update-leads', async (req, res) => {
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
+        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now} MTN.`;
 
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
