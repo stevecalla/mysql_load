@@ -5,7 +5,7 @@ dotenv.config();
 const { localLeadDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 
-const { query_lead_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_120624');
+const { query_lead_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_121324');
 const { group_and_format_data_for_slack } = require('./utility_group_and_format_data_for_slack');
 const { create_daily_lead_slack_message, create_daily_lead_response_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 const { slack_message_api } = require('../schedule_slack/slack_message_api');
@@ -127,7 +127,9 @@ async function execute_get_lead_data(country, date) {
 }
 
 // Run the main function
-// execute_get_lead_data();
+// const country = 'bat';
+// const date = '';
+// execute_get_lead_data(country, date);
 
 module.exports = {
     execute_get_lead_data,

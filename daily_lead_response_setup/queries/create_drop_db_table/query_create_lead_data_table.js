@@ -1,5 +1,5 @@
 const derived_fields = `
-  created_on_pst DATE NOT NULL,
+  created_on_pst_lm DATE NOT NULL,
 
   booking_id_bm VARCHAR(50),
 
@@ -47,7 +47,7 @@ const derived_fields = `
 
 const index_fields = `
   PRIMARY KEY (lead_id),
-  INDEX idx_created_on_pst (created_on_pst),
+  INDEX idx_created_on_pst_lm (created_on_pst_lm),
   INDEX idx_booking_id_bm (booking_id_bm),
   INDEX idx_rental_status (rental_status),
   INDEX idx_lead_status_id (lead_status_id),

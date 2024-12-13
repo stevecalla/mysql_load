@@ -1,5 +1,5 @@
 const derived_fields = `
-    created_on_pst,
+    created_on_pst_lm,
     
     booking_id_bm,
 

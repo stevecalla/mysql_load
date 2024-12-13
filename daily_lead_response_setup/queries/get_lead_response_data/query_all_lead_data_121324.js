@@ -3,6 +3,7 @@ async function query_all_lead_data() {
         -- C:\Users\calla\development\ezhire\mysql_queries\leads\discovery_leads_responses_query_summary_v3_121324.sql
         -- this query groups by booking id if there is a booking id & group concats the fields to ensure each field is only counted as one row (not multiple rows); this handles duplicates
         -- this query groups by booking id if there is a booking id & group concats the fields to ensure each field is only counted as one row (not multiple rows); this handles duplicates
+        
         SELECT 
             DATE_FORMAT(lm.created_on, '%Y-%m-%d') AS created_on_pst_lm,
             bm.Booking_id AS booking_id_bm,
@@ -80,16 +81,16 @@ async function query_all_lead_data() {
             -- SHIFT BASED ON CREATED TIME
             GROUP_CONCAT(DISTINCT
                 CASE 
-                    WHEN TIME(lm.created_on) BETWEEN '00:00:00' AND '07:59:59' THEN 'AM Shift 12a-8a'
-                    WHEN TIME(lm.created_on) BETWEEN '08:00:00' AND '15:59:59' THEN 'Day Shift 8a-4p'
-                    WHEN TIME(lm.created_on) BETWEEN '16:00:00' AND '23:59:59' THEN 'Night Shift 4p-12a'
+                    WHEN TIME(lm.created_on) BETWEEN '00:00:00' AND '07:59:59' THEN 'AM: 12a-8a'
+                    WHEN TIME(lm.created_on) BETWEEN '08:00:00' AND '15:59:59' THEN 'Day: 8a-4p'
+                    WHEN TIME(lm.created_on) BETWEEN '16:00:00' AND '23:59:59' THEN 'Night: 4p-12a'
                 ELSE NULL
             END) AS shift_list,
             SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT
                 CASE 
-                    WHEN TIME(lm.created_on) BETWEEN '00:00:00' AND '07:59:59' THEN 'AM Shift 12a-8a'
-                    WHEN TIME(lm.created_on) BETWEEN '08:00:00' AND '15:59:59' THEN 'Day Shift 8a-4p'
-                    WHEN TIME(lm.created_on) BETWEEN '16:00:00' AND '23:59:59' THEN 'Night Shift 4p-12a'
+                    WHEN TIME(lm.created_on) BETWEEN '00:00:00' AND '07:59:59' THEN 'AM: 12a-8a'
+                    WHEN TIME(lm.created_on) BETWEEN '08:00:00' AND '15:59:59' THEN 'Day: 8a-4p'
+                    WHEN TIME(lm.created_on) BETWEEN '16:00:00' AND '23:59:59' THEN 'Night: 4p-12a'
                 ELSE NULL
             END), ',', 1) AS shift,
                         
