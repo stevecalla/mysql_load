@@ -157,15 +157,6 @@ app.post('/update-leads', async (req, res, next) => {
     }
 });
 
-// Middleware to address missing country via /scheduled-leads// or /schedule-leads//2024-12-08
-// app.use((req, res, next) => {
-//     // Normalize URLs with multiple slashes and replace "//" with "/null/" to handle empty parameters
-//     // curl http://localhost:8000/scheduled-leads//2024-12-08 is not recognize properly
-//     req.url = req.url.replace(/\/\//g, '/null/');
-//     console.log(req.url);
-//     next();
-// });
-
 // Function to handle sending the lead data as test or production
 async function slack_send(message, test) {
 
@@ -176,9 +167,9 @@ async function slack_send(message, test) {
         return;
     }
 
-    // await slack_message_api(message, "350_slack_channel");
-    // await slack_message_api(message, "400_slack_channel");
-    // await slack_message_api(message, "bilal_adhi_slack_channel");
+    await slack_message_api(message, "350_slack_channel");
+    await slack_message_api(message, "400_slack_channel");
+    await slack_message_api(message, "bilal_adhi_slack_channel");
 
     return;
 }
@@ -194,7 +185,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     // TESTING VARIABLES
-    let send_slack_to_calla_test = true;
+    let send_slack_to_calla_test = false;
 
     let { country, date } = req.params;
     let countryFilter = '';
