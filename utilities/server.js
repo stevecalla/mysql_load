@@ -85,25 +85,38 @@ app.post('/get-bookings', async (req, res) => {
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
 
-// Endpoint to handle "/update-leads" command
-app.post('/update-leads/:interval?', async (req, res) => {
-    console.log('Update leads route received request to update stats:', {
-        body: req.body,
-        headers: req.headers,
-        param: req.params,  
-    });
 
-    // Immediate acknowledgment to the client
-    res.status(202).json({
-        message: 'Update-leads job started successfully.',
-    });
+// Store the last update timestamp in memory
+let lastUpdateTimestamp = null;
 
+async function check_last_leads_db_update() {
+    // Used to ensure db is not updated to frequently. Time is set at 3 minute threshold
+    const now = new Date().toLocaleString(); // Get the current local date and time as a string
+    const currentTimestamp = new Date(); // Current timestamp as a Date object
+
+    // Check if the route was updated in the last 3 minutes
+    if (lastUpdateTimestamp) {
+        const lastExecutionDate = new Date(lastUpdateTimestamp); // Convert the stored timestamp back to a Date object
+        const timeDifference = (currentTimestamp - lastExecutionDate) / (1000 * 60); // Time difference in minutes
+
+        if (timeDifference < 3) {
+            const message = `🔔 Update-leads job was executed within the last 3 minutes at ${lastUpdateTimestamp}. Please try again in a couple of minutes. Time now = ${now} MTN.`;
+
+            await slack_message_api(message, 'steve_calla_slack_channel');
+
+            return true;
+        }
+    }
+            
+    // Update the timestamp
+    lastUpdateTimestamp = now;
+    return false;
+}
+
+async function update_leads() {
     try {
-
-        const date_interval = req.params.interval || 3; // retrieves most recent 4 days of data
-
         // STEP #1 GET LEADS DATA FROM EZHIRE ERP DB
-        const elapsed_time_get_data = await execute_get_lead_response_data(date_interval);
+        const elapsed_time_get_data = await execute_get_lead_response_data(); // currently 2024 data
 
         // STEP #2 LOAD LEADS DATA INTO LOCAL DB
         const elapsed_time_load_data = await execute_load_lead_response_data();
@@ -111,7 +124,7 @@ app.post('/update-leads/:interval?', async (req, res) => {
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated leads data with date interval of ${date_interval}. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now}`;
+        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now} MTN.`;
 
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
@@ -122,16 +135,36 @@ app.post('/update-leads/:interval?', async (req, res) => {
         console.error(error_message);
         await slack_message_api(error_message, 'steve_calla_slack_channel');
     }
+}
+
+// Endpoint to handle "/update-leads" command
+app.post('/update-leads', async (req, res, next) => {
+    console.log('Update leads route received request to update stats:', {
+        body: req.body,
+        headers: req.headers,
+        param: req.params,  
+    });
+
+    const is_within_last_three_minutes = await check_last_leads_db_update();
+    console.log('update-leads with last three minutes ', is_within_last_three_minutes);
+
+    if (is_within_last_three_minutes) {
+        res.status(202).json({ message: 'Update-leads within last three minutes. Try again soon.' });
+        return;
+    } else {
+        res.status(202).json({ message: 'Update-leads job started successfully.' });
+        await update_leads();
+    }
 });
 
 // Middleware to address missing country via /scheduled-leads// or /schedule-leads//2024-12-08
-app.use((req, res, next) => {
-    // Normalize URLs with multiple slashes and replace "//" with "/null/" to handle empty parameters
-    // curl http://localhost:8000/scheduled-leads//2024-12-08 is not recognize properly
-    req.url = req.url.replace(/\/\//g, '/null/');
-    console.log(req.url);
-    next();
-});
+// app.use((req, res, next) => {
+//     // Normalize URLs with multiple slashes and replace "//" with "/null/" to handle empty parameters
+//     // curl http://localhost:8000/scheduled-leads//2024-12-08 is not recognize properly
+//     req.url = req.url.replace(/\/\//g, '/null/');
+//     console.log(req.url);
+//     next();
+// });
 
 // Function to handle sending the lead data as test or production
 async function slack_send(message, test) {
@@ -143,9 +176,9 @@ async function slack_send(message, test) {
         return;
     }
 
-    await slack_message_api(message, "350_slack_channel");
-    await slack_message_api(message, "400_slack_channel");
-    await slack_message_api(message, "bilal_adhi_slack_channel");
+    // await slack_message_api(message, "350_slack_channel");
+    // await slack_message_api(message, "400_slack_channel");
+    // await slack_message_api(message, "bilal_adhi_slack_channel");
 
     return;
 }
@@ -161,7 +194,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     // TESTING VARIABLES
-    let send_slack_to_calla_test = false;
+    let send_slack_to_calla_test = true;
 
     let { country, date } = req.params;
     let countryFilter = '';
@@ -193,6 +226,10 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     }
 
     try {
+        // Await update to leads db if not within last 3 minutes
+        const is_within_last_three_minutes = await check_last_leads_db_update();
+        !is_within_last_three_minutes && await update_leads();
+
         // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
         const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
 
@@ -223,6 +260,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
 
 // Endpoint to handle slash "/leads" command
 app.post('/get-leads/:country?/:date?', async (req, res) => {
+
     console.log('Received request for stats - /get-leads route:', {
         body: req.body,
         headers: req.headers,
@@ -233,7 +271,7 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
     console.log('/get-leads route req.rawHeaders = ', req.rawHeaders);
 
     // Acknowledge the command from Slack immediately to avoid a timeout
-    const processingMessage = "Retrieving lead information. Will respond shortly."; // Example data
+    const processingMessage = "Retrieving lead information. Will respond shortly.";
 
     // Respond back to Slack
     res.json({
@@ -279,6 +317,7 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
         console.log(`server js 279; Country: ${countryFilter}, Date: ${dateFilter}`);
         // Validate country format
         const valid_countries = ['bah', 'qat', 'sau', 'uae'];
+
         if (country && !valid_countries.includes(country.toLowerCase())) {
             const error_message = '⚠️ Invalid country. Please enter one of the following: BAH, QAT, SAU, or UAE.';
 
@@ -302,18 +341,21 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
     setTimeout( async () => {
         try {
             // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
-            
             console.log(`server js 306; Country: ${countryFilter}, Date: ${dateFilter}`);
 
+            // Await update to leads db if not within last 3 minutes
+            const is_within_last_three_minutes = await check_last_leads_db_update();
+            !is_within_last_three_minutes && await update_leads();
+
+            // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
             const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
-    
+
             if (no_data_message) {
                 // Send a follow-up message to Slack
                 await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, no_data_message);
             }
     
             if (slack_message_leads && slack_message_lead_response) {
-    
                 // Send a follow-up message to Slack
                 await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, slack_message_leads);
                 await sendFollowUpMessage(channel_id, channel_name, user_id, user_name, slack_message_lead_response);
@@ -396,7 +438,3 @@ app.listen(PORT, () => {
 
     // startNgrok();
 });
-
-
-
-

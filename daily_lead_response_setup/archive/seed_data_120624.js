@@ -1055,9 +1055,7 @@ const lead_data = [
     queried_at_pst: '2024-12-07 23:55:41',
     max_created_on_gst: '2024-12-07 21:20:07'
   },
-]
-
-
+]; 
 
 module.exports = {
     lead_data

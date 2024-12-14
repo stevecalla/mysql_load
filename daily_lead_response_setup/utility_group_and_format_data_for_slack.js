@@ -1,19 +1,19 @@
 const dayjs = require('dayjs');
-const { lead_data } = require('./seed_data_120624');
+const { lead_data } = require('./seed_data_121324');
 
-async function create_summary(data, option, segmentField, is_value_only) {
-    let summary = '';
+// async function create_summary(data, option, segmentField, is_value_only) {
+//     let summary = '';
 
-    data.forEach(item => {
-        const segmentValue = item[segmentField] || "Unknown";
-        const value = item[option] || 0; // Get the value dynamically
+//     data.forEach(item => {
+//         const segmentValue = item[segmentField] || "Unknown";
+//         const value = item[option] || 0; // Get the value dynamically
 
-        // Append to the summary
-        is_value_only ? (summary += `${value}, `) : (summary += `${segmentValue}: ${value}, `);
-    });
+//         // Append to the summary
+//         is_value_only ? (summary += `${value}, `) : (summary += `${segmentValue}: ${value}, `);
+//     });
 
-    return summary.slice(0, -2); // Remove trailing comma and space
-}
+//     return summary.slice(0, -2); // Remove trailing comma and space
+// }
 
 async function sort_segment(data, criteria) {
     // Validate criteria to be either 'renting_in_country' or 'source_name'
@@ -154,67 +154,6 @@ async function rollup_by_segment(data, segmentField) {
     return Object.values(result);
 }
 
-// async function create_table_output(data, segmentField) {
-//     // Initialize totals for columns
-//     const columnTotals = {
-//         [segmentField]: "Total", // Label for the totals row
-//         All: 0,
-//         Valid: 0,
-//         Conf: 0,
-//         "% Conv": "",
-//         Same: 0,
-//         "% Conv ": "",
-//     };
-
-//     // Map data and calculate row totals
-//     const tableData = data.map(item => {
-//         const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
-
-//         const row = {
-//             [segmentField]: item[segmentField] || "Unknown",
-//             All: formatValue(item.leads_total || 0),
-//             Valid: formatValue(item.leads_valid || 0),
-//             Conf: formatValue(item.count_booking_id_not_cancelled_total || 0),
-//             "% Conv": formatValue(conversion(item.count_booking_id_not_cancelled_total, item.leads_valid)),
-//             Same: formatValue(item.count_booking_same_day_rental_status_not_cancelled_distinct || 0),
-//             "% Conv ": formatValue(conversion(item.count_booking_same_day_rental_status_not_cancelled_distinct, item.leads_valid)),
-//         };
-
-//         // Update column totals
-//         columnTotals.All += item.leads_total || 0;
-//         columnTotals.Valid += item.leads_valid || 0;
-//         columnTotals.Conf += item.count_booking_id_not_cancelled_total || 0;
-//         columnTotals.Same += item.count_booking_same_day_rental_status_not_cancelled_distinct || 0;
-
-//         return row;
-//     });
-
-//     // Add a column total for "% Conv" and "% Conv "
-//     columnTotals["% Conv"] = conversion(columnTotals.Conf, columnTotals.Valid);
-//     columnTotals["% Conv "] = conversion(columnTotals.Same, columnTotals.Valid);
-
-//     // Format the totals row
-//     for (const key in columnTotals) {
-//         if (key !== segmentField && key !== "% Conv" && key !== "% Conv ") {
-//             columnTotals[key] = columnTotals[key] === 0 ? "" : columnTotals[key];
-//         }
-//     }
-
-//     // Add a "Total" column to each row
-//     tableData.forEach(row => {
-//         row.Total = row.All || ""; // Use "All" as the row total for simplicity, replace 0 with ""
-//     });
-
-//     // Add the overall total for the "Total" column
-//     columnTotals.Total = columnTotals.All || "";
-
-//     // Append the totals row at the end
-//     tableData.push(columnTotals);
-
-//     // Format and return the table
-//     return format_table(tableData);
-// }
-
 async function create_table_output(data, segmentField) {
     // Initialize totals for columns
     const columnTotals = {
@@ -292,7 +231,7 @@ async function create_response_time_vs_shift_lead_table(data) {
     });
 
     // Step 2: Convert the pivotTable object into an array and calculate column totals
-    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p", "Night: 4p-12a"];
     const columnTotals = { response_time_bin: "Total", total: 0 };
 
     const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
@@ -337,6 +276,7 @@ async function create_response_time_vs_shift_lead_table(data) {
             sortedRow[shift] = row[shift]; // Preserve sorted column order
         });
         sortedRow.total = row.total; // Append row total
+
         return sortedRow;
     });
 
@@ -368,7 +308,7 @@ async function create_response_time_vs_shift_booking_table(data) {
     });
 
     // Step 2: Convert the pivotTable object into an array and calculate column totals
-    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p", "Night: 4p-12a"];
     const columnTotals = { response_time_bin: "Total", total: 0 };
 
     const formatValue = (value) => (value === 0 || value === "0%") ? "" : value;
@@ -456,7 +396,7 @@ async function create_response_time_vs_shift_conversion_table(data) {
     });
 
     // Step 2: Calculate column totals and prepare the table
-    const allShifts = ["AM: 12a-8a", "Day: 8a-4p ", "Night: 4p-12a"];
+    const allShifts = ["AM: 12a-8a", "Day: 8a-4p", "Night: 4p-12a"];
     const columnTotals = {
         response_time_bin: "Total",
         total_valid_leads: 0,
@@ -542,12 +482,13 @@ async function group_and_format_data_for_slack(data, countryFilter = null, dateF
     // Step 2: Filter data by dateFilter
     let filteredData = data.filter(item => item.created_on_pst === effectiveDate);
 
+    // console.table(filteredData);
+
     // Step 3: Apply country filter if provided
-    if (countryFilter) {
+    if (countryFilter && countryFilter !== 'all') {
         filteredData = filteredData.filter(item => item.renting_in_country_abb === countryFilter);
     }
 
-    // console.log('***************** ', filteredData, filteredData.length);
     if (!filteredData.length) {
         const no_data_message = `❌ No data available for ${countryFilter.toUpperCase()} on ${effectiveDate}.`;
         return { no_data_message, countryFilter, dateFilter };
@@ -599,7 +540,7 @@ async function group_and_format_data_for_slack(data, countryFilter = null, dateF
 }
 
 // 2rd parameter is count by first 3 characters or uae, 3nd parameter is dateFilter ie 2024-12-05
-// group_and_format_data_for_slack(lead_data, 'uae', '');
+// group_and_format_data_for_slack(lead_data, 'all', '2024-12-12');
 
 module.exports = {
     group_and_format_data_for_slack,
