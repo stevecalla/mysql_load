@@ -1,4 +1,17 @@
-async function query_lead_data() {
+const { getPakistanTime } = require('../../../utilities/getCurrentDate');
+
+async function query_lead_data(country, date) {
+
+    // if date is null then today in pst
+    const pakistan_date = await getPakistanTime();
+    date = date ? date : pakistan_date;
+    console.log('pakistan date ', pakistan_date);
+
+    // if country is null then all
+    country = country ? country : null;
+    
+    console.log('query lead data =', country, country === null, date);
+
     return `
         -- C:\Users\calla\development\ezhire\mysql_queries\leads\discovery_leads_responses_query_summary_v3_121324.sql
         -- Step #1 = this query shows lead / booking counts with and without duplicates. 
@@ -103,6 +116,13 @@ async function query_lead_data() {
 
         FROM lead_response_data
 
+        WHERE 
+			created_on_pst_lm = '${date}'
+            AND
+            -- if country IS NULL evalutes to true then returns all countries
+            -- else return renting_in_country = the passed country
+            (${country === null} OR renting_in_country_abb = '${country}')
+
         -- COMMENT OUT TO VIEW ROLLUP STATS
         GROUP BY 
             created_on_pst,
@@ -111,8 +131,11 @@ async function query_lead_data() {
             source_name_lm,
             shift,
             response_time_bin
+
+        -- COMMENT IN TO VIEW ROLLUP STATS
         -- GROUP BY 
         --     created_on_pst DESC
+
         ORDER BY created_on_pst DESC
 
     `;
