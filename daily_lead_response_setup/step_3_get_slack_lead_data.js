@@ -54,7 +54,7 @@ async function execute_query_get_lead_data(pool, query) {
     });
 }
 
-async function execute_get_lead_data(country, date) {
+async function execute_get_lead_data(country = "", date = "") {
     let pool;
     let results;
     const startTime = performance.now();
@@ -64,10 +64,12 @@ async function execute_get_lead_data(country, date) {
         pool = await create_connection();
 
         // STEP #2: GET DATA FOR SLACK MESSAGE
-        const query = await query_lead_data();
+        const query = await query_lead_data(country, date);
+        // console.log(query);
 
         results = await execute_query_get_lead_data(pool, query);
         // console.log(results);
+        // console.log('results length = ', results.length)
 
         // STEP #3: CREATE SLACK MESSAGE
         if (results) {
@@ -127,8 +129,11 @@ async function execute_get_lead_data(country, date) {
 }
 
 // Run the main function
-// const country = 'bat';
-// const date = '';
+// const country = 'uae';
+// const country = null; // should return all countries
+// const country = ''; // should return all countries
+// const date = '2024-12-12';
+// const date = ''; // returns all records
 // execute_get_lead_data(country, date);
 
 module.exports = {

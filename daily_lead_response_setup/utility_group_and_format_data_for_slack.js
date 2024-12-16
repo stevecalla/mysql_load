@@ -1,20 +1,6 @@
 const dayjs = require('dayjs');
 const { lead_data } = require('./seed_data_121324');
 
-// async function create_summary(data, option, segmentField, is_value_only) {
-//     let summary = '';
-
-//     data.forEach(item => {
-//         const segmentValue = item[segmentField] || "Unknown";
-//         const value = item[option] || 0; // Get the value dynamically
-
-//         // Append to the summary
-//         is_value_only ? (summary += `${value}, `) : (summary += `${segmentValue}: ${value}, `);
-//     });
-
-//     return summary.slice(0, -2); // Remove trailing comma and space
-// }
-
 async function sort_segment(data, criteria) {
     // Validate criteria to be either 'renting_in_country' or 'source_name'
     if (criteria !== 'renting_in_country' && criteria !== 'source_name' && criteria !== 'shift' && criteria !== 'response_time_bin') {
