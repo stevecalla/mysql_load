@@ -4,10 +4,12 @@ const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // add path to read.env file
 
-const { localLeadDbConfig, csvExportPath } = require('../../utilities/config');
+const { localBookingDbConfig, localKeyMetricsDbConfig, localPacingDbConfig, localUserDbConfig, csvExportPath } = require('../../utilities/config');
 const { createLocalDBConnection } = require('../../utilities/connectionLocalDB');
 
-const { leadQuery } = require('./query_data');
+const { bookingQuery, keyMetricsQuery, pacingQuery, profileQuery, cohortQuery, rfmQuery, rfmTrackingQuery, rfmTrackingMostRecentQuery, rfmTrackingOffersQuery, rfmTrackingOffersV2Query, rfmTrackingOffersV3Query, } = require('./query_booking_keyMetrics_pacing');
+
+// const { rfmTrackingQuery }  = require('./query_booking_keyMetrics_pacing');
 
 const { getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('../../utilities/getCurrentDate');
 const { generateLogFile } = require('../../utilities/generateLogFile');
@@ -16,18 +18,18 @@ const { generateLogFile } = require('../../utilities/generateLogFile');
 function moveFilesToArchive() {
     try {
         // List all files in the directory
-        const files = fs.readdirSync(`${csvExportPath}bigquery_leads`);
+        const files = fs.readdirSync(`${csvExportPath}bigquery`);
         console.log(files);
 
         // Create the "archive" directory if it doesn't exist
-        const archivePath = `${csvExportPath}bigquery_leads_archive`;
+        const archivePath = `${csvExportPath}bigquery-archive`;
         fs.mkdirSync((archivePath), { recursive: true });
 
         // Iterate through each file
         for (const file of files) {
             if (file.endsWith('.csv')) {
                 // Construct the full file paths
-                const sourceFilePath = `${csvExportPath}bigquery_leads/${file}`;
+                const sourceFilePath = `${csvExportPath}bigquery/${file}`;
                 const destinationFilePath = `${archivePath}/${file}`;
 
                 // console.log(sourceFilePath);
@@ -85,7 +87,7 @@ function export_results_to_csv(results, file_name) {
     }
 
     // DEFINE DIRECTORY PATH
-    const directoryPath = `${csvExportPath}bigquery_leads`;
+    const directoryPath = `${csvExportPath}bigquery`;
     // console.log('Directory path = ', directoryPath);
 
     // CHECK IF DIRECTORY EXISTS, IF NOT, CREATE IT
@@ -94,7 +96,7 @@ function export_results_to_csv(results, file_name) {
         // console.log(`Directory created: ${directoryPath}`);
     }
 
-    //move files in bigquery_leads directory to bigquery_leads_archive
+    //move files in bigquery directory to bigquery-archive
 
     try {
         const header = Object.keys(results[0]);
@@ -104,7 +106,7 @@ function export_results_to_csv(results, file_name) {
         ).join('\n')}`;
 
         const createdAtFormatted = getCurrentDateTimeForFileNaming();
-        const filePath = `${csvExportPath}bigquery_leads/results_${createdAtFormatted}_${file_name}.csv`;
+        const filePath = `${csvExportPath}bigquery/results_${createdAtFormatted}_${file_name}.csv`;
         // console.log('File path = ', filePath);
 
         fs.writeFileSync(filePath, csvContent);
@@ -119,18 +121,70 @@ function export_results_to_csv(results, file_name) {
 }
 
 // MAIN FUNCTION TO EXECUTE THE PROCESS
+//TODO:
 async function execute_retrieve_data() {
     let pool = "";
     const startTime = performance.now();
 
-    console.log('hello');
-
     try {
+
+        // SET DATA OBJECT
+        //TODO:
         const getData = [
             {
-                poolName: localLeadDbConfig,
-                fileName: 'lead_data',
+                poolName: localBookingDbConfig,
+                fileName: 'booking_data',
                 query: bookingQuery,
+            },
+            {
+                poolName: localKeyMetricsDbConfig,
+                fileName: 'key_metrics_data',
+                query: keyMetricsQuery,
+            },
+            {
+                poolName: localPacingDbConfig,
+                fileName: 'pacing_data',
+                query: pacingQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'profile_data',
+                query: profileQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'cohort_data',
+                query: cohortQuery,
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_data', // rfm_score_summary_data 
+                query: rfmQuery, 
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_data',
+                query: rfmTrackingQuery, // rfm_score_summary_history_data_tracking
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_most_recent_data',
+                query: rfmTrackingMostRecentQuery, // rfm_score_summary_history_data_tracking_most_recent
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_offers_data',
+                query: rfmTrackingOffersQuery, // rfm_score_summary_history_data_tracking_offer
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_offers_v2_data',
+                query: rfmTrackingOffersV2Query, // rfm_score_summary_history_data_tracking_offer_v2
+            },
+            {
+                poolName: localUserDbConfig,
+                fileName: 'rfm_tracking_offers_v3_data',
+                query: rfmTrackingOffersV3Query, // rfm_score_summary_history_data_tracking_offer_v3
             },
         ];
 
@@ -140,7 +194,7 @@ async function execute_retrieve_data() {
         moveFilesToArchive();
 
         // STEP 1.1 PULL SQL DATA FROM BOOKING, KEY METRICS & PACING METRICS TABLES
-        console.log(`\nSTEP 1.1: PULL SQL DATA FROM LEAD DATA TABLE`);
+        console.log(`\nSTEP 1.1: PULL SQL DATA FROM BOOKING DATA TABLE`);
         console.log(`${getCurrentDateTime()}\n`);
 
         for (let i = 0; i < getData.length; i++) {
@@ -189,8 +243,7 @@ async function execute_retrieve_data() {
 }
 
 // Run the main function
-execute_retrieve_data();
-console.log('hello');
+// execute_retrieve_data();
 
 module.exports = {
     execute_retrieve_data,

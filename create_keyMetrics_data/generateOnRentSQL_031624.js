@@ -6,7 +6,7 @@ const pickup_date = '2023-01-01'; //not in use as a variable
 const return_date = '2023-01-01';
 const status = '%Cancel%';
 
-function generateRepeatCode(variableList) {
+async function generateRepeatCode(variableList) {
     console.log('Generating code to get the on-rent data');
 
     for (let i = 0; i < variableList.length; i++) {
