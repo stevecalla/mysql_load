@@ -132,7 +132,7 @@ async function update_leads() {
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
+        const slack_message = `🔔 Updated leads data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
 
         console.log('slack message after updating lead data', slack_message);
 
@@ -195,7 +195,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     // TESTING VARIABLES
-    let send_slack_to_calla_test = false;
+    let send_slack_to_calla_test = true;
 
     let { country, date } = req.params;
     let countryFilter = '';
