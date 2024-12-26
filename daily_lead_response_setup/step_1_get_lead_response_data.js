@@ -309,7 +309,7 @@ async function execute_get_lead_response_data() {
         // STEP #2 - MOVE FILES TO ARCHIVE
         await moveFilesToArchive(); //todo:
 
-        // // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
+        // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
         pool = await createSSHConnection();
 
         const query_logic = [
@@ -345,6 +345,7 @@ async function execute_get_lead_response_data() {
 
             stopTimer(`0_export`); 
         }
+        
     } catch (error) {
         console.error('Error:', error);
         generateLogFile('get_usat_sales_data', `Error loading user data: ${error}`, logPath);

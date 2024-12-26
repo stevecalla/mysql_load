@@ -1,6 +1,6 @@
 const { getPakistanTime } = require('../../../utilities/getCurrentDate');
 
-async function query_lead_data(country, date) {
+async function query_lead_metrics_data(country, date) {
 
     // if date is null then today in pst
     const pakistan_date = await getPakistanTime();
@@ -137,10 +137,9 @@ async function query_lead_data(country, date) {
         --     created_on_pst DESC
 
         ORDER BY created_on_pst DESC
-
     `;
 }
 
 module.exports = {
-    query_lead_data,
+    query_lead_metrics_data,
 }

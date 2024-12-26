@@ -15,10 +15,21 @@ async function date_info(data, effectiveDate) {
   return { queried_at_message, most_recent_date_message, booking_date_message };
 }
 
+// CREATE LOOKER STUDIO LINKS
+async function looker_links() {
+  const link_dashboard = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_zsb11me7nd?pli=1`;
+  const looker_dashboard_link = `<${link_dashboard}|Link to Looker Leads Dashboard>`;
+  
+  const link_chart = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_dirkgfi7nd?pli=1`;
+  const looker_chart_link = `<${link_chart}|Link to Looker Leads Chart>`;
+
+  return { looker_dashboard_link, looker_chart_link };
+}
+
 async function create_daily_lead_slack_message(data, tables) {
   const { effectiveDate, countryFilter, country_table_output, source_table_output, shift_table_output, response_time_table_output, response_time_by_shift_leads_output, response_time_by_shift_bookings_output, response_time_by_shift_conversion_output } = tables;
 
-  let { queried_at_message, most_recent_date_message, booking_date_message } = await date_info(data, effectiveDate);
+  const { queried_at_message, most_recent_date_message, booking_date_message } = await date_info(data, effectiveDate);
 
   console.log(`Using data for date: ${effectiveDate} and country: ${countryFilter || "All Countries"}`);
 
@@ -62,7 +73,9 @@ async function create_daily_lead_slack_message(data, tables) {
 async function create_daily_lead_response_slack_message(data, tables) {
   const { effectiveDate, countryFilter, country_table_output, source_table_output, shift_table_output, response_time_table_output, response_time_by_shift_leads_output, response_time_by_shift_bookings_output, response_time_by_shift_conversion_output } = tables;
 
-  let { queried_at_message, most_recent_date_message, booking_date_message } = await date_info(data, effectiveDate);
+  const { queried_at_message, most_recent_date_message, booking_date_message } = await date_info(data, effectiveDate);
+
+  const { looker_dashboard_link, looker_chart_link } = await looker_links();
 
   console.log(`Using data for date: ${effectiveDate} and country: ${countryFilter || "All Countries"}`);
 
@@ -86,8 +99,10 @@ async function create_daily_lead_response_slack_message(data, tables) {
     `\`\`\`${response_time_by_shift_conversion_output}\`\`\`` + `\n` +
     
     `\`\`\`Differs from ERP report due to (a) duplicate elimination, (b) time zone\n` +
-    `adjustment, (c) timing, and (d) booking rental status = cancel\`\`\`` + `\n` +      
-
+    `adjustment, (c) timing, and (d) booking rental status = cancel\`\`\`` + `\n` + 
+    
+    `${looker_dashboard_link}` + `\n` +
+    `${looker_chart_link}` + `\n` +
     `**************\n`
   ;
 
