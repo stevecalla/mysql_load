@@ -345,6 +345,7 @@ async function execute_get_lead_response_data() {
 
             stopTimer(`0_export`); 
         }
+        
     } catch (error) {
         console.error('Error:', error);
         generateLogFile('get_usat_sales_data', `Error loading user data: ${error}`, logPath);

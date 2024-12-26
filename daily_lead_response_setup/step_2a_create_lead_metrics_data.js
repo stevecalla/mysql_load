@@ -5,12 +5,10 @@ dotenv.config();
 const { localLeadDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 
-const { query_lead_metrics_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_122424');
+const { query_metrics_lead_data } = require('../daily_lead_response_setup/queries/get_slack_lead_data/query_metrics_lead_data_122424');
+const { query_drop_table } = require('./queries/create_drop_db_table/queries_drop_db_tables');
 
-const { group_and_format_data_for_slack } = require('./utility_group_and_format_data_for_slack');
-
-const { create_daily_lead_slack_message, create_daily_lead_response_slack_message } = require('../schedule_slack/slack_daily_lead_message');
-const { slack_message_api } = require('../schedule_slack/slack_message_api');
+const { runTimer, stopTimer } = require('../utilities/timer');
 
 // Connect to MySQL
 async function create_connection() {
@@ -56,55 +54,29 @@ async function execute_mysql_working_query(pool, query) {
     });
 }
 
-async function execute_get_lead_data(country = "", date = "") {
+async function execute_get_lead_metrics_data() {
     let pool;
-    let results;
     const startTime = performance.now();
 
     try {
-        // STEP #1: GET / QUERY Promo DATA & RETURN RESULTS
+        runTimer(`get_data`);
         pool = await create_connection();
 
-        // STEP #2: GET DATA FOR SLACK MESSAGE
-        const query = await query_lead_metrics_data(country, date);
-        // console.log(query);
+        // STEP #1: DROP DATA / TABLE
+        console.log(`\nDROP lead_response_metrics data table.`);
+        const drop_query = await query_drop_table('lead_response_metrics_data');
+        await execute_mysql_working_query(pool, drop_query);
 
-        results = await execute_mysql_working_query(pool, query);
-        // console.log(results);
-        // console.log('results length = ', results.length)
-
-        // STEP #3: CREATE SLACK MESSAGE
-        if (results) {
-            
-            // 2rd parameter is count by first 3 characters or uae, 3nd parameter is date ie 2024-12-05
-            const tables = await group_and_format_data_for_slack(results, country, date);
-
-            if (tables.no_data_message) {
-
-                const no_data_message = tables.no_data_message;
-
-                return { no_data_message };
-            }
-
-            const slack_message_leads = await create_daily_lead_slack_message(results, tables);
-
-            const slack_message_lead_response = await create_daily_lead_response_slack_message(results, tables);
-
-            // STEP #5: RETURN SLACK MESSAGE TO SLASH ROUTE /get-member-sales TO RESPOND
-            return { slack_message_leads, slack_message_lead_response}
-
-        } else {
-            const slack_message = "Error - No results";
-            await slack_message_api(slack_message, "steve_calla_slack_channel");
-        }
+        // STEP #2: CREATE DATA / TABLE
+        console.log(`\nCREATE lead_response_metrics data table.`);
+        const create_metrics_table_query = await query_metrics_lead_data();
+        await execute_mysql_working_query(pool, create_metrics_table_query);
+        
+        stopTimer(`get_data`);
 
     } catch (error) {
         console.error('Error:', error);
-
-        // const slack_message = `Error - No results: error`;
-        // await slack_message_api(slack_message, "steve_calla_slack_channel");
-
-        throw error;
+        stopTimer(`get_data`);
 
     } finally {
         // Ensure cleanup happens even if there is an error
@@ -127,17 +99,14 @@ async function execute_get_lead_data(country = "", date = "") {
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
         console.log(`\nAll lead data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Oops error getting time"} sec\n`);
+
+        return elapsedTime;
     }
 }
 
 // Run the main function
-// const country = 'uae';
-// const country = null; // should return all countries
-// const date = '2024-12-12';
-// const country = ''; // should return all countries
-// const date = ''; // returns all records
-// execute_get_lead_data(country, date);
+// execute_get_lead_metrics_data();
 
 module.exports = {
-    execute_get_lead_data,
+    execute_get_lead_metrics_data,
 }

@@ -1,170 +1,80 @@
 const { generateLogFile } = require('../../utilities/generateLogFile');
 const { getCurrentDateTime } = require('../../utilities/getCurrentDate');
 
-const { execute_retrieve_data } = require('./step_1_retrieve_data_process'); //step_1
-const { execute_upload_csv_to_cloud } = require('./step_2_upload_csv_to_cloud'); //step_2
-const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset'); //step_3
-const { execute_load_big_query_database } = require('./step_4_load_biq_query_database'); //step_4
+const { execute_retrieve_data } = require('./step_1_retrieve_data_process');
+const { execute_upload_csv_to_cloud } = require('./step_2_upload_csv_to_cloud');
+const { execute_create_bigquery_dataset } = require('./step_3_create_bigquery_dataset');
+const { execute_load_big_query_database } = require('./step_4_load_biq_query_database');
 
-//TODO:
-const run_step_1 = true; // retrieve booking, key metrics, pacing data, cohort, profile, rfm
-const run_step_2 = true; // load csv to google cloud bucket
-const run_step_3 = true; // create_dataset_table
-const run_step_4 = true; // load csv file to bigquery
+const run_step_1 = true;
+const run_step_2 = true;
+const run_step_3 = true;
+const run_step_4 = true;
 
-// STEP #1: RETRIEVE LEAD DATA
-async function execute_load_data_to_bigquery() {
-    const startTime = performance.now();
-    console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
-    generateLogFile('load_big_query', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+async function executeSteps(stepFunctions) {
+  for (let i = 0; i < stepFunctions.length; i++) {
 
-    try {
-        // STEP #1: RETRIEVE LEAD DATA
-        console.log('\nSTEP #1: RETRIEVE LEAD DATA');
-        console.log('*************** STARTING STEP 1 ***************\n');
+    const stepFunction = stepFunctions[i];
 
-        if (run_step_1) {
+    if (stepFunction) {
+      const stepName = `STEP #${i + 1}`;
+      console.log(`\n*************** STARTING ${stepName} ***************\n`);
 
-            // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_retrieve_data();
-    
-            // LOGS
-            let message = getResults ? `\nRetrieve booking, key metric, pacing data successfully. Elapsed Time: ${getResults}`: `Opps error getting elapsed time\n`;
+      try { // Add try/catch within the loop for individual step error handling
+        const getResults = await stepFunction();
+        const message = getResults ? `${stepName} executed successfully. Elapsed Time: ${getResults}` : `${stepName} executed successfully.`; // Modified message
+        console.log(message);
+        generateLogFile('load_big_query', message);
 
-            console.log(message);
-            generateLogFile('load_big_query', message);
- 
-        } else {
-            // LOGS
-            let message = `\nSkipped STEP 1 due to toggle set to false.\n`;
-            console.log(message);
-            generateLogFile('load_big_query', message); 
-        }
-        
-        console.log('\n*************** END OF STEP 1 ***************\n');
-        // NEXT STEP
-        await step_2(startTime);
-    } catch (error) {
-        console.error('Error executing Step #1:', error);
-        generateLogFile('load_big_query', `Error executing Step #1: ${error}`);
-        return; // Exit the function early
+      } catch (error) {
+        console.error(`Error executing ${stepName}:`, error);
+        generateLogFile('load_big_query', `Error executing ${stepName}: ${error}`);
+        // Decide whether to continue or break the loop here.
+        // For example, to stop on the first error:
+        break;
+        // To continue despite errors in individual steps:
+        // continue;
+      }
+
+      console.log('\n*************** END OF', stepName, '**************\n');
+    } else {
+      console.log(`Skipped STEP #${i + 1} due to toggle set to false.`);
     }
+  }
 }
 
-// STEP #2: load csv to google cloud bucket
-async function step_2(startTime) {
-    try {
-        console.log('\n*************** STARTING STEP 2 ***************\n');
+async function execute_load_lead_data_to_bigquery() {
+  const startTime = performance.now();
+  console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
+  generateLogFile('load_big_query', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
 
-        if (run_step_2) {
-            // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_upload_csv_to_cloud();
-    
-            // LOGS
-            let message = getResults ? `\nLoad csv to google cloud bucket executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
+  try {
+    const stepFunctions = [
+      run_step_1 ? execute_retrieve_data : null,
+      run_step_2 ? execute_upload_csv_to_cloud : null,
+      run_step_3 ? execute_create_bigquery_dataset : null,
+      run_step_4 ? execute_load_big_query_database : null,
+    ];
 
-            console.log(message);
-            generateLogFile('load_big_query', message);
-    
-        } else {
-            // LOGS
-            let message = `\nSkipped STEP 2 due to toggle set to false.\n`;
-            console.log(message);
-            generateLogFile('load_big_query', message);   
-        }
-        
-        console.log('\n*************** END OF STEP 2 ***************\n');
-        // NEXT STEP
-        await step_3(startTime);
-    } catch (error) {
-        console.error('Error executing Step #2:', error);
-        generateLogFile('load_big_query', `Error executing Step #2: ${error}`);
-        return; // Exit the function early
-    }
+    await executeSteps(stepFunctions); // Call the new function
+
+  } catch (error) {
+    console.error('Error in main process:', error); // More specific message
+    generateLogFile('load_big_query', `Error in main process: ${error}`);
+    return;
+  }
+
+  const endTime = performance.now();
+  const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2);
+
+  console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+  generateLogFile('load_big_query', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
+
+  return elapsedTime;
 }
 
-// STEP #3: create_dataset_table
-async function step_3(startTime) {
-    try {
-        console.log('\n*************** STARTING STEP 3 ***************\n');
-
-        if (run_step_3) {
-            // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_create_bigquery_dataset();
-    
-            // LOGS
-            let message = getResults ? `\nCreate bigquery dataset executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
-
-            console.log(message);
-            generateLogFile('load_big_query', message);
-    
-            
-        } else {
-            // LOGS
-            let message = `\nSkipped STEP 3 due to toggle set to false.\n`;
-            console.log(message);
-            generateLogFile('load_big_query', message);
-        }
-        
-        console.log('\n*************** END OF STEP 3 ***************\n');
-        // NEXT STEP
-        await step_4(startTime);
-    } catch (error) {
-        console.error('Error executing Step #3:', error);
-        generateLogFile('load_big_query', `Error executing Step #3: ${error}`);
-        return; // Exit the function early
-    }
-}
-
-// STEP #4: load csv file to bigquery
-async function step_4(startTime) {
-    try {
-        console.log('\n*************** STARTING STEP 4 ***************\n');
-
-        if (run_step_4) {
-            // EXECUTE QUERIES
-            let getResults;
-            getResults = await execute_load_big_query_database();
-    
-            // LOGS
-            let message = getResults ? `Load csv to bigquery executed successfully. Elapsed Time: ${getResults}` : `Opps error getting elapsed time\n`;
-
-            console.log(message);
-            generateLogFile('load_big_query', message);
-            
-        } else {
-            // LOGS
-            let message = `\nSkipped STEP 4 due to toggle set to false.\n`;
-            
-            console.log(message);
-            console.log('\n*************** END OF STEP 4 ***************\n');
-            generateLogFile('load_big_query', message);
-        }
-        
-        const endTime = performance.now();
-        const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
-
-        console.log(`\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
-
-        generateLogFile('load_big_query', `\nPROGRAM END TIME: ${getCurrentDateTime()}; ELASPED TIME: ${elapsedTime} sec\n`);
-
-        console.log('*************** END OF STEP 4 ***************\n');
-        
-        //NEXT STEP = NONE
-
-    } catch (error) {
-        console.error('Error executing Step #4:', error);
-        generateLogFile('load_big_query', `Error executing Step #4: ${error}`);
-        return; // Exit the function early
-    }
-}
-
-execute_load_data_to_bigquery();
+// execute_load_lead_data_to_bigquery();
 
 module.exports = {
-    execute_load_data_to_bigquery,
-}
-
+  execute_load_lead_data_to_bigquery,
+};

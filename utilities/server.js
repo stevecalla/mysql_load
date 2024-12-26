@@ -11,6 +11,8 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
+const { execute_get_lead_metrics_data } = require('../daily_lead_response_setup/step_2a_create_lead_metrics_data.js');
+const { execute_load_lead_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_lead_data/step_0_load_main_job_040424.js');
 const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_get_slack_lead_data.js');
 
 // SLACK SETUP
@@ -120,11 +122,19 @@ async function update_leads() {
 
         // STEP #2 LOAD LEADS DATA INTO LOCAL DB
         const elapsed_time_load_data = await execute_load_lead_response_data();
+      
+        // STEP #3 CREATE LEAD METRICS DATA
+        const elapsed_time_create_metrics = await execute_get_lead_metrics_data();
+
+        // STEP #2B LOAD LEAD & LEAD METRICS DATA TO BIGQUERY
+        const elapsed_time_load_lead_data_to_biquery = await execute_load_lead_data_to_bigquery();
 
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Time now = ${now} MTN.`;
+        const slack_message = `🔔 Updated leads data for 2024. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
+
+        console.log('slack message after updating lead data', slack_message);
 
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
