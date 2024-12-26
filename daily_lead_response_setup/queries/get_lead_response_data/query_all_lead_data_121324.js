@@ -26,6 +26,9 @@ async function query_all_lead_data() {
             -- STATUS
             SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', NULL, bm.rental_status)), ',', 1) AS rental_status, -- first non null rental status,    
             SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', NULL, lm.lead_status_id)), ',', 1) AS lead_status_id, -- first non null lead status id
+             
+            SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(bm.rental_status IS NULL OR bm.rental_status = '', NULL, rs.status)), ',', 1) AS rental_status_desc, -- first non null rental status,  
+            SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT IF(lm.lead_status_id IS NULL OR lm.lead_status_id = '', NULL, st.lead_status)), ',', 1) AS lead_status_desc, -- first non null lead status id
 
             -- RENTING IN COUNTRY
             SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT
@@ -107,6 +110,7 @@ async function query_all_lead_data() {
 
         FROM leads_master AS lm
             LEFT JOIN booking_master AS bm ON lm.app_booking_id = bm.Booking_id
+			LEFT JOIN rental_status AS rs ON bm.rental_status = rs.id
 			LEFT JOIN lead_status AS st ON lm.lead_status_id = st.id
 			LEFT JOIN lead_sources AS ls ON lm.lead_source_id = ls.id
             -- this join finds the min created on call log for each lead id (& makes the query more efficent)

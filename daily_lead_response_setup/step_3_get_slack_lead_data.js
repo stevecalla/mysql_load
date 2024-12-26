@@ -5,8 +5,14 @@ dotenv.config();
 const { localLeadDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');
 
-const { query_lead_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_121324');
+// const { query_lead_metrics_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_121324');
+const { query_lead_metrics_data } = require('./queries/get_slack_lead_data/query_slack_lead_data_122424');
+
+const { query_metrics_lead_data } = require('../daily_lead_response_setup/queries/get_slack_lead_data/query_metrics_lead_data_122424');
+const { query_drop_table } = require('./queries/create_drop_db_table/queries_drop_db_tables');
+
 const { group_and_format_data_for_slack } = require('./utility_group_and_format_data_for_slack');
+
 const { create_daily_lead_slack_message, create_daily_lead_response_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 const { slack_message_api } = require('../schedule_slack/slack_message_api');
 
@@ -29,7 +35,7 @@ async function create_connection() {
 }
 
 // STEP #1: GET / QUERY DAILY PROMO DATA
-async function execute_query_get_lead_data(pool, query) {
+async function execute_mysql_working_query(pool, query) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
@@ -46,7 +52,7 @@ async function execute_query_get_lead_data(pool, query) {
                 // console.table(results);
                 // console.log(results[0]);
 
-                console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
+                console.log(results.length ? `Query results length: ${results.length}` : `Query affected rows: ${results.affectedRows}` + `, Elapsed Time: ${elapsedTime} sec.\n`);
 
                 resolve(results);
             }
@@ -63,11 +69,20 @@ async function execute_get_lead_data(country = "", date = "") {
         // STEP #1: GET / QUERY Promo DATA & RETURN RESULTS
         pool = await create_connection();
 
+        // STEP #1A: CREATE LEAD METRICS TABLE
+        console.log(`\nDROP lead_response_metrics data table.`);
+        const drop_query = await query_drop_table('lead_response_metrics_data');
+        await execute_mysql_working_query(pool, drop_query);
+        
+        console.log(`\nCREATE lead_response_metrics data table.`);
+        const create_metrics_table_query = await query_metrics_lead_data();
+        await execute_mysql_working_query(pool, create_metrics_table_query);
+
         // STEP #2: GET DATA FOR SLACK MESSAGE
-        const query = await query_lead_data(country, date);
+        const query = await query_lead_metrics_data(country, date);
         // console.log(query);
 
-        results = await execute_query_get_lead_data(pool, query);
+        results = await execute_mysql_working_query(pool, query);
         // console.log(results);
         // console.log('results length = ', results.length)
 

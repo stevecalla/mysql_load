@@ -19,6 +19,9 @@ const derived_fields = `
     rental_status,
     lead_status_id,
 
+    rental_status_desc,
+    lead_status_desc,
+
     renting_in_country,
     renting_in_country_abb,
     renting_in_country_list_lm,

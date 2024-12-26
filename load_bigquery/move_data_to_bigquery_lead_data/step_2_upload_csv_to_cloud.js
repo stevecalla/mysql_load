@@ -17,7 +17,7 @@ async function execute_upload_csv_to_cloud() {
   try {
     const startTime = performance.now();
 
-    const directory = `${csvExportPath}bigquery`; // DIRECTORY CONTAINING CSV FILES
+    const directory = `${csvExportPath}bigquery_leads`; // DIRECTORY CONTAINING CSV FILES
 
     // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
     await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");
