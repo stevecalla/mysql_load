@@ -13,7 +13,7 @@ const { execute_get_daily_booking_data } = require('../daily_booking_forecast/st
 const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 
 // TESTING VARIABLES
-let send_slack_to_calla = true;
+let send_slack_to_calla = false;
 let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM
