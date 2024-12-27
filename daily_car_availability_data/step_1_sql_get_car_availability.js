@@ -8,7 +8,7 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
 
-const { query_booking_count_today_v3_all_bookings } = require('./query_booking_count_today_v3_all_bookings');
+const { query_car_availability } = require('./query_booking_car_avail_122724');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection(is_development_pool = true) {
@@ -51,13 +51,13 @@ function createSSHConnection(is_development_pool = true) {
 }
 
 // STEP #1: GET / QUERY DAILY BOOKING DATA & RETURN RESULTS
-async function execute_query_get_daily_booking_data(pool) {
+async function execute_working_query(pool) {
     return new Promise((resolve, reject) => {
 
         const startTime = performance.now();
 
         // const query = query_booking_count_today_v2(); // only non cancelled
-        const query = query_booking_count_today_v3_all_bookings();
+        const query = query_car_availability();
         // console.log(query);
 
         pool.query(query, (queryError, results) => {
@@ -69,13 +69,10 @@ async function execute_query_get_daily_booking_data(pool) {
                 reject(queryError);
             } else {
 
-                // results.forEach(result => console.log(result));
-                // console.table(results);
-
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
-
-                // console.table(results);
+                // results.forEach(result => console.log(result));
                 // console.log(results);
+                // console.table(results);
 
                 resolve(results);
             }
@@ -88,12 +85,10 @@ async function execute_get_car_availability(is_development_pool) {
     let results;
     const startTime = performance.now();
 
-    console.log('is development pool ', is_development_pool);
-
     try {
         // STEP #1: GET / QUERY Booking data DATA & RETURN RESULTS
         pool = await createSSHConnection(is_development_pool);
-        results = await execute_query_get_daily_booking_data(pool);
+        results = await execute_working_query(pool);
 
         // Return the results from the try block
         return results;

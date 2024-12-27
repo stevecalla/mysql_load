@@ -10,9 +10,10 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date'); //step_0
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
+const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 
 // TESTING VARIABLES
-let send_slack_to_calla = false;
+let send_slack_to_calla = true;
 let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM
@@ -67,16 +68,24 @@ async function step_1_get_daily_booking_data(start_time, is_development_pool) {
         if (run_step_1) {
 
             // EXECUTE QUERY
-            let getResults = await execute_get_daily_booking_data(is_development_pool);
+            // let getResults = await execute_get_daily_booking_data(is_development_pool);
             // console.table(getResults);
+            
+            const getBookingData = await execute_get_daily_booking_data(is_development_pool);
+            // console.table(getBookingData);
+            const getCarAvailability = await execute_get_car_availability(is_development_pool);
+            // console.table(getCarAvailability);
 
             // LOGS
-            let message = getResults ? `\nGet booking data queries executed successfully.` : `Opps error getting data\n`;
-            console.log(message);
+            let booking_message = getBookingData ? `\nGet booking data queries executed successfully.` : `Opps error getting booking data\n`;
+            console.log(booking_message);
 
-            if (getResults) {
+            let car_message = getCarAvailability ? `\nGet car data queries executed successfully.` : `Opps error getting car data\n`;
+            console.log(booking_message);
 
-                const slack_message = await create_daily_booking_slack_message(getResults);
+            if (getBookingData) {
+
+                const slack_message = await create_daily_booking_slack_message(getBookingData, getCarAvailability);
 
                 if (send_slack_to_calla) {
                     await slack_message_steve_calla_channel(slack_message);
