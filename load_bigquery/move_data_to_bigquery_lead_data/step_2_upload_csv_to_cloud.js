@@ -4,10 +4,10 @@ const { exec } = require('child_process');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // add path to read.env file
 
+const { determineOSPath } = require('../../utilities/determineOSPath');
+
 const { generateLogFile } = require('../../utilities/generateLogFile');
 const { execute_google_cloud_command } = require('../../utilities/google_cloud_execute_command');
-
-const { csvExportPath } = require('../../utilities/config');
 
 const bucketName = 'testing_bucket_v2';
 const destinationPath = `gs://${bucketName}/`;
@@ -17,7 +17,9 @@ async function execute_upload_csv_to_cloud() {
   try {
     const startTime = performance.now();
 
-    const directory = `${csvExportPath}bigquery_leads`; // DIRECTORY CONTAINING CSV FILES
+    const os_path = await determineOSPath();
+    let directoryName = `bigquery_leads`;
+    const directory = `${os_path}${directoryName}`;
 
     // GOOGLE CLOUD = LOGIN AND SET PROPERTY ID
     await execute_google_cloud_command("login", "Login successful", "login_to_google_cloud");

@@ -7,11 +7,12 @@ const { Storage } = require('@google-cloud/storage');
 const dotenv = require('dotenv');
 dotenv.config({ path: "../../.env" }); // add path to read.env file
 
+const { determineOSPath } = require('../../utilities/determineOSPath');
+
 const { generateLogFile } = require('../../utilities/generateLogFile');
 const { execute_google_cloud_command } = require('../../utilities/google_cloud_execute_command');
 
 const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-const { csvExportPath } = require('../../utilities/config');
 
 const { booking_schema } = require('./schema_booking_data');
 const datasetId = "ezhire_metrics";
@@ -38,7 +39,11 @@ async function execute_load_big_query_database() {
     *
     * TODO(developer): Replace the following lines with the path to your file.
     */
-    const directory = `${csvExportPath}bigquery_leads`; // DIRECTORY CONTAINING CSV FILES
+
+    const os_path = await determineOSPath();
+    let directoryName = `bigquery_leads`;
+    const directory = `${os_path}${directoryName}`;
+
     const files = await fs.readdir(directory); // LIST ALL FILES IN THE DIRECTORY
     let numberOfFiles = 0;
 
