@@ -195,7 +195,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     console.log('/scheduled-leads route req.rawHeaders = ', req.rawHeaders);
 
     // TESTING VARIABLES
-    let send_slack_to_calla_test = true;
+    let send_slack_to_calla_test = false;
 
     let { country, date } = req.params;
     let countryFilter = '';
