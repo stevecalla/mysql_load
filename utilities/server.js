@@ -101,8 +101,8 @@ async function check_last_leads_db_update() {
         const lastExecutionDate = new Date(lastUpdateTimestamp); // Convert the stored timestamp back to a Date object
         const timeDifference = (currentTimestamp - lastExecutionDate) / (1000 * 60); // Time difference in minutes
 
-        if (timeDifference < 3) {
-            const message = `🔔 Update-leads job was executed within the last 3 minutes at ${lastUpdateTimestamp}. Please try again in a couple of minutes. Time now = ${now} MTN.`;
+        if (timeDifference < 10) {
+            const message = `🔔 Update-leads job was executed within the last 10 minutes at ${lastUpdateTimestamp}. Please try again in a couple of minutes. Time now = ${now} MTN.`;
 
             await slack_message_api(message, 'steve_calla_slack_channel');
 

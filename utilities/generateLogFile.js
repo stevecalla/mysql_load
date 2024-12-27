@@ -1,7 +1,9 @@
 const fs = require('fs');
+const { determineOSPath } = require('./determineOSPath');
+
 const { getCurrentDateForFileNaming, getCurrentDateTime, getCurrentDateTimeForFileNaming } = require('./getCurrentDate');
 
-function generateLogFile(source, content, passedFolderPath) {
+async function generateLogFile(source, content, passedFolderPath) {
     // CREATE FILE NAME
     // const date = getCurrentDateForFileNaming();
     const createdAtFormatted = getCurrentDateTimeForFileNaming();
@@ -10,7 +12,8 @@ function generateLogFile(source, content, passedFolderPath) {
     // console.log('File name = ', fileName);
 
     // CREATE FILE PATH
-    const defaultFolderPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/logs`;
+    const os_path = await determineOSPath();
+    const defaultFolderPath = `${os_path}/logs`;
     const folderPath = passedFolderPath ? `${passedFolderPath}/logs` : `${defaultFolderPath}`;
     const filePath = folderPath ? `${folderPath}/${fileName}` : `${defaultFolderPath}/${fileName}`;
     // console.log('File path = ', folderPath);

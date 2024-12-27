@@ -84,10 +84,10 @@ async function deleteArchivedFiles() {
                 // Delete the file
                 fs.unlinkSync(filePath);
                 console.log(`File ${filePath} deleted successfully.`);
-                generateLogFile('get_usat_sales_data', `File ${filePath} deleted successfully.`, logPath);
+                generateLogFile('get_ezhire_sales_data', `File ${filePath} deleted successfully.`, logPath);
             } catch (deleteErr) {
                 console.error(`Error deleting file ${filePath}:`, deleteErr);
-                generateLogFile('get_usat_sales_data', `Error deleting file ${filePath}: ${deleteErr}`, logPath);
+                generateLogFile('get_ezhire_sales_data', `Error deleting file ${filePath}: ${deleteErr}`, logPath);
             }
         }
     });
@@ -137,7 +137,7 @@ async function moveFilesToArchive() {
 }
 
 // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
-async function execute_query_get_usat_sales_data(pool, query) {
+async function execute_query_get_ezhire_sales_data(pool, query) {
     const startTime = performance.now(); // Start timing
     const logPath = await determineOSPath();
 
@@ -170,7 +170,7 @@ async function execute_query_get_usat_sales_data(pool, query) {
         console.log(`\nQuery results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
         // Additional operations (optional)
-        generateLogFile('get_usat_sales_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, logPath);
+        generateLogFile('get_ezhire_sales_data', `Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`, logPath);
 
         return results; // Return results if needed
 
@@ -190,7 +190,7 @@ async function export_results_to_csv(results, file_name, i) {
 
     if (results.length === 0) {
         console.log('No results to export.');
-        generateLogFile('get_usat_sales_data', 'No results to export.', logPath);
+        generateLogFile('get_ezhire_sales_data', 'No results to export.', logPath);
         return;
     }
 
@@ -234,7 +234,7 @@ async function export_results_to_csv_fast_csv(results, file_name, i) {
 
     if (results.length === 0) {
         console.log('No results to export.');
-        generateLogFile('get_usat_sales_data', 'No results to export.', logPath);
+        generateLogFile('get_ezhire_sales_data', 'No results to export.', logPath);
         return;
     }
 
@@ -283,13 +283,13 @@ async function export_results_to_csv_fast_csv(results, file_name, i) {
         console.log(`STEP #4 EXPORT RESULTS TO CSV FILE: Elapsed Time: ${elapsedTime} sec`);
 
         console.log(`Results exported to ${filePath}`);
-        generateLogFile('get_usat_sales_data', `User data exported to ${filePath}`, logPath);
+        generateLogFile('get_ezhire_sales_data', `User data exported to ${filePath}`, logPath);
 
         return;
 
     } catch (error) {
         console.error(`Error exporting results to csv:`, error);
-        generateLogFile('get_usat_sales_data', `Error exporting results to csv: ${error}`, logPath);
+        generateLogFile('get_ezhire_sales_data', `Error exporting results to csv: ${error}`, logPath);
     } finally {
     }
 }
@@ -304,10 +304,10 @@ async function execute_get_lead_response_data() {
         // STEP #0: ENSURE FILE WAS UPDATED RECENTLY
 
         // STEP #1: DELETE PRIOR FILES
-        await deleteArchivedFiles(); //todo:
+        await deleteArchivedFiles();
 
         // STEP #2 - MOVE FILES TO ARCHIVE
-        await moveFilesToArchive(); //todo:
+        await moveFilesToArchive();
 
         // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
         pool = await createSSHConnection();
@@ -326,13 +326,13 @@ async function execute_get_lead_response_data() {
             
             query = await query();
 
-            results = await execute_query_get_usat_sales_data(pool, query);
+            results = await execute_query_get_ezhire_sales_data(pool, query);
 
             stopTimer(`0_get_data`);
 
             console.log(`File ${i + 1} of ${query_logic.length} complete.\n`);  
 
-            // generateLogFile('get_usat_sales_data', `Query for  execute_query_get_sales_data executed successfully.`, logPath);  
+            // generateLogFile('get_ezhire_sales_data', `Query for  execute_query_get_sales_data executed successfully.`, logPath);  
             
             // STEP #4: EXPORT RESULTS TO CSV
             runTimer(`0_export`);
@@ -348,7 +348,7 @@ async function execute_get_lead_response_data() {
         
     } catch (error) {
         console.error('Error:', error);
-        generateLogFile('get_usat_sales_data', `Error loading user data: ${error}`, logPath);
+        generateLogFile('get_ezhire_sales_data', `Error loading user data: ${error}`, logPath);
 
         stopTimer(`0_get_data`);
         stopTimer(`0_export`); 
@@ -383,7 +383,7 @@ async function execute_get_lead_response_data() {
         const endTime = performance.now();
         const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2); //convert ms to sec
 
-        console.log(`\nAll get usat sales data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
+        console.log(`\nAll get ezhire sales data queries executed successfully. Elapsed Time: ${elapsedTime ? elapsedTime : "Opps error getting time"} sec\n`);
 
         // process.exit();
 
