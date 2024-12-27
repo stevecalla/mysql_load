@@ -73,7 +73,7 @@ async function execute_load_lead_data_to_bigquery() {
   return elapsedTime;
 }
 
-execute_load_lead_data_to_bigquery();
+// execute_load_lead_data_to_bigquery();
 
 module.exports = {
   execute_load_lead_data_to_bigquery,
