@@ -8,6 +8,9 @@ const { run_most_recent_check } = require('../scheduled_jobs/daily_bookings_by_h
 const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
+// CAR AVAILABILITY
+const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability.js');
+
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
@@ -37,7 +40,7 @@ app.get('/scheduled-bookings', async (req, res) => {
     console.log('/scheduled-bookings route req.rawHeaders = ', req.rawHeaders);
 
     try {
-        // Call the function to run the most recent check
+        // Call the function to run the most recent check, retrieve data & send slack message
         await run_most_recent_check();
 
         // Send a success response
@@ -79,14 +82,15 @@ app.post('/get-bookings', async (req, res) => {
 
     // is_development_pool = false; // switch to production if necessary
 
-    const getResults = await execute_get_daily_booking_data(is_development_pool);
-    const slackMessage = await create_daily_booking_slack_message(getResults);
+    const getBookingData = await execute_get_daily_booking_data(is_development_pool);
+    const getCarAvailability = await execute_get_car_availability(is_development_pool);
+
+    const slackMessage = await create_daily_booking_slack_message(getBookingData, getCarAvailability);
     // console.log('slack message = ', slackMessage);
 
     // Send a follow-up message to Slack
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
-
 
 // Store the last update timestamp in memory
 let lastUpdateTimestamp = null;

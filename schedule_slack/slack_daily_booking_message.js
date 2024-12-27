@@ -1,22 +1,33 @@
 const { getFormattedDateAmPm } = require('../utilities/getCurrentDate');
-const { group_by_country } = require('../daily_booking_forecast/results_grouped_by_country');
 const { get_country_data } = require('../daily_booking_forecast/results_grouped_by_country_by_cancel');
+const { get_formatted_car_avail_data } = require('../daily_car_availability_data/format_car_availability_data');
 
-const { execute_get_daily_booking_data} = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
-
-async function create_daily_booking_slack_message(results) {
+async function create_daily_booking_slack_message(booking_data, car_data) {
   // GOAL
   const goal = 400;
   const goal_message = `🎯 Goal: ${goal}`;
 
-  const { country_data, summary_data } = await get_country_data(results);
+  const { formatted_car_data } = await get_formatted_car_avail_data(car_data);
+  const [{
+    count_total_available,
+    count_total_on_rent,
+    count_ncm_rp_out,
+    count_ncm_dc_out,
+    count_other,
+    count_total_cars,
+    utilization_total,
+  }] = formatted_car_data;
+  console.log('a ', formatted_car_data)
+
+  const { country_data, summary_data } = await get_country_data(booking_data);
   const { 
       yesterday_cancelled, 
       yesterday_not_cancelled, 
       yesterday_total, 
       today_cancelled, 
       today_not_cancelled, 
-      today_total,  } = summary_data;
+      today_total,  
+  } = summary_data;
 
     // Use find to get the booking for the United Arab Emirates
     const uaeBookings = country_data.find(booking => booking.delivery_country === 'United Arab Emirates');
@@ -24,11 +35,11 @@ async function create_daily_booking_slack_message(results) {
     // Extract only the booking values, with defaults in case not found
     const { today_not_cancelled: uae_bookings_today = 0, yesterday_not_cancelled: uae_bookings_yesterday = 0 } = uaeBookings || {};
 
-    let { created_at_message, most_recent_booking_date_message, created_at_date_unformatted } = await date_info(results);
+    let { created_at_message, most_recent_booking_date_message, created_at_date_unformatted } = await date_info(booking_data);
 
-    let { booking_count_message, today_above_below_goal_message, status_today } = await get_booking_status_today(results, goal, uae_bookings_today);
+    let { booking_count_message, today_above_below_goal_message, status_today } = await get_booking_status_today(booking_data, goal, uae_bookings_today);
 
-    let { status_yesterday } = await get_booking_status_yesterday(results, goal, uae_bookings_yesterday);
+    let { status_yesterday } = await get_booking_status_yesterday(booking_data, goal, uae_bookings_yesterday);
     
     const { pacing_message, pacing_status_message, pacing_threshold } = await check_pacing_for_current_hour(created_at_date_unformatted, uae_bookings_today);
 
@@ -45,6 +56,8 @@ async function create_daily_booking_slack_message(results) {
       `${goal_message}\n` +
       `${today_above_below_goal_message}\n` +
       `${status_today}\n` +
+      `--------------\n`+
+      `🚗 UAE Cars: Avail: ${count_total_available}, On-Rent: ${count_total_on_rent}, Total: ${count_total_cars}, Util: ${utilization_total}\n` +
       `--------------\n`+
       `${status_yesterday}\n` +
       `--------------\n` +
@@ -67,19 +80,19 @@ async function create_daily_booking_slack_message(results) {
 }
 
 // CREATE DATE INFO
-async function date_info(results) {
+async function date_info(booking_data) {
 
-  // console.log(results);
+  // console.log(booking_data);
   
   // DATE INFO
-  const created_at_date = `${getFormattedDateAmPm(results[0].created_at_gst)} GST`;
+  const created_at_date = `${getFormattedDateAmPm(booking_data[0].created_at_gst)} GST`;
   const created_at_message = `Info Queried At: ${created_at_date}`;
-  const created_at_date_unformatted = results[0].created_at_gst;
+  const created_at_date_unformatted = booking_data[0].created_at_gst;
 
   // const most_recent = MAX(date_most_recent_created_on_gst, date_most_recent_updated_on_gst);
   const most_recent = new Date(Math.max(
-    new Date(results[0].date_most_recent_created_on_gst).getTime(),
-    new Date(results[0].date_most_recent_updated_on_gst).getTime()
+    new Date(booking_data[0].date_most_recent_created_on_gst).getTime(),
+    new Date(booking_data[0].date_most_recent_updated_on_gst).getTime()
   ));
 
   const most_recent_booking_date = `${getFormattedDateAmPm(most_recent)} GST`;
@@ -89,9 +102,9 @@ async function date_info(results) {
 }
 
 // BOOKINGS TODAY
-async function get_booking_status_today(results, goal, uae_bookings_today) {
+async function get_booking_status_today(booking_data, goal, uae_bookings_today) {
   // Filter for entries related to the United Arab Emirates
-  // const uae_bookings_today = results.filter(booking => booking.delivery_country === 'United Arab Emirates')[1].current_bookings;
+  // const uae_bookings_today = booking_data.filter(booking => booking.delivery_country === 'United Arab Emirates')[1].current_bookings;
 
   let booking_count_message = `📢 Bookings: ${uae_bookings_today}`;
   const today_above_below_goal = (uae_bookings_today - goal);
@@ -103,8 +116,8 @@ async function get_booking_status_today(results, goal, uae_bookings_today) {
 }
 
 // BOOKINGS YESTERDAY
-async function get_booking_status_yesterday(results, goal, uae_bookings_yesterday) {
-  // const uae_bookings_yesterday = results.filter(booking => 
+async function get_booking_status_yesterday(booking_data, goal, uae_bookings_yesterday) {
+  // const uae_bookings_yesterday = booking_data.filter(booking => 
   //   booking.delivery_country === 'United Arab Emirates')[0].current_bookings;
 
   const yesterday_above_below_goal = (uae_bookings_yesterday - goal);
@@ -169,11 +182,15 @@ async function find_target_for_current_hour(currentHourFormatted) {
   return target;
 }
 
-// used to test
+// testing function
 // async function main() {
-//   let test = await execute_get_daily_booking_data();
+//   const { execute_get_daily_booking_data} = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
+//   const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 
-//   create_daily_booking_slack_message(test);
+//   const booking_data = await execute_get_daily_booking_data();
+//   const car_data = await execute_get_car_availability();
+
+//   create_daily_booking_slack_message(booking_data, car_data);
 // }
 
 // main();
