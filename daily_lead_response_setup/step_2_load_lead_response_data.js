@@ -94,6 +94,55 @@ async function execute_mysql_working_query(pool, db_name, query, filePath, step_
     });
 }
 
+// https://chatgpt.com/c/67618a44-e754-8003-8843-cd39b3548410
+// node --expose-gc yourScript.js
+// async function execute_mysql_working_query(pool, db_name, query, filePath, step_info) {
+//     const startTime = performance.now();
+//     const fs = require('fs');
+//     const infileStream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 }); // 64KB chunks
+
+//     return new Promise((resolve, reject) => {
+//         pool.query(`USE ${db_name};`, (useError) => {
+//             if (useError) {
+//                 console.error('Error switching database:', useError);
+//                 return reject(useError);
+//             }
+
+//             const results = [];
+            // const queryStream = pool.query({
+            //     sql: query,
+            //     infileStreamFactory: () => infileStream
+            // }).stream();
+
+            // queryStream
+            //     .on('data', (row) => {
+            //         results.push(row); // Process data row by row
+            //         if (results.length > 1000) results.shift(); // Prevent memory buildup
+            //     })
+            //     .on('end', () => {
+            //         const endTime = performance.now();
+//                     const elapsedTime = ((endTime - startTime) / 1_000).toFixed(2);
+//                     console.log(`Query completed in ${elapsedTime} seconds`);
+//                     resolve(results.length);
+//                 })
+//                 .on('error', (err) => {
+//                     console.error('Query error:', err);
+//                     reject(err);
+//                 });
+//         });
+//     }).finally(() => {
+//         // Force garbage collection
+//         if (global.gc) {
+//             console.log('Manually triggering garbage collection...');
+//             global.gc();
+//         } else {
+//             console.warn('Garbage collection is not exposed. Run with --expose-gc flag.');
+//         }
+        
+//         pool.releaseConnection();
+//     });
+// }
+
 async function execute_load_lead_response_data() {
     let pool;
     const startTime = performance.now();
