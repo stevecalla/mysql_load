@@ -70,7 +70,7 @@ async function execute_query_most_recent_created_on(pool, startDate, endDate) {
                 generateLogFile('booking_data', log_message, csvExportPath);
                 generateLogFile('booking_data', log_results, csvExportPath);
 
-                resolve(results);
+                resolve(results[0][0]);
             }
         });
     });

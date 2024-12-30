@@ -26,9 +26,9 @@ async function check_most_recent_created_on_date(is_testing = false) {
         if (run_step_0) {
             // EXECUTE QUERIES
             let getResults = await execute_get_most_recent_created_on_date();
-            console.log('query results check most recent = ', getResults);
+            console.log('query results check most recent = ', getResults.results);
 
-            const results = getResults.results[0];
+            const results = getResults.results;
             let { is_within_15_minutes, is_within_2_hours } = results;
 
             console.log('is with 15 minutes = ', is_within_15_minutes, typeof is_within_15_minutes, !is_within_15_minutes);
@@ -50,7 +50,7 @@ async function check_most_recent_created_on_date(is_testing = false) {
             }
             
             // slack messages
-            let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(getResults, is_testing);
+            let { slack_message_15_minutes, slack_message_2_hours } = await create_slack_message(results, is_testing);
 
             is_within_2_hours ? await slack_message_steve_calla_channel(slack_message_15_minutes) : await slack_message_steve_calla_channel(slack_message_2_hours);
 
@@ -94,8 +94,7 @@ async function create_slack_message(data, is_testing) {
     let log_message = await create_log_message(data);
 
     // slack mesage
-    results = data.results[0];
-    let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
+    let { source_field, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = data;
     let elapsed_time = `QUERY ELAPSED TIME: ${data.elapsedTime}`;
 
     // // Assign false to is_within_15_minutes if is_testing is true
@@ -128,16 +127,14 @@ async function create_slack_message(data, is_testing) {
 }
 
 async function create_log_message(data) {
-    results = data.results[0];
+    let { source_field, most_recent_event_update_gst, execution_timestamp_gst, time_stamp_difference_minute, is_within_15_minutes } = data;
 
-    let { source_field, most_recent_event_update_gst, execution_timestamp_gst, time_stamp_difference_minute, is_within_15_minutes } = results;
-
-    let log_message = results ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_gst}\nLAST UPDATED: ${most_recent_event_update_gst}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
+    let log_message = data ? `\nEXECUTION TIMESTAMP: ${execution_timestamp_gst}\nLAST UPDATED: ${most_recent_event_update_gst}\nTIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}\nSOURCE FIELD: ${source_field}\nIS WITHIN 15 MINUTES: ${is_within_15_minutes}` : `Opps no results`;
 
     return log_message;
 }
 
-// check_most_recent_created_on_date();
+check_most_recent_created_on_date();
 
 module.exports = {
     check_most_recent_created_on_date,
