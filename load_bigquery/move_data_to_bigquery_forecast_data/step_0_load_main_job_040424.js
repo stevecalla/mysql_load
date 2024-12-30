@@ -43,7 +43,7 @@ async function executeSteps(stepFunctions) {
   }
 }
 
-async function execute_load_lead_data_to_bigquery() {
+async function execute_load_forecast_data_to_bigquery() {
   const startTime = performance.now();
   console.log(`\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
   generateLogFile('load_big_query', `\n\nPROGRAM START TIME = ${getCurrentDateTime()}`);
@@ -73,8 +73,8 @@ async function execute_load_lead_data_to_bigquery() {
   return elapsedTime;
 }
 
-execute_load_lead_data_to_bigquery();
+// execute_load_forecast_data_to_bigquery();
 
 module.exports = {
-  execute_load_lead_data_to_bigquery,
+  execute_load_forecast_data_to_bigquery,
 };

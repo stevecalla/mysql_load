@@ -16,7 +16,7 @@ const { execute_get_booking_hourly_data } = require('../daily_booking_forecast/s
 const { execute_load_booking_by_hour_data } = require('../daily_booking_forecast/step_2_load_booking_by_hour_data.js');
 const { execute_create_forecast_metrics } = require('../daily_booking_forecast/step_2a_create_forecast_summary_data.js');
 const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
-const {} = require('../load_bigquery/move_data_to_bigquery_forecast_data/step_0_load_main_job_040424.js');
+const { execute_load_forecast_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_forecast_data/step_0_load_main_job_040424.js');
 
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
@@ -127,19 +127,19 @@ async function update_forecast() {
         const elapsed_time_create_metrics = await execute_create_forecast_metrics();
 
         // STEP #2B LOAD FORECAST & FORECAST METRICS DATA TO BIGQUERY
-        const elapsed_time_load_lead_data_to_biquery = await execute_load_lead_data_to_bigquery();
+        const elapsed_time_load_data_to_biquery = await execute_load_forecast_data_to_bigquery();
 
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
         const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        const slack_message = `🔔 Updated forecast data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
+        const slack_message = `🔔 Updated forecast data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_data_to_biquery}. Time now = ${now} MTN.`;
 
         console.log('slack message after updating forecast data', slack_message);
 
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
     } catch (error) {
-        const error_message = `Error in execute_get_lead_response_data. ${error}.`;
+        const error_message = `Error in update forecast route. ${error}.`;
 
         // STEP #3 SEND ERROR MESSAGE TO S. CALLA
         console.error(error_message);
@@ -156,7 +156,7 @@ app.post('/update-forecast', async (req, res, next) => {
     });
 
     try {
-        res.status(202).json({ message: 'Update-leads job started successfully.' });
+        res.status(202).json({ message: 'Update forecast job started successfully.' });
         await update_forecast(); 
     } catch (error) {
         console.log('Update forecast route error', error);
@@ -226,7 +226,7 @@ async function update_leads() {
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
     } catch (error) {
-        const error_message = `Error in execute_get_lead_response_data. ${error}.`;
+        const error_message = `Error in update leads route. ${error}.`;
 
         // STEP #3 SEND ERROR MESSAGE TO S. CALLA
         console.error(error_message);
