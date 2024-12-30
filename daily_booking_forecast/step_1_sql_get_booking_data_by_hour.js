@@ -8,7 +8,7 @@ const sshClient = new Client();
 
 const { forwardConfig, dbConfig, sshConfig, dbConfigProduction, sshConfigProduction  } = require('../utilities/config');
 
-const { query_car_availability } = require('./query_booking_car_avail_122724');
+const { query_booking_hourly_data } = require('./query_booking_hourly_data_122924');
 
 // Function to create a Promise for managing the SSH connection and MySQL queries
 function createSSHConnection(is_development_pool = true) {
@@ -57,7 +57,7 @@ async function execute_working_query(pool) {
         const startTime = performance.now();
 
         // const query = query_booking_count_today_v2(); // only non cancelled
-        const query = query_car_availability();
+        const query = query_booking_hourly_data();
         // console.log(query);
 
         pool.query(query, (queryError, results) => {
@@ -71,7 +71,7 @@ async function execute_working_query(pool) {
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
                 // results.forEach(result => console.log(result));
-                // console.log(results);
+                console.log(results);
                 // console.table(results);
 
                 resolve(results);
@@ -80,7 +80,7 @@ async function execute_working_query(pool) {
     });
 }
 
-async function execute_get_car_availability(is_development_pool) {
+async function execute_get_booking_hourly_data(is_development_pool) {
     let pool;
     let results;
     const startTime = performance.now();
@@ -133,8 +133,8 @@ async function execute_get_car_availability(is_development_pool) {
 }
 
 // Run the main function
-// execute_get_car_availability();
+execute_get_booking_hourly_data();
 
 module.exports = {
-    execute_get_car_availability,
+    execute_get_booking_hourly_data,
 }

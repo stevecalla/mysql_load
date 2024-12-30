@@ -268,7 +268,15 @@ function query_booking_hourly_data() {
                 @same_day_last_week AS same_day_last_week
             FROM union_all_data AS un
         )
-        SELECT * FROM final_data_table;
+        -- SELECT * FROM final_data_table;
+        SELECT  -- sum by segment_minor
+            segment_minor, 
+            SUM(CASE WHEN booking_time_bucket_flag IN ("yes") THEN hourly_bookings ELSE 0 END) booking_total_prior_to_current_hour,
+            SUM(hourly_bookings) AS booking_total
+        FROM final_data_table 
+        WHERE segment_minor NOT IN ('actual_last_7_days', 'actuals_same_day_last_4_weeks')
+        GROUP BY segment_minor;
+        
     `;
 }
 

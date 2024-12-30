@@ -36,6 +36,7 @@ const dbConfig = {
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const dbConfigProduction = {
@@ -45,6 +46,7 @@ const dbConfigProduction = {
     password: process.env.MYSQL_PASSWORD_PRODUCTION,
     database: process.env.MYSQL_DATABASE_PRODUCTION,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const sshConfig = {
