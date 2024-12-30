@@ -26,13 +26,13 @@ async function check_most_recent_created_on_date(is_testing = false) {
         if (run_step_0) {
             // EXECUTE QUERIES
             let getResults = await execute_get_most_recent_created_on_date();
-            console.log('query results = ', getResults);
+            console.log('query results check most recent = ', getResults);
 
             const results = getResults.results[0];
             let { is_within_15_minutes, is_within_2_hours } = results;
 
-            console.log('is with 15 = ', is_within_15_minutes, typeof is_within_15_minutes, !is_within_15_minutes);
-            console.log('is with 2hr = ', is_within_2_hours, typeof is_within_2_hours, !is_within_2_hours);
+            console.log('is with 15 minutes = ', is_within_15_minutes, typeof is_within_15_minutes, !is_within_15_minutes);
+            console.log('is with 2 hours = ', is_within_2_hours, typeof is_within_2_hours, !is_within_2_hours);
 
             // // Assign false to is_within_15_minutes if is_testing is true
             // if (is_testing) {
@@ -108,8 +108,8 @@ async function create_slack_message(data, is_testing) {
     //     is_within_2_hours = false;
     // }
 
-    let inside_15_minutes = `WITHIN 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING DR DEVELOPMENT DB`;
-    let outside_15_minutes =  `OUTSIDE 15 MINUTES USING MOST RECENT ${source_field.toUpperCase()}.\nUSING PRODUCTION DB`;
+    let inside_15_minutes = `WITHIN 15 MINUTES USING MOST RECENT ${source_field?.toUpperCase()}.\nUSING DR DEVELOPMENT DB`;
+    let outside_15_minutes =  `OUTSIDE 15 MINUTES USING MOST RECENT ${source_field?.toUpperCase()}.\nUSING PRODUCTION DB`;
     let minutes_diff_message = `TIME STAMP DIFFERENCE - MINUTES: ${time_stamp_difference_minute}`;
     
     let slack_message_15_minutes = (is_within_15_minutes ? 

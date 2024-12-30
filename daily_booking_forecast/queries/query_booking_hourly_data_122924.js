@@ -164,7 +164,9 @@ function query_booking_hourly_data() {
                 *
             FROM (
                 SELECT 
-                    booking_date,
+                    -- INSERTED '0000-01-01' AS DEFAULT TO ENSURE WHEN INSERTING DATA INTO THE FORECAST SUMMARY METRICS TABLE THAT VALUE IS NOT NULL SINCE NULL VALUES ARE TREATED AS UNIQUE MEANING THAT DUPLICATE ROWS WILL BE WRITTEN TO THE TABLE
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket,
                     segment_major,
                     segment_minor, 
@@ -174,7 +176,8 @@ function query_booking_hourly_data() {
                 UNION ALL
 
                 SELECT 
-                    booking_date,
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket, 
                     segment_major,
                     segment_minor, 
@@ -184,7 +187,8 @@ function query_booking_hourly_data() {
                 UNION ALL
 
                 SELECT 
-                    booking_date,
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket, 
                     segment_major,
                     segment_minor, 
@@ -194,7 +198,8 @@ function query_booking_hourly_data() {
                 UNION ALL 
 
                 SELECT 
-                    booking_date,
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket, 
                     segment_major,
                     segment_minor, 
@@ -204,7 +209,8 @@ function query_booking_hourly_data() {
                 UNION ALL 
 
                 SELECT 
-                    booking_date, 
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket,
                     segment_major,
                     segment_minor, 
@@ -214,7 +220,8 @@ function query_booking_hourly_data() {
                 UNION ALL
 
                 SELECT 
-                    booking_date,
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket, 
                     segment_major,
                     segment_minor, 
@@ -224,7 +231,8 @@ function query_booking_hourly_data() {
                 UNION ALL 
 
                 SELECT 
-                    booking_date, 
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket,
                     segment_major,
                     segment_minor, 
@@ -234,7 +242,8 @@ function query_booking_hourly_data() {
                 UNION ALL 
 
                 SELECT 
-                    booking_date, 
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket,
                     segment_major,
                     segment_minor, 
@@ -244,7 +253,8 @@ function query_booking_hourly_data() {
                 UNION ALL 
 
                 SELECT 
-                    booking_date, 
+                    -- booking_date, 
+                    IFNULL(booking_date, '0000-01-01') AS booking_date, -- Replace NULL with a default value
                     booking_time_bucket,
                     segment_major,
                     segment_minor, 
@@ -260,23 +270,16 @@ function query_booking_hourly_data() {
                 un.*, 
                 DAYOFWEEK(un.booking_date) AS booking_date_day_of_week,
                 @today_date_gst AS today_date_gst,
-                @today_timestamp_utc AS today_timestamp_ut,
+                @today_timestamp_utc AS today_timestamp_utc,
                 @today_timestamp_gst AS today_timestamp_gst,
                 @today_current_hour_gst AS today_current_hour_gst,
                 IF(booking_time_bucket < @today_current_hour_gst, "yes", "no") AS booking_time_bucket_flag,
                 @today_current_dayofweek_gst AS today_current_day_of_week_gst,
-                @same_day_last_week AS same_day_last_week
+                @same_day_last_week AS same_day_last_week,
+                @today_timestamp_gst AS created_at_gst
             FROM union_all_data AS un
         )
-        -- SELECT * FROM final_data_table;
-        SELECT  -- sum by segment_minor
-            segment_minor, 
-            SUM(CASE WHEN booking_time_bucket_flag IN ("yes") THEN hourly_bookings ELSE 0 END) booking_total_prior_to_current_hour,
-            SUM(hourly_bookings) AS booking_total
-        FROM final_data_table 
-        WHERE segment_minor NOT IN ('actual_last_7_days', 'actuals_same_day_last_4_weeks')
-        GROUP BY segment_minor;
-        
+        SELECT * FROM final_data_table;
     `;
 }
 

@@ -11,6 +11,9 @@ const { create_daily_booking_slack_message } = require('../schedule_slack/slack_
 // CAR AVAILABILITY
 const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability.js');
 
+// FORECAST DATA
+const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
+
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
@@ -84,8 +87,9 @@ app.post('/get-bookings', async (req, res) => {
 
     const getBookingData = await execute_get_daily_booking_data(is_development_pool);
     const getCarAvailability = await execute_get_car_availability(is_development_pool);
+    const getForecastData = await execute_get_slack_forecast_data(is_development_pool);
 
-    const slackMessage = await create_daily_booking_slack_message(getBookingData, getCarAvailability);
+    const slackMessage = await create_daily_booking_slack_message(getBookingData, getCarAvailability, getForecastData);
     // console.log('slack message = ', slackMessage);
 
     // Send a follow-up message to Slack
