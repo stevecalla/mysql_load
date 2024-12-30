@@ -15,7 +15,7 @@ const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/s
 
 // TESTING VARIABLES
 let send_slack_to_calla = false;
-let is_testing = false; // allows for testing of is_within_15_minutes in check_most_recent_created_on_date.js
+let is_testing = false; // test is_within_15_minutes in check_most_recent_created_on_date.js
 
 // RUN PROGRAM
 let run_step_0 = true;     // get most recent created on / updated on datetime

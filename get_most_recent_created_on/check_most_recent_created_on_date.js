@@ -134,7 +134,7 @@ async function create_log_message(data) {
     return log_message;
 }
 
-check_most_recent_created_on_date();
+// check_most_recent_created_on_date();
 
 module.exports = {
     check_most_recent_created_on_date,
