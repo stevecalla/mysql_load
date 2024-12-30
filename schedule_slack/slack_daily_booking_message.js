@@ -80,9 +80,10 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `  ------------\n` +
       `GROSS BOOKINGS\n` +
       `${yesterday_total}\n${today_total}\n` +
-      `**************\n` +
-      `${looker_forecast_dashboard_link}` + `\n` +
-      `**************\n`
+      `**************\n` 
+      // +
+      // `${looker_forecast_dashboard_link}` + `\n` +
+      // `**************\n`
     ;
 
     console.log(slackMessage);
