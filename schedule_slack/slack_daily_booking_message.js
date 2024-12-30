@@ -7,6 +7,8 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
   const goal = 400;
   const goal_message = `🎯 Goal: ${goal}`;
 
+  const { looker_forecast_dashboard_link } = await looker_links();
+
   const { formatted_car_data } = await get_formatted_car_avail_data(car_data);
   const [{
     count_total_available,
@@ -78,6 +80,8 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `  ------------\n` +
       `GROSS BOOKINGS\n` +
       `${yesterday_total}\n${today_total}\n` +
+      `**************\n` +
+      `${looker_forecast_dashboard_link}` + `\n` +
       `**************\n`
     ;
 
@@ -106,6 +110,14 @@ async function date_info(booking_data) {
   const most_recent_booking_date_message = `Most Recent Booking At: ${most_recent_booking_date}`;
 
   return { created_at_date, created_at_message, most_recent_booking_date, most_recent_booking_date_message, created_at_date_unformatted };
+}
+
+// CREATE LOOKER STUDIO LINKS
+async function looker_links() {
+  const link_dashboard = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_zsb11me7nd?pli=1`;
+  const looker_forecast_dashboard_link = `<${link_dashboard}|Link to Looker Forecast Dashboard>`;
+
+  return { looker_forecast_dashboard_link };
 }
 
 // BOOKINGS TODAY
