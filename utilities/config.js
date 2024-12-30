@@ -36,6 +36,7 @@ const dbConfig = {
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const dbConfigProduction = {
@@ -45,6 +46,7 @@ const dbConfigProduction = {
     password: process.env.MYSQL_PASSWORD_PRODUCTION,
     database: process.env.MYSQL_DATABASE_PRODUCTION,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const sshConfig = {
@@ -107,6 +109,16 @@ const localLeadDbConfig = {
     connectionLimit: connectionLimitThrottle,
 };
 
+const localForecastDbConfig = {
+    host: process.env.LOCAL_HOST,
+    port: parseInt(process.env.MYSQL_PORT),
+    user: process.env.LOCAL_MYSQL_USER,
+    password: process.env.LOCAL_MYSQL_PASSWORD,
+    database: process.env.LOCAL_EZHIRE_FORECAST_DB,
+    connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
+};
+
 const local_mock_rfm_db_config = {
     host: process.env.LOCAL_HOST,
     port: 3306,
@@ -142,6 +154,8 @@ module.exports = {
     localPacingDbConfig,
     localUserDbConfig,
     localLeadDbConfig,
+    localForecastDbConfig,
     local_mock_rfm_db_config,
     csvExportPath,
+    
 };

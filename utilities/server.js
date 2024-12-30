@@ -5,18 +5,25 @@ const axios = require('axios');
 // BOOKINGS SETUP
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
 const { run_most_recent_check } = require('../scheduled_jobs/daily_bookings_by_hour.js');
-const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
+const { execute_get_daily_booking_data } = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 // CAR AVAILABILITY
 const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability.js');
 
+// FORECAST DATA
+const { execute_get_booking_hourly_data } = require('../daily_booking_forecast/step_1_get_booking_by_hour_data.js');
+const { execute_load_booking_by_hour_data } = require('../daily_booking_forecast/step_2_load_booking_by_hour_data.js');
+const { execute_create_forecast_metrics } = require('../daily_booking_forecast/step_2a_create_forecast_summary_data.js');
+const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
+const { execute_load_forecast_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_forecast_data/step_0_load_main_job_040424.js');
+
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
 const { execute_get_lead_metrics_data } = require('../daily_lead_response_setup/step_2a_create_lead_metrics_data.js');
-const { execute_load_lead_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_lead_data/step_0_load_main_job_040424.js');
 const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_get_slack_lead_data.js');
+const { execute_load_lead_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_lead_data/step_0_load_main_job_040424.js');
 
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
@@ -34,6 +41,9 @@ const PORT = process.env.PORT || 8000; // You can change this port if needed
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// *********************************************
+// BOOKING ROUTES - STARTT
+// *********************************************
 // Endpoint to handle crontab scheduled job
 app.get('/scheduled-bookings', async (req, res) => {
 
@@ -84,14 +94,87 @@ app.post('/get-bookings', async (req, res) => {
 
     const getBookingData = await execute_get_daily_booking_data(is_development_pool);
     const getCarAvailability = await execute_get_car_availability(is_development_pool);
+    const getForecastData = await execute_get_slack_forecast_data(is_development_pool);
 
-    const slackMessage = await create_daily_booking_slack_message(getBookingData, getCarAvailability);
+    const slackMessage = await create_daily_booking_slack_message(getBookingData, getCarAvailability, getForecastData);
     // console.log('slack message = ', slackMessage);
 
     // Send a follow-up message to Slack
     await sendFollowUpMessage(req.body.channel_id, req.body.channel_name, req.body.user_id, req.body.user_name, slackMessage);
 });
+// *********************************************
+// BOOKING ROUTES - END
+// *********************************************
 
+// *********************************************
+// FORECAST ROUTES - START
+// *********************************************
+async function update_forecast() {
+    try {
+        // STEP #0 USE DR OR PRODUCTION
+        let is_testing = false; // test is_within_15_minutes in check_most_recent_created_on_date.js
+        const result = await check_most_recent_created_on_date(is_testing); // USE DR DB OR PRODUCTION DB
+        console.log('update forecast DR or production', result);
+        const is_development_pool = result.is_development_pool; // use false to switch to production if necessary
+
+        // STEP #1 GET FORECAST DATA FROM MYPROJECTS DR OR PRODUCTION
+        const elapsed_time_get_data = await execute_get_booking_hourly_data(is_development_pool);
+
+        // STEP #2 LOAD FORECAST DATA INTO LOCAL DB
+        const elapsed_time_load_data = await execute_load_booking_by_hour_data();
+      
+        // STEP #3 CREATE FORECAST METRICS DATA
+        const elapsed_time_create_metrics = await execute_create_forecast_metrics();
+
+        // STEP #2B LOAD FORECAST & FORECAST METRICS DATA TO BIGQUERY
+        const elapsed_time_load_data_to_biquery = await execute_load_forecast_data_to_bigquery();
+
+        // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
+        const now = new Date().toLocaleString(); // Get the current local date and time as a string
+
+        const slack_message = `🔔 Updated forecast data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_data_to_biquery}. Time now = ${now} MTN.`;
+
+        console.log('slack message after updating forecast data', slack_message);
+
+        await slack_message_api(slack_message, 'steve_calla_slack_channel');
+
+    } catch (error) {
+        const error_message = `Error in update forecast route. ${error}.`;
+
+        // STEP #3 SEND ERROR MESSAGE TO S. CALLA
+        console.error(error_message);
+        await slack_message_api(error_message, 'steve_calla_slack_channel');
+    }
+};
+
+// Endpoint to handle "/update-forecast" command
+app.post('/update-forecast', async (req, res, next) => {
+    console.log('Update forecaast route received request to update forecast stats:', {
+        body: req.body,
+        headers: req.headers,
+        param: req.params,  
+    });
+
+    try {
+        res.status(202).json({ message: 'Update forecast job started successfully.' });
+        await update_forecast(); 
+    } catch (error) {
+        console.log('Update forecast route error', error);
+        // Send an error response
+        res.status(500).json({
+            message: 'Error updating forecast data.',
+            error: error.message || 'Internal Server Error',
+        });
+    }
+});
+
+// *********************************************
+// FORECAST ROUTES - END
+// *********************************************
+
+// *********************************************
+// LEADS ROUTES - START
+// *********************************************
 // Store the last update timestamp in memory
 let lastUpdateTimestamp = null;
 
@@ -117,7 +200,7 @@ async function check_last_leads_db_update() {
     // Update the timestamp
     lastUpdateTimestamp = now;
     return false;
-}
+};
 
 async function update_leads() {
     try {
@@ -143,13 +226,13 @@ async function update_leads() {
         await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
     } catch (error) {
-        const error_message = `Error in execute_get_lead_response_data. ${error}.`;
+        const error_message = `Error in update leads route. ${error}.`;
 
         // STEP #3 SEND ERROR MESSAGE TO S. CALLA
         console.error(error_message);
         await slack_message_api(error_message, 'steve_calla_slack_channel');
     }
-}
+};
 
 // Endpoint to handle "/update-leads" command
 app.post('/update-leads', async (req, res, next) => {
@@ -159,10 +242,10 @@ app.post('/update-leads', async (req, res, next) => {
         param: req.params,  
     });
 
-    const is_within_last_three_minutes = await check_last_leads_db_update();
-    console.log('update-leads with last three minutes ', is_within_last_three_minutes);
+    const is_within_last_ten_minutes = await check_last_leads_db_update();
+    console.log('update-leads with last three minutes ', is_within_last_ten_minutes);
 
-    if (is_within_last_three_minutes) {
+    if (is_within_last_ten_minutes) {
         res.status(202).json({ message: 'Update-leads within last three minutes. Try again soon.' });
         return;
     } else {
@@ -186,7 +269,7 @@ async function slack_send(message, test) {
     await slack_message_api(message, "bilal_adhi_slack_channel");
 
     return;
-}
+};
 
 // Endpoint to handle crontab scheduled job
 app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
@@ -232,8 +315,8 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
 
     try {
         // Await update to leads db if not within last 3 minutes
-        const is_within_last_three_minutes = await check_last_leads_db_update();
-        !is_within_last_three_minutes && await update_leads();
+        const is_within_last_ten_minutes = await check_last_leads_db_update();
+        !is_within_last_ten_minutes && await update_leads();
 
         // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
         const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
@@ -349,8 +432,8 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
             console.log(`server js 306; Country: ${countryFilter}, Date: ${dateFilter}`);
 
             // Await update to leads db if not within last 3 minutes
-            const is_within_last_three_minutes = await check_last_leads_db_update();
-            !is_within_last_three_minutes && await update_leads();
+            const is_within_last_ten_minutes = await check_last_leads_db_update();
+            !is_within_last_ten_minutes && await update_leads();
 
             // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
             const { no_data_message, slack_message_leads, slack_message_lead_response } = await execute_get_lead_data(countryFilter, dateFilter);
@@ -372,6 +455,10 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
         }
     }, 3000);
 });
+
+// *********************************************
+// LEADS ROUTES - END
+// *********************************************
 
 // Function to send follow-up message to Slack
 async function sendFollowUpMessage(channelId, channelName, userId, userName, message) {
