@@ -16,13 +16,14 @@ const { execute_get_booking_hourly_data } = require('../daily_booking_forecast/s
 const { execute_load_booking_by_hour_data } = require('../daily_booking_forecast/step_2_load_booking_by_hour_data.js');
 const { execute_create_forecast_metrics } = require('../daily_booking_forecast/step_2a_create_forecast_summary_data.js');
 const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
+const {} = require('../load_bigquery/move_data_to_bigquery_forecast_data/step_0_load_main_job_040424.js');
 
 // LEADS SETUP
 const { execute_get_lead_response_data } = require('../daily_lead_response_setup/step_1_get_lead_response_data.js');
 const { execute_load_lead_response_data } = require('../daily_lead_response_setup/step_2_load_lead_response_data.js');
 const { execute_get_lead_metrics_data } = require('../daily_lead_response_setup/step_2a_create_lead_metrics_data.js');
-const { execute_load_lead_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_lead_data/step_0_load_main_job_040424.js');
 const { execute_get_lead_data } = require('../daily_lead_response_setup/step_3_get_slack_lead_data.js');
+const { execute_load_lead_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery_lead_data/step_0_load_main_job_040424.js');
 
 // SLACK SETUP
 const { WebClient } = require('@slack/web-api');
@@ -117,25 +118,25 @@ async function update_forecast() {
         const is_development_pool = result.is_development_pool; // use false to switch to production if necessary
 
         // STEP #1 GET FORECAST DATA FROM MYPROJECTS DR OR PRODUCTION
-        // const elapsed_time_get_data = await execute_get_booking_hourly_data(is_development_pool);
+        const elapsed_time_get_data = await execute_get_booking_hourly_data(is_development_pool);
 
         // STEP #2 LOAD FORECAST DATA INTO LOCAL DB
-        // const elapsed_time_load_data = await execute_load_booking_by_hour_data();
+        const elapsed_time_load_data = await execute_load_booking_by_hour_data();
       
         // STEP #3 CREATE FORECAST METRICS DATA
-        // const elapsed_time_create_metrics = await execute_create_forecast_metrics();
+        const elapsed_time_create_metrics = await execute_create_forecast_metrics();
 
         // STEP #2B LOAD FORECAST & FORECAST METRICS DATA TO BIGQUERY
-        // const elapsed_time_load_lead_data_to_biquery = await execute_load_lead_data_to_bigquery();
+        const elapsed_time_load_lead_data_to_biquery = await execute_load_lead_data_to_bigquery();
 
         // STEP #3 SEND UPDATE MESSAGE TO S. CALLA
-        // const now = new Date().toLocaleString(); // Get the current local date and time as a string
+        const now = new Date().toLocaleString(); // Get the current local date and time as a string
 
-        // const slack_message = `🔔 Updated forecast data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
+        const slack_message = `🔔 Updated forecast data. Elapsed time to get data ${elapsed_time_get_data}. Elapsed time to load data ${elapsed_time_load_data}. Elapsed time to create metrics data ${elapsed_time_create_metrics}. Elapsed time to load lead data to biquery ${elapsed_time_load_lead_data_to_biquery}. Time now = ${now} MTN.`;
 
-        // console.log('slack message after updating forecast data', slack_message);
+        console.log('slack message after updating forecast data', slack_message);
 
-        // await slack_message_api(slack_message, 'steve_calla_slack_channel');
+        await slack_message_api(slack_message, 'steve_calla_slack_channel');
 
     } catch (error) {
         const error_message = `Error in execute_get_lead_response_data. ${error}.`;
