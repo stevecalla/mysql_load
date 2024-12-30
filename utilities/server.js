@@ -5,7 +5,7 @@ const axios = require('axios');
 // BOOKINGS SETUP
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date');
 const { run_most_recent_check } = require('../scheduled_jobs/daily_bookings_by_hour.js');
-const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
+const { execute_get_daily_booking_data } = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 // CAR AVAILABILITY

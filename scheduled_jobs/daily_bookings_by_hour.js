@@ -9,7 +9,7 @@ const { slack_message_350_bookings_channel } = require('../schedule_slack/slack_
 const { create_daily_booking_slack_message } = require('../schedule_slack/slack_daily_booking_message');
 
 const { check_most_recent_created_on_date } = require('../get_most_recent_created_on/check_most_recent_created_on_date'); //step_0
-const { execute_get_daily_booking_data } = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data'); //step_1
+const { execute_get_daily_booking_data } = require('../daily_booking_data/step_1_sql_get_daily_booking_data'); //step_1
 const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 
 // TESTING VARIABLES

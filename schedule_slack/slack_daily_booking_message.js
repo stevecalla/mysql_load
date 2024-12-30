@@ -1,5 +1,5 @@
 const { getFormattedDateAmPm } = require('../utilities/getCurrentDate');
-const { get_country_data } = require('../daily_booking_forecast/results_grouped_by_country_by_cancel');
+const { get_country_data } = require('../daily_booking_data/results_grouped_by_country_by_cancel');
 const { get_formatted_car_avail_data } = require('../daily_car_availability_data/format_car_availability_data');
 
 async function create_daily_booking_slack_message(booking_data, car_data) {
@@ -184,7 +184,7 @@ async function find_target_for_current_hour(currentHourFormatted) {
 
 // testing function
 // async function main() {
-//   const { execute_get_daily_booking_data} = require('../daily_booking_forecast/step_1_sql_get_daily_booking_data');
+//   const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
 //   const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 
 //   const booking_data = await execute_get_daily_booking_data();
