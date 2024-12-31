@@ -10,7 +10,7 @@ const { query_metrics_forecast_data } = require('./queries/get_forecast_metrics_
 const { runTimer, stopTimer } = require('../utilities/timer');
 
 // Connect to MySQL
-async function create_connection() {
+async function create_connection() { 
 
     console.log('create connection');
 

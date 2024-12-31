@@ -32,6 +32,8 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
     booking_current_hour_actual_today,
   } = forecast_data.data;
 
+  console.log('booking_current_hour_actual_today', booking_current_hour_actual_today);
+
   const { country_data, summary_data } = await get_country_data(booking_data);
   const { 
       yesterday_cancelled, 

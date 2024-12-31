@@ -62,8 +62,8 @@ async function get_formatted_forcast_data(data) {
     const bookingTotals = estimateData.map(item => Number(item.booking_total));
 
     // Find min and max
-    const minBookingEstimate = Math.min(...bookingTotals);
-    const maxBookingEstimate = Math.max(...bookingTotals);
+    const minBookingEstimate = bookingTotals.length > 0 ? Math.min(...bookingTotals) : 0;
+    const maxBookingEstimate = bookingTotals.length > 0 ? Math.max(...bookingTotals) : 0;
 
     // Extract booking total
     const booking_total = data
@@ -77,9 +77,9 @@ async function get_formatted_forcast_data(data) {
         .map(item => Number(item.booking_total));
         
     const [
-        booking_total_average_last_7_days, 
-        booking_total_average_same_day_last_4_weeks, 
-        booking_total_actual_7_days_ago
+        booking_total_average_last_7_days = 0, 
+        booking_total_average_same_day_last_4_weeks = 0, 
+        booking_total_actual_7_days_ago = 0,
     ] = booking_total;
 
     // Extract booking total
@@ -94,11 +94,12 @@ async function get_formatted_forcast_data(data) {
             .includes(item.segment_minor))
         .map(item => Number(item.booking_total_prior_to_current_hour));
         
+    // default to 0 if undefined
     const [
-        booking_current_hour_average_last_7_days, 
-        booking_current_hour_average_same_day_last_4_weeks, 
-        booking_current_hour_actual_7_days_ago,
-        booking_current_hour_actual_today,
+        booking_current_hour_average_last_7_days = 0, 
+        booking_current_hour_average_same_day_last_4_weeks = 0, 
+        booking_current_hour_actual_7_days_ago = 0,
+        booking_current_hour_actual_today = 0,
     ] = booking_total_prior_to_current_hour;
         
     return { 
