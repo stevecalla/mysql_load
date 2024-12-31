@@ -183,50 +183,6 @@ async function execute_query_get_ezhire_sales_data(pool, query) {
 }
 
 // STEP #4 EXPORT RESULTS TO CSV FILE
-async function export_results_to_csv(results, file_name, i) {
-    console.log('STEP #4 EXPORT RESULTS TO CSV FILE', `${i}_export ${file_name}`);
-    // const startTime = performance.now(); // Start timing
-    const logPath = await determineOSPath();
-
-    if (results.length === 0) {
-        console.log('No results to export.');
-        generateLogFile('get_ezhire_sales_data', 'No results to export.', logPath);
-        return;
-    }
-
-    // DEFINE DIRECTORY PATH
-    const directoryName  = `ezhire_lead_data`;
-    const directoryPath = await create_directory(directoryName);
-
-    try {
-        const header = Object.keys(results[0]);
-
-        const csvContent = `${header.join(',')}\n${results.map(row =>
-            header.map(key => (row[key] !== null ? row[key] : 'NULL')).join(',')
-        ).join('\n')}`;
-
-        const created_at_formatted = getCurrentDateTimeForFileNaming();
-        const filePath = path.join(directoryPath, `results_${created_at_formatted}_${file_name}.csv`);
-        // console.log('File path = ', filePath);
-
-        fs.writeFileSync(filePath, csvContent);
-
-        console.log(`Results exported to ${filePath}`);
-        generateLogFile('load_big_query', `Results exported to ${filePath}`, logPath);
-
-    } catch (error) {
-        console.error(`Error exporting results to csv:`, error);
-
-        generateLogFile('load_big_query', `Error exporting results to csv: ${error}`, logPath);
-
-        console.log("----------------------------------------------");
-        console.log("EXPORT FAILED: RUNNING BACKUP STREAMING EXPORT");
-        console.log("----------------------------------------------");
-
-        export_results_to_csv_fast_csv(results, file_name, i);
-    }
-}
-
 async function export_results_to_csv_fast_csv(results, file_name, i) {
     console.log('STEP #4 EXPORT RESULTS TO CSV FILE', `${i}_export file_name`);
     const startTime = performance.now(); // Start timing
@@ -337,8 +293,7 @@ async function execute_get_lead_response_data() {
             // STEP #4: EXPORT RESULTS TO CSV
             runTimer(`0_export`);
 
-            // added to catch block in export_results_to_csv
-            // await export_results_to_csv(results, file_name_interval, i); 
+            // added to catch block in export results to csv
             await export_results_to_csv_fast_csv(results, file_name, i); 
             
             console.log(file_name);
