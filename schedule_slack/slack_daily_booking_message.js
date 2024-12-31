@@ -20,7 +20,17 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
     utilization_total,
   }] = formatted_car_data;
 
-  const { minBookingEstimate, maxBookingEstimate, actual_7_days_ago, average_last_7_days, average_same_day_last_4_weeks } = forecast_data.data;
+  const { 
+    minBookingEstimate, 
+    maxBookingEstimate,
+    booking_total_average_last_7_days, 
+    booking_total_average_same_day_last_4_weeks, 
+    booking_total_actual_7_days_ago, 
+    booking_current_hour_average_last_7_days, 
+    booking_current_hour_average_same_day_last_4_weeks, 
+    booking_current_hour_actual_7_days_ago,
+    booking_current_hour_actual_today,
+  } = forecast_data.data;
 
   const { country_data, summary_data } = await get_country_data(booking_data);
   const { 
@@ -54,8 +64,9 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `${most_recent_booking_date_message}\n` +
       `--------------\n`+
       `UAE BOOKING ESTIMATE\n` +
-      `💡 MIN ESTIMATE: ${minBookingEstimate}, MAX ESTIMATE: ${maxBookingEstimate}\n` +
-      `📋 ACTUAL: 7 DAYS AGO = ${actual_7_days_ago}, AVG LAST 7 DAYS = ${average_last_7_days}, AVG SAME DAY LAST 4 WEEKS = ${average_same_day_last_4_weeks}\n` +
+      `💡 Estimate: MIN = ${minBookingEstimate}, MAX = ${maxBookingEstimate}\n` +
+      `📋 Actual - Current Hour: Today = ${booking_current_hour_actual_today}, 7 DAYS AGO = ${booking_current_hour_actual_7_days_ago}, AVG LAST 7 DAYS = ${booking_current_hour_average_last_7_days}, AVG SAME DAY LAST 4 WEEKS = ${booking_current_hour_average_same_day_last_4_weeks}\n` +
+      `📋 Actual - Total: 7 DAYS AGO = ${booking_total_actual_7_days_ago}, AVG LAST 7 DAYS = ${booking_total_average_last_7_days}, AVG SAME DAY LAST 4 WEEKS = ${booking_total_average_same_day_last_4_weeks}\n` +
       `--------------\n` +
       `UAE CARS\n` +
       `🚗 Avail: ${count_total_available}, On-Rent: ${count_total_on_rent}, Total: ${count_total_cars}, Util: ${utilization_total}\n` +
