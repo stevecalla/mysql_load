@@ -65,16 +65,53 @@ async function get_formatted_forcast_data(data) {
     const minBookingEstimate = Math.min(...bookingTotals);
     const maxBookingEstimate = Math.max(...bookingTotals);
 
-    // Filter for the specific segment_minor values
-    const filteredData = data
+    // Extract booking total
+    const booking_total = data
         .filter(item => 
-            ['actual_7_days_ago', 'average_last_7_days', 'average_same_day_last_4_weeks'].includes(item.segment_minor)
-        )
-        .map(item => Number(item.booking_total)); // Extract booking_total as numbers 
+            [
+                'average_last_7_days', 
+                'average_same_day_last_4_weeks',
+                'actual_7_days_ago', 
+            ]
+            .includes(item.segment_minor))
+        .map(item => Number(item.booking_total));
         
-        const [average_last_7_days, average_same_day_last_4_weeks, actual_7_days_ago] = filteredData;
+    const [
+        booking_total_average_last_7_days, 
+        booking_total_average_same_day_last_4_weeks, 
+        booking_total_actual_7_days_ago
+    ] = booking_total;
 
-    return { minBookingEstimate, maxBookingEstimate, actual_7_days_ago, average_last_7_days, average_same_day_last_4_weeks };
+    // Extract booking total
+    const booking_total_prior_to_current_hour = data
+        .filter(item => 
+            [
+                'average_last_7_days', //145
+                'average_same_day_last_4_weeks', //134
+                'actual_7_days_ago', // 158
+                'actual_today', // 144
+            ]
+            .includes(item.segment_minor))
+        .map(item => Number(item.booking_total_prior_to_current_hour));
+        
+    const [
+        booking_current_hour_average_last_7_days, 
+        booking_current_hour_average_same_day_last_4_weeks, 
+        booking_current_hour_actual_7_days_ago,
+        booking_current_hour_actual_today,
+    ] = booking_total_prior_to_current_hour;
+        
+    return { 
+        minBookingEstimate, 
+        maxBookingEstimate,
+        booking_total_average_last_7_days, 
+        booking_total_average_same_day_last_4_weeks, 
+        booking_total_actual_7_days_ago, 
+        booking_current_hour_average_last_7_days, 
+        booking_current_hour_average_same_day_last_4_weeks, 
+        booking_current_hour_actual_7_days_ago,
+        booking_current_hour_actual_today,
+    };
 }
 
 // get_formatted_forcast_data(seed_forecast_data);
