@@ -183,6 +183,20 @@ async function execute_get_booking_data() {
         const dateRanges = [
             // { startDate: '2024-01-01', endDate: '2024-01-01' }, // test date
 
+            // 2025
+            { startDate: '2025-12-01', endDate: '2025-12-31' }, // OKAY
+            { startDate: '2025-11-01', endDate: '2025-11-30' }, // OKAY
+            { startDate: '2025-10-01', endDate: '2025-10-31' }, // OKAY
+            { startDate: '2025-09-01', endDate: '2025-09-30' }, // OKAY
+            { startDate: '2025-08-01', endDate: '2025-08-31' }, // OKAY
+            { startDate: '2025-07-01', endDate: '2025-07-31' }, // OKAY
+            { startDate: '2025-06-01', endDate: '2025-06-30' }, // OKAY
+            { startDate: '2025-05-01', endDate: '2025-05-31' }, // OKAY
+            { startDate: '2025-04-01', endDate: '2025-04-30' }, // OKAY
+            { startDate: '2025-03-01', endDate: '2025-03-31' }, // OKAY
+            { startDate: '2025-02-01', endDate: '2025-02-29' }, // OKAY
+            { startDate: '2025-01-01', endDate: '2025-01-31' }, // OKAY
+
             // 2024
             { startDate: '2024-12-01', endDate: '2024-12-31' }, // OKAY
             { startDate: '2024-11-01', endDate: '2024-11-30' }, // OKAY

@@ -198,8 +198,7 @@ async function execute_get_user_data() {
         // STEP #3: GET / QUERY USER DATA & RETURN RESULTS
         pool = await createSSHConnection();
         const results = await execute_query_get_user_data(pool);
-
-        // console.log(`File ${i + 1} of ${dateRangesLength} complete.\n`);   
+  
         // console.log(results);
         console.log(results.length);
         generateLogFile('get_user_data', `Query for  execute_query_get_user_data executed successfully.`, csvExportPath);  
