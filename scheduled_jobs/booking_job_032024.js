@@ -40,7 +40,7 @@ async function check_most_recent_created_on_date() {
             let getResults = await execute_get_most_recent_created_on_date();
             console.log('query results = ', getResults);
             
-            const results = getResults.results[0];
+            const results = getResults.results;
             let { is_within_2_hours } = results;
 
             log_message_2_hours = await create_log_message(getResults);
@@ -401,7 +401,7 @@ async function step_6(startTime) {
 
 // MESSAGES
 async function create_log_message(data) {
-    results = data.results[0];
+    results = data.results;
 
     let { source_field, most_recent_event_update_gst, execution_timestamp_gst, time_stamp_difference_minute, time_stamp_difference_hour, is_within_15_minutes, is_within_2_hours } = results;
 
