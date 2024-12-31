@@ -9,7 +9,6 @@ const { query_slack_daily_forecast_data } = require('./queries/get_forecast_metr
 
 const { get_formatted_forcast_data } = require('./format_forecast_data');
 
-const { create_daily_lead_slack_message, create_daily_lead_response_slack_message } = require('../schedule_slack/slack_daily_lead_message');
 const { slack_message_api } = require('../schedule_slack/slack_message_api');
 
 // Connect to MySQL
@@ -78,20 +77,20 @@ async function execute_get_slack_forecast_data() {
             
             // return / format key stats
             const data = await get_formatted_forcast_data(results);
-            // console.log(data);
+            console.log('step 3 get slack forecast data', data);
 
             // STEP #4: RETURN SLACK MESSAGE TO SLASH ROUTE /get-member-sales TO RESPOND
             return { data }
 
         } else {
-            const slack_message = "Error - No results";
+            const slack_message = "Error - No results step 3 get slack forecast data #1";
             await slack_message_api(slack_message, "steve_calla_slack_channel");
         }
 
     } catch (error) {
         console.error('Error:', error);
 
-        // const slack_message = `Error - No results: error`;
+        // const slack_message = "Error - No results step 3 get slack forecast data #2";
         // await slack_message_api(slack_message, "steve_calla_slack_channel");
 
         throw error;
@@ -121,7 +120,7 @@ async function execute_get_slack_forecast_data() {
 }
 
 // Run the main function
-// execute_get_slack_forecast_data();
+execute_get_slack_forecast_data();
 
 module.exports = {
     execute_get_slack_forecast_data,
