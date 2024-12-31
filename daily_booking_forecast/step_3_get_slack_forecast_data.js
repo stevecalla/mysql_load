@@ -120,7 +120,7 @@ async function execute_get_slack_forecast_data() {
 }
 
 // Run the main function
-execute_get_slack_forecast_data();
+// execute_get_slack_forecast_data();
 
 module.exports = {
     execute_get_slack_forecast_data,
