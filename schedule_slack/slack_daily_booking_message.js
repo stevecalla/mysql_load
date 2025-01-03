@@ -216,21 +216,21 @@ async function find_target_for_current_hour(currentHourFormatted) {
 }
 
 // testing function
-async function main() {
-  const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
-  const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
-  const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
+// async function main() {
+//   const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
+//   const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
+//   const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
 
-  const booking_data = await execute_get_daily_booking_data();
-  const car_data = await execute_get_car_availability();
-  const forecast_data = await execute_get_slack_forecast_data();
+//   const booking_data = await execute_get_daily_booking_data();
+//   const car_data = await execute_get_car_availability();
+//   const forecast_data = await execute_get_slack_forecast_data();
 
-  console.log('slack daily booking message', forecast_data);
+//   console.log('slack daily booking message', forecast_data);
 
-  create_daily_booking_slack_message(booking_data, car_data, forecast_data);
-}
+//   create_daily_booking_slack_message(booking_data, car_data, forecast_data);
+// }
 
-main();
+// main();
 
 module.exports = {
   create_daily_booking_slack_message,
