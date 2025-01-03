@@ -193,7 +193,9 @@ function generateBaseCode(repeatCode) {
             AND ct.calendar_date <= km.return_date
             AND km.status NOT LIKE '${status}'
 
-        GROUP BY km.created_at, ct.calendar_date, km.max_booking_datetime
+        GROUP BY km.created_at, ct.calendar_date, ct.year, ct.quarter, ct.month, ct.week_of_year, ct.day_of_year, km.max_booking_datetime
+        
+        -- GROUP BY km.created_at, ct.calendar_date, km.max_booking_datetime
 
         ORDER BY ct.calendar_date ASC
 

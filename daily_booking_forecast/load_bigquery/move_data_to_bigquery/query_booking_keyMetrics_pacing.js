@@ -160,13 +160,13 @@ const bookingQuery = `
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_booking_data.booking_data 
-    WHERE booking_year IN (2023, 2024)
+    WHERE booking_year IN (2023, 2024, 2025)
 
-    -- WHERE pickup_year IN (2023, 2024)
+    -- WHERE pickup_year IN (2023, 2024, 2025)
     -- WHERE pickup_year IN ('2024')
     -- WHERE booking_date IN ('2024-01-01')
     -- WHERE status NOT LIKE '%Cancel%'
-    -- AND pickup_year IN (2023, 2024)
+    -- AND pickup_year IN (2023, 2024, 2025)
     -- AND comparison_28_days = "Yes"
     -- AND booking_id IN ('159514', '159877', '197222') -- fix date of birth
     -- AND booking_id IN ('160123') -- fix null values for year, month et al for each date
