@@ -22,12 +22,12 @@ const bookingQuery = `
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
 
     FROM ezhire_booking_data.booking_data 
-    WHERE pickup_year IN (2023, 2024)
+    WHERE pickup_year IN (2023, 2024, 2025)
 
     -- WHERE pickup_year IN ('2024')
     -- WHERE booking_date IN ('2024-01-01')
     -- WHERE status NOT LIKE '%Cancel%'
-    -- AND pickup_year IN (2023, 2024)
+    -- AND pickup_year IN (2023, 2024, 2025)
 
     ORDER BY booking_date ASC, pickup_date ASC
     -- LIMIT 1;

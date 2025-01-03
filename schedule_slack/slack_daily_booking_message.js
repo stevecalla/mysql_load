@@ -94,9 +94,9 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `GROSS BOOKINGS\n` +
       `${yesterday_total}\n${today_total}\n` +
       `**************\n` 
-      // +
-      // `${looker_forecast_dashboard_link}` + `\n` +
-      // `**************\n`
+      +
+      `${looker_forecast_dashboard_link}` + `\n` +
+      `**************\n`
     ;
 
     console.log(slackMessage);
@@ -128,7 +128,7 @@ async function date_info(booking_data) {
 
 // CREATE LOOKER STUDIO LINKS
 async function looker_links() {
-  const link_dashboard = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_zsb11me7nd?pli=1`;
+  const link_dashboard = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_nw00rehgod?pli=1`;
   const looker_forecast_dashboard_link = `<${link_dashboard}|Link to Looker Forecast Dashboard>`;
 
   return { looker_forecast_dashboard_link };
@@ -215,22 +215,22 @@ async function find_target_for_current_hour(currentHourFormatted) {
   return target;
 }
 
-// // testing function
-// async function main() {
-//   const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
-//   const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
-//   const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
+// testing function
+async function main() {
+  const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
+  const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
+  const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
 
-//   const booking_data = await execute_get_daily_booking_data();
-//   const car_data = await execute_get_car_availability();
-//   const forecast_data = await execute_get_slack_forecast_data();
+  const booking_data = await execute_get_daily_booking_data();
+  const car_data = await execute_get_car_availability();
+  const forecast_data = await execute_get_slack_forecast_data();
 
-//   console.log('slack daily booking message', forecast_data);
+  console.log('slack daily booking message', forecast_data);
 
-//   create_daily_booking_slack_message(booking_data, car_data, forecast_data);
-// }
+  create_daily_booking_slack_message(booking_data, car_data, forecast_data);
+}
 
-// main();
+main();
 
 module.exports = {
   create_daily_booking_slack_message,

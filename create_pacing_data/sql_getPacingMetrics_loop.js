@@ -111,7 +111,7 @@ async function executeCreateBaseDataQuery(pool) {
         
         FROM ezhire_booking_data.booking_data 
         WHERE status NOT LIKE '%Cancel%'
-        AND pickup_year IN (2023, 2024)
+        AND pickup_year IN (2023, 2024, 2025)
         ORDER BY booking_date ASC, pickup_date ASC;
         -- LIMIT 10;
         `;
