@@ -67,7 +67,7 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `--------------\n`+
       `UAE BOOKING ESTIMATE\n` +
       `💡 Estimate: Min = ${minBookingEstimate}, Max = ${maxBookingEstimate}\n` +
-      `📋 Actual - Current Hour: Today = ${booking_current_hour_actual_today}, 7 Days Ago = ${booking_current_hour_actual_7_days_ago}, Avg Last 7 Days = ${booking_current_hour_average_last_7_days}, Avg Same Day Last 4 Weeks= ${booking_current_hour_average_same_day_last_4_weeks}\n` +
+      `⏰ Actual - Current Hour: Today = ${booking_current_hour_actual_today}, 7 Days Ago = ${booking_current_hour_actual_7_days_ago}, Avg Last 7 Days = ${booking_current_hour_average_last_7_days}, Avg Same Day Last 4 Weeks = ${booking_current_hour_average_same_day_last_4_weeks}\n` +
       `📋 Actual - Total: 7 Days Ago = ${booking_total_actual_7_days_ago}, Avg Last 7 Days = ${booking_total_average_last_7_days}, Avg Same Day Last 4 Weeks = ${booking_total_average_same_day_last_4_weeks}\n` +
       `--------------\n` +
       `UAE CARS\n` +
@@ -129,7 +129,7 @@ async function date_info(booking_data) {
 // CREATE LOOKER STUDIO LINKS
 async function looker_links() {
   const link_dashboard = `https://lookerstudio.google.com/u/0/reporting/20953aff-a544-445b-91ba-2f2d378a70c3/page/p_nw00rehgod?pli=1`;
-  const looker_forecast_dashboard_link = `<${link_dashboard}|Link to Looker Forecast Dashboard>`;
+  const looker_forecast_dashboard_link = `<${link_dashboard}|Link to Bookings Estimate Dashboard>`;
 
   return { looker_forecast_dashboard_link };
 }
