@@ -1,6 +1,6 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
-dotenv.config({ path: "../.env" }); // adding the path ensures each folder will read the .env file as necessary
+dotenv.config({ path: "../.env" });
 
 const mysql = require('mysql2');
 const { Client } = require('ssh2');
