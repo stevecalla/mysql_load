@@ -271,7 +271,7 @@ SELECT
     car_avail_id,
     car_cat_id,
     car_cat_name,
-    requested_car,
+    REPLACE(requested_car, ',', '') AS requested_car,
     car_name,
     make,
     REPLACE(color, ',', '') AS color,
