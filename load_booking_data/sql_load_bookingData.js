@@ -1,5 +1,7 @@
 const fs = require('fs').promises; // promses necessary for "fs.readdir"
 const mysql = require('mysql2');
+const dotenv = require('dotenv');
+dotenv.config({ path: "../.env" });
 
 const { localBookingDbConfig, csvExportPath } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');

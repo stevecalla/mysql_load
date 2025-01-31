@@ -1,6 +1,6 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const { localForecastDbConfig } = require('../utilities/config');
 const { createLocalDBConnection } = require('../utilities/connectionLocalDB');

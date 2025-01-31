@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-dotenv.config({path: "../.env"}); // adding the path ensures each folder will read the .env file as necessary
+dotenv.config({path: "../.env"});
 const connectionLimitThrottle = 30;
 
 // console.log(process.env); // double check if env variables are available
