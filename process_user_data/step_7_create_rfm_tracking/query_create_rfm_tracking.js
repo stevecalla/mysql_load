@@ -65,8 +65,10 @@ function query_get_offer_v3_min_and_max_created_at_dates() {
 			-- '2024-09-24' AS min_created_at_date,
 			-- '2024-09-26' AS min_created_at_date,
 			'2025-01-21' AS min_created_at_date,
-			MAX(created_at_date) AS max_created_at_date,
-			DATE_ADD(MAX(created_at_date), INTERVAL 1 DAY) AS max_created_at_date_plus_1
+			-- MAX(created_at_date) AS max_created_at_date,
+			'2025-01-26' AS max_created_at_date,
+			-- DATE_ADD(MAX(created_at_date), INTERVAL 1 DAY) AS max_created_at_date_plus_1
+			'2025-01-27' AS max_created_at_date_plus_1
 		FROM rfm_score_summary_history_data
 		LIMIT 1;
 	`;

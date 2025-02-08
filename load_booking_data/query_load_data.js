@@ -154,7 +154,9 @@ function createLoadBookingDataQuery(filePath) {
       promo_code_discount_amount,
       @promocode_created_date,  -- Variable to capture promocode_created_date as string
       promo_code_description,
-
+      promo_code_department,
+      @promo_code_expiration_date, 
+      
       car_avail_id,
       car_cat_id,
       car_cat_name,
@@ -186,8 +188,10 @@ function createLoadBookingDataQuery(filePath) {
       pickup_datetime = STR_TO_DATE(@pickup_datetime, "%Y-%m-%d %H:%i:%s"),
       return_date = STR_TO_DATE(@return_date, "%Y-%m-%d"),
       return_datetime = STR_TO_DATE(@return_datetime, "%Y-%m-%d %H:%i:%s"),
-      comparison_common_date = STR_TO_DATE(@comparison_common_date, "%Y-%m-%d");
-      -- promocode_created_date = STR_TO_DATE(@promocode_created_date, "%Y-%m-%d %H:%i:%s");
+      comparison_common_date = STR_TO_DATE(@comparison_common_date, "%Y-%m-%d")
+      promocode_created_date = STR_TO_DATE(@promocode_created_date, "%Y-%m-%d %H:%i:%s")
+      promo_code_expiration_date = STR_TO_DATE(@promo_code_expiration_date, "%Y-%m-%d");
+      
 `
 }
 

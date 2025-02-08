@@ -147,6 +147,8 @@ const schema_booking_table = `
     promo_code_discount_amount CHAR(0) NOT NULL,
     promocode_created_date DATETIME,
     promo_code_description VARCHAR(200),
+    promo_code_department VARCHAR(50),
+    promo_code_expiration_date DATE, 
 
     car_avail_id INT,
     car_cat_id INT,
