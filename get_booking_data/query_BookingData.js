@@ -185,6 +185,8 @@ SELECT
     date_join_cohort,
     date_join_year,
     date_join_month,
+    
+    resident_category,
 
     customer_driving_country,
     customer_doc_vertification_status,

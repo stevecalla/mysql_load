@@ -87,6 +87,14 @@ function createLoadBookingDataQuery(filePath) {
 
       date_of_birth,
       age,
+    
+      date_join_formatted_gst,
+      date_join_cohort,
+      date_join_year,
+      date_join_month,
+
+      resident_category,
+      
       customer_driving_country,
       customer_doc_vertification_status,
 

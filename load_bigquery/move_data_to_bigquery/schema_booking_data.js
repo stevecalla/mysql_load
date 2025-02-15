@@ -462,6 +462,41 @@ const booking_schema = [
         "fields": []
     },
     {
+        "name": "date_join_formatted_gst",
+        "mode": "NULLABLE",
+        "type": "DATE",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "date_join_cohort",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "date_join_year",
+        "mode": "NULLABLE",
+        "type": "INTEGER",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "date_join_month",
+        "mode": "NULLABLE",
+        "type": "INTEGER",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "resident_category",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": null,
+        "fields": []
+    },
+    {
         "name": "customer_driving_country",
         "mode": "NULLABLE",
         "type": "STRING",
