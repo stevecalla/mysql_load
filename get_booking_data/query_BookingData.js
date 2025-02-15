@@ -388,7 +388,7 @@ FROM
                     myproject.rental_status rs
                 WHERE
                     rs.id = b.status
-                LIMIT 1) AS status, -- CHANGE LIMIT
+                LIMIT 1) AS status,
                 
             -- (CASE
             --     WHEN b.days < 7 THEN 'daily'
@@ -427,7 +427,7 @@ FROM
                 WHERE
                     rv.owner_id = b.vendor_id
                         AND b.vendor_id <> 234555
-                LIMIT 1) AS marketplace_partner, -- CHANGE LIMIT
+                LIMIT 1) AS marketplace_partner,
 
             (SELECT 
                     name
@@ -435,7 +435,7 @@ FROM
                     myproject.rental_vendors rv
                 WHERE
                     rv.owner_id = b.vendor_id
-                LIMIT 1) AS marketplace_partner_summary, -- CHANGE LIMIT
+                LIMIT 1) AS marketplace_partner_summary,
 
             b.platform_generated AS booking_channel,
 
@@ -445,8 +445,8 @@ FROM
             --         myproject.rental_car_booking_source bs
             --     WHERE
             --         bs.id = b.car_booking_source_id 
-            --     LIMIT 1) AS booking_source, -- CHANGE LIMIT
-            bs.name AS booking_source,  -- CHANGE
+            --     LIMIT 1) AS booking_source,
+            bs.name AS booking_source, 
 
             '' total_lifetime_booking_revenue,
 
@@ -502,12 +502,19 @@ FROM
             f.date_of_birth,
 
             TIMESTAMPDIFF(YEAR, STR_TO_DATE(f.date_of_birth, '%d/%m/%Y'), NOW()) age,   
-                     
+
             DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS date_join_gst,
             DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m-%d') AS date_join_formatted_gst,
             DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m') AS date_join_cohort,
             DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y') AS date_join_year,
             DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%m') AS date_join_month,
+
+            -- when renter phone code = rental country phone code
+            CASE
+                WHEN f.is_resident = co.code THEN 'is_resident'
+                WHEN f.is_resident <> co.code THEN 'is_non_resident'
+                ELSE 'unknown'
+            END AS resident_category,
 
             IFNULL((SELECT 
                     name
@@ -515,7 +522,7 @@ FROM
                     myproject.rental_country ct
                 WHERE
                     ct.code = dl_country
-                LIMIT 1), 0) AS customer_driving_country, -- CHANGE LIMIT
+                LIMIT 1), 0) AS customer_driving_country,
 
             IFNULL((CASE
                 WHEN f.is_verified > 0 THEN 'YES'
@@ -716,7 +723,7 @@ FROM
                     ad.car_available_id = b.car_available_id
                         AND ad.millage_id = b.millage_id
                         AND ad.month_id = b.contract_id
-                LIMIT 1), 0) AS millage_rate, -- CHANGE LIMIT
+                LIMIT 1), 0) AS millage_rate,
 
            IFNULL((
                 SELECT 
@@ -725,7 +732,7 @@ FROM
                     myproject.Allowed_Millage am
                 WHERE
                     am.id = b.millage_id
-                LIMIT 1), 0) AS millage_cap_km, -- CHANGE LIMIT
+                LIMIT 1), 0) AS millage_cap_km,
 
             -- adjusted for early return
             CASE
@@ -1568,33 +1575,49 @@ FROM
             b.return_location_lat collection_lat,
             b.return_location_lng collection_lng,
 
-            ct.conversion_rate AS conversion_rate, -- CHANGE
+            ct.conversion_rate AS conversion_rate,
 
-            ff.rate nps_score, -- CHANGE
-            ff.comments nps_comment -- CHANGE
+            ff.rate nps_score,
+            ff.comments nps_comment
                 
-    FROM myproject.rental_car_booking2 b
-    
-        INNER JOIN myproject.rental_fuser f ON f.user_ptr_id = b.owner_id
-        INNER JOIN myproject.rental_city rc ON rc.id = b.city_id
-        INNER JOIN myproject.rental_country co ON co.id = rc.CountryID
-        LEFT JOIN myproject.rental_vendors rv ON rv.owner_id = b.vendor_id
-    
-        LEFT JOIN myproject.rental_car c ON c.id = b.car_id
-        LEFT JOIN myproject.rental_cars_available ca ON ca.id = b.car_available_id
-        LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id
-    
-        LEFT JOIN myproject.rental_add_promo_codes pc ON pc.id = b.Promo_Code_id
-        LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
+        FROM myproject.rental_car_booking2 b
+        
+            INNER JOIN myproject.rental_fuser f ON f.user_ptr_id = b.owner_id
 
-        -- NEW JOINS ADDED ON 4/23/24
-        LEFT JOIN (SELECT MAX(id),rate,comments,booking_id FROM myproject.rental_rentalfeedback rf GROUP BY booking_id) ff ON ff.booking_id = b.id -- CHANGE
-        LEFT JOIN rental_car_booking_source bs ON bs.id = b.car_booking_source_id -- CHANGE
-        LEFT JOIN rental_city ci ON ci.id = b.city_id -- CHANGE
-        LEFT JOIN country_conversion_rate ct ON ci.CountryID = ct.country_id -- CHANGE
+            INNER JOIN myproject.rental_city rc ON rc.id = b.city_id
+            INNER JOIN myproject.rental_country co ON co.id = rc.CountryID
+            LEFT JOIN country_conversion_rate ct ON rc.CountryID = ct.country_id 
+            
+            -- LEFT JOIN rental_city ci ON ci.id = b.city_id 
+            -- LEFT JOIN country_conversion_rate ct ON ci.CountryID = ct.country_id
 
-        -- NEW JOINS ADDED 05/27/24 FOR EARLY RETURNS
-        LEFT JOIN rental_early_return_bookings AS erb ON erb.booking_id = b.id AND erb.is_active = 1 -- RETURNS MOST RECENT DATE RECORDS FOR EACH booking_id USING is_active flag 1
+            LEFT JOIN myproject.rental_vendors rv ON rv.owner_id = b.vendor_id
+        
+            LEFT JOIN myproject.rental_car c ON c.id = b.car_id
+            LEFT JOIN myproject.rental_cars_available ca ON ca.id = b.car_available_id
+            LEFT JOIN myproject.rental_cat cat ON ca.cat_id = cat.id
+        
+            LEFT JOIN myproject.rental_add_promo_codes pc ON pc.id = b.Promo_Code_id
+            LEFT JOIN myproject.auth_user au ON au.id = b.owner_id
+
+            -- LEFT JOIN (
+            --     SELECT MAX(id),rate,comments,booking_id 
+            --     FROM myproject.rental_rentalfeedback rf 
+            --     GROUP BY booking_id
+            -- ) ff ON ff.booking_id = b.id
+
+            -- Optimized feedback join using correct aggregation
+            LEFT JOIN (
+                SELECT MAX(id) AS id, rate, comments, booking_id 
+                FROM myproject.rental_rentalfeedback 
+                GROUP BY booking_id, rate, comments
+            ) ff ON ff.booking_id = b.id
+
+            LEFT JOIN rental_car_booking_source bs ON bs.id = b.car_booking_source_id 
+
+            -- NEW JOINS ADDED 05/27/24 FOR EARLY RETURNS
+            LEFT JOIN rental_early_return_bookings AS erb ON erb.booking_id = b.id AND erb.is_active = 1 
+            -- RETURNS MOST RECENT DATE RECORDS FOR EACH booking_id USING is_active flag 1
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
 	-- WHERE 
