@@ -180,6 +180,12 @@ SELECT
 
     date_of_birth,
     age,
+    
+    date_join_formatted_gst,
+    date_join_cohort,
+    date_join_year,
+    date_join_month,
+
     customer_driving_country,
     customer_doc_vertification_status,
     
@@ -495,7 +501,13 @@ FROM
 
             f.date_of_birth,
 
-            TIMESTAMPDIFF(YEAR, STR_TO_DATE(f.date_of_birth, '%d/%m/%Y'), NOW()) age,
+            TIMESTAMPDIFF(YEAR, STR_TO_DATE(f.date_of_birth, '%d/%m/%Y'), NOW()) age,   
+                     
+            DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m-%d %H:%i:%s') AS date_join_gst,
+            DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m-%d') AS date_join_formatted_gst,
+            DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y-%m') AS date_join_cohort,
+            DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%Y') AS date_join_year,
+            DATE_FORMAT(DATE_ADD(f.date_join, INTERVAL 4 HOUR), '%m') AS date_join_month,
 
             IFNULL((SELECT 
                     name
