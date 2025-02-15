@@ -80,6 +80,14 @@ const schema_booking_table = `
 
     date_of_birth VARCHAR(25) NOT NULL,
     age BIGINT,
+
+    date_join_formatted_gst DATE,
+    date_join_cohort VARCHAR(15),
+    date_join_year VARCHAR(4),
+    date_join_month VARCHAR(2),
+    
+    resident_category VARCHAR(50),
+
     customer_driving_country VARCHAR(50),
     customer_doc_vertification_status VARCHAR(3) NOT NULL,
 
@@ -147,6 +155,8 @@ const schema_booking_table = `
     promo_code_discount_amount CHAR(0) NOT NULL,
     promocode_created_date DATETIME,
     promo_code_description VARCHAR(200),
+    promo_code_department VARCHAR(50),
+    promo_code_expiration_date DATE, 
 
     car_avail_id INT,
     car_cat_id INT,
