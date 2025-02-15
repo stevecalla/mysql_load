@@ -814,7 +814,7 @@ const booking_schema = [
     {
         "name": "promocode_created_date",
         "mode": "NULLABLE",
-        "type": "STRING",
+        "type": "TIMESTAMP",
         "description": null,
         "fields": []
     },
@@ -822,6 +822,20 @@ const booking_schema = [
         "name": "promo_code_description",
         "mode": "NULLABLE",
         "type": "STRING",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "promo_code_department",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": null,
+        "fields": []
+    },
+    {
+        "name": "promo_code_expiration_date",
+        "mode": "NULLABLE",
+        "type": "DATE",
         "description": null,
         "fields": []
     },

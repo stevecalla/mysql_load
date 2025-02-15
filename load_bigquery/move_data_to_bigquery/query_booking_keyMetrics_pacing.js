@@ -139,12 +139,24 @@ const bookingQuery = `
   
         age,customer_driving_country,customer_doc_vertification_status,days,extension_days,extra_day_calc,customer_rate,insurance_rate,additional_driver_rate,pai_rate,baby_seat_rate,insurance_type,millage_rate,millage_cap_km,rent_charge,rent_charge_less_discount_extension_aed,extra_day_charge,delivery_charge,collection_charge,additional_driver_charge,insurance_charge,pai_charge,baby_charge,long_distance,premium_delivery,airport_delivery,gps_charge,delivery_update,intercity_charge,millage_charge,other_rental_charge,discount_charge,discount_charge_aed,
         
-        discount_extension_charge,total_vat,other_charge,booking_charge,booking_charge_less_discount,booking_charge_aed,booking_charge_less_discount_aed,booking_charge_less_extension,booking_charge_less_discount_extension,booking_charge_less_extension_aed,booking_charge_less_discount_extension_aed,base_rental_revenue,non_rental_charge,extension_charge,extension_charge_aed,is_extended,promo_code,promo_code_discount_amount,
+        discount_extension_charge,total_vat,other_charge,booking_charge,booking_charge_less_discount,booking_charge_aed,booking_charge_less_discount_aed,booking_charge_less_extension,booking_charge_less_discount_extension,booking_charge_less_extension_aed,booking_charge_less_discount_extension_aed,base_rental_revenue,non_rental_charge,extension_charge,extension_charge_aed,is_extended,
         
-        -- currently all null values
-        promocode_created_date, 
+        promo_code,
+        promo_code_discount_amount,
+        promocode_created_date, -- currently all null values
+        CASE
+            WHEN promocode_created_date IS NULL THEN ''
+            ELSE promocode_created_date
+        END AS promocode_created_date,
+        promo_code_description,
+        promo_code_department,
+        -- promo_code_expiration_date,
+        CASE
+            WHEN promo_code_expiration_date IS NULL THEN ''
+            ELSE DATE_FORMAT(promo_code_expiration_date, '%Y-%m-%d')
+        END AS promo_code_expiration_date,
         
-        promo_code_description,car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
+        car_avail_id,car_cat_id,car_cat_name,requested_car,car_name,make,color,deliver_country,deliver_city,country_id,city_id,delivery_location,deliver_method,
         
         -- delivery_lat,
         SUBSTRING_INDEX(delivery_lat, ' ', 1) AS delivery_lat,
