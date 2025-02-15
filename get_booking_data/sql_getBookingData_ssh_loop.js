@@ -211,7 +211,7 @@ async function execute_get_booking_data() {
             { startDate: '2024-02-01', endDate: '2024-02-29' }, // OKAY
             { startDate: '2024-01-01', endDate: '2024-01-31' }, // OKAY
 
-            // // 2023
+            // 2023
             { startDate: '2023-12-01', endDate: '2023-12-31' }, // OKAY
             { startDate: '2023-11-01', endDate: '2023-11-30' }, // OKAY
             { startDate: '2023-10-01', endDate: '2023-10-31' }, // OKAY
