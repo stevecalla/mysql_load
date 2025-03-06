@@ -18,6 +18,7 @@ const dbConfigLeadsProduction = {
     password: process.env.LEADS_PASSWORD_PRODUCTION,
     database: process.env.LEADS_DATABASE_PRODUCTION,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const sshConfigLeadsProduction = {
@@ -72,6 +73,7 @@ const localBookingDbConfig = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_BOOKING_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const localKeyMetricsDbConfig = {
@@ -81,6 +83,7 @@ const localKeyMetricsDbConfig = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_KEYMETRICS_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
     // timeout: 60000 //not sure if this works
     // connectTimeout: 10000 //not sure if this works
     // https://github.com/mysqljs/mysql#connection-options
@@ -94,6 +97,7 @@ const localPacingDbConfig = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_PACING_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
     // timeout: 60000 //not sure if this works
     // connectTimeout: 10000 //not sure if this works
     // https://github.com/mysqljs/mysql#connection-options
@@ -107,6 +111,7 @@ const localLeadDbConfig = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_LEADS_RESPONSE_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const localForecastDbConfig = {
@@ -126,6 +131,7 @@ const local_mock_rfm_db_config = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     // database: process.env.LOCAL_ATTENDANCE_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const localUserDbConfig = {
@@ -135,6 +141,7 @@ const localUserDbConfig = {
     password: process.env.LOCAL_MYSQL_PASSWORD,
     database: process.env.LOCAL_EZHIRE_USER_DB,
     connectionLimit: connectionLimitThrottle,
+    multipleStatements: true // Enable multiple statements
 };
 
 const csvExportPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data/`;

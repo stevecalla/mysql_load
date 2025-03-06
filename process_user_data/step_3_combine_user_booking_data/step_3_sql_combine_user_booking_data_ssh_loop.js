@@ -199,7 +199,7 @@ async function execute_create_user_data() {
             await execute_create_combined_data_index(pool, indexQueries[i]);
         }
         
-        //STEP 3.2: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
+        // STEP 3.2: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA
         console.log(`STEP 3.2: CREATE ROLLUP RUNNING TOTALS GROUP BY DATA`);
         console.log(getCurrentDateTime());
 
