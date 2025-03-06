@@ -1,7 +1,7 @@
 const query_create_user_profile_data = `
 -- STEP #3: CREATE USER PROFILE DATA
 CREATE TABLE user_data_profile AS
-	SELECT 
+	SELECT
 		ubd.user_ptr_id,
 
     	-- Basic User Details (Assuming 1 record per user)
@@ -30,9 +30,41 @@ CREATE TABLE user_data_profile AS
 
 		-- IS_RESIDENT
 		ubd.is_resident,
+		IFNULL(GROUP_CONCAT(ubd.resident_category ORDER BY ubd.booking_date ASC SEPARATOR ','), '') AS resident_category, -- todo: new
+		MAX(
+			CASE 
+				WHEN ubd.booking_date = (
+					SELECT MAX(booking_date)
+					FROM ezhire_user_data.user_data_combined_booking_data
+					WHERE ubd.user_ptr_id = user_ptr_id
+				) 
+				THEN ubd.resident_category
+				ELSE ''
+			END
+		) AS most_recent_resident_category, -- todo: new
 
 		-- IS_VERIFIED (DOCUMENTS)
 		IFNULL(CASE WHEN ubd.is_verified > 0 THEN 'Yes' ELSE 'No' END, 0) AS user_is_verified,
+
+		-- NPS
+		IFNULL(GROUP_CONCAT(ubd.nps_score ORDER BY ubd.booking_date ASC SEPARATOR ','), '') AS all_nps_scores, -- todo: new
+		MAX(
+			CASE 
+				WHEN ubd.booking_date = (
+					SELECT MAX(booking_date)
+					FROM ezhire_user_data.user_data_combined_booking_data
+					WHERE ubd.user_ptr_id = user_ptr_id
+				) 
+				THEN ubd.nps_score 
+				ELSE ''
+			END
+		) AS most_recent_nps_score, -- todo: new
+
+		-- booking_id grouping
+		IFNULL(GROUP_CONCAT(ubd.booking_id ORDER BY ubd.booking_date ASC SEPARATOR ','), '') AS all_booking_ids, -- todo: new
+
+		-- extension segments
+		SUM(CASE WHEN ubd.is_extended = 1 THEN 1 ELSE 0 END) AS booking_count_extended, -- todo: new
 
 		-- REPEAT vs NEW USER (using max b/c some user ids have both yes & no)
 		MAX(
@@ -41,8 +73,7 @@ CREATE TABLE user_data_profile AS
 				WHEN ubd.repeated_user IS NULL THEN ''
 				ELSE 'No'
 			END
-		) AS is_repeat_user,
-
+		) AS is_repeat_user, -- todo: adjust
 		
 		-- REPEAT, NEW VS FIRST
 		udkm.is_repeat_new_first,
@@ -61,10 +92,10 @@ CREATE TABLE user_data_profile AS
 		udkm.all_cities_distinct,
 
 		-- PROMO CODE STATUS
-		all_promo_codes_distinct,
-		promo_code_on_most_recent_booking,
-		used_promo_code_last_14_days_flag,
-		used_promo_code_on_every_booking,
+		udkm.all_promo_codes_distinct,
+		udkm.promo_code_on_most_recent_booking,
+		udkm.used_promo_code_last_14_days_flag,
+		udkm.used_promo_code_on_every_booking,
 
 		-- BOOKING TYPE
 		udkm.booking_type_all_distinct,
@@ -95,13 +126,17 @@ CREATE TABLE user_data_profile AS
 			
 		-- KEY STATS - REVENUE PER BOOKING & DAYS PER BOOKING
 		CASE
+			WHEN udkm.booking_most_recent_return_date IS NULL THEN NULL
 			WHEN (udkm.booking_count_completed + udkm.booking_count_started) = 0 THEN 0 -- AVOID DIVIDING BY 0
-			WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN 0 -- AVOID DIVIDING INTO 0
+			-- WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN 0 -- AVOID DIVIDING INTO 0
+			WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN udkm.booking_days_total -- AVOID DIVIDING INTO 0
 			ELSE (udkm.booking_days_total) / (udkm.booking_count_completed + udkm.booking_count_started) -- avg days per booking
 		END total_days_per_completed_and_started_bookings, -- frequency metric
 		CASE
+			WHEN udkm.booking_most_recent_return_date IS NULL THEN NULL
 			WHEN (udkm.booking_count_completed + udkm.booking_count_started) = 0 THEN 0 -- AVOID DIVIDING BY 0
-			WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN 0 -- AVOID DIVIDING INTO 0
+			-- WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN 0 -- AVOID DIVIDING INTO 0
+			WHEN udkm.booking_charge_total_less_discount_aed = 0 THEN udkm.booking_charge_total_less_discount_aed -- AVOID DIVIDING INTO 0
 			ELSE (udkm.booking_charge_total_less_discount_aed) / (udkm.booking_count_completed + udkm.booking_count_started) -- revenue per booking
 		END AS booking_charge__less_discount_aed_per_completed_started_bookings, -- monetary value metric
 
@@ -155,8 +190,8 @@ CREATE TABLE user_data_profile AS
 		-- AND
 		-- udkm.booking_most_recent_return_vs_now < 0
 
-	-- excluding 20 due to max
-	GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53
+	-- excluding 20, 21 due to concat, max
+	GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59
 	ORDER BY ubd.user_ptr_id
 `;
 
