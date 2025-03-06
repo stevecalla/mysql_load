@@ -34,7 +34,7 @@ CREATE TABLE user_data_profile AS
 		-- IS_VERIFIED (DOCUMENTS)
 		IFNULL(CASE WHEN ubd.is_verified > 0 THEN 'Yes' ELSE 'No' END, 0) AS user_is_verified,
 
-	-- REPEAT vs NEW USER (using max b/c some user ids have both yes & no)
+		-- REPEAT vs NEW USER (using max b/c some user ids have both yes & no)
 		MAX(
 			CASE 
 				WHEN ubd.repeated_user = 'Yes' THEN 'Yes'
