@@ -1,12 +1,3 @@
-
-
-// date_join_formatted_gst DATE,
-// date_join_cohort VARCHAR(15),
-// date_join_year VARCHAR(4),
-// date_join_month VARCHAR(2),
-
-// resident_category VARCHAR(50),
-
 const bookingQuery = `
     SELECT
         booking_id,agreement_number,
@@ -289,7 +280,6 @@ const profileQuery = `
         date_join_quarter, date_join_month, date_join_week_of_year, date_join_day_of_year,
 
         last_login_gst, 
-        
         has_last_login_date, 
         
         -- is_resident, 
@@ -297,15 +287,22 @@ const profileQuery = `
             WHEN is_resident IN ('? undefined:undefined ?') THEN ''
             ELSE is_resident
         END AS is_resident,
-        resident_category,
+
+        -- all_resident_category,
+        CONCAT('"', all_resident_category, '"') AS all_resident_category,
+
         most_recent_resident_category,
         
         user_is_verified, 
 
-        all_nps_scores,
-        most_recent_nps_score,
+        -- all_nps_scores,
+        CONCAT('"', all_nps_scores, '"') AS all_nps_scores,
 
-        all_booking_ids,
+        most_recent_nps_score,
+		most_recent_nps_comment,
+
+        -- all_booking_ids,
+        CONCAT('"', all_booking_ids, '"') AS all_booking_ids,
 
         booking_count_extended,
         

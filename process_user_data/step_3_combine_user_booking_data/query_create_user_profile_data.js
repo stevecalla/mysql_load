@@ -31,21 +31,21 @@ CREATE TABLE user_data_profile AS
 		-- IS_RESIDENT
 		ubd.is_resident,
         udkm.all_resident_category,
-		udkm.most_recent_resident_category, -- todo: new
+		udkm.most_recent_resident_category,
 
 		-- IS_VERIFIED (DOCUMENTS)
 		IFNULL(CASE WHEN ubd.is_verified > 0 THEN 'Yes' ELSE 'No' END, 0) AS user_is_verified,
 
 		-- NPS
-		udkm.all_nps_scores, -- todo: new
-		udkm.most_recent_nps_score, -- todo: new
-		udkm.most_recent_nps_comment, -- todo: new
+		udkm.all_nps_scores,
+		udkm.most_recent_nps_score,
+		udkm.most_recent_nps_comment,
 
 		-- booking_id grouping
-		udkm.all_booking_ids, -- todo: new
+		udkm.all_booking_ids,
 
 		-- extension segments
-		udkm.booking_count_extended, -- todo: new
+		udkm.booking_count_extended,
 
 		-- REPEAT vs NEW USER (using max b/c some user ids have both yes & no)
 		MAX(
@@ -56,7 +56,7 @@ CREATE TABLE user_data_profile AS
 				-- ELSE 'No'
 				ELSE 0
 			END
-		) AS is_repeat_user, -- todo: adjust
+		) AS is_repeat_user,
 		
 		-- REPEAT, NEW VS FIRST
 		udkm.is_repeat_new_first,
