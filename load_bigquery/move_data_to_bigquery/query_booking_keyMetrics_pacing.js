@@ -297,8 +297,21 @@ const profileQuery = `
             WHEN is_resident IN ('? undefined:undefined ?') THEN ''
             ELSE is_resident
         END AS is_resident,
+        resident_category,
+        most_recent_resident_category,
         
-        user_is_verified, is_repeat_user, is_repeat_new_first, 
+        user_is_verified, 
+
+        all_nps_scores,
+        most_recent_nps_score,
+
+        all_booking_ids,
+
+        booking_count_extended,
+        
+        is_repeat_user, 
+        is_repeat_new_first,
+         
         booking_count_total, booking_count_cancel, booking_count_completed, booking_count_started,
         booking_count_future, booking_count_other, booking_count_not_cancel, 
         

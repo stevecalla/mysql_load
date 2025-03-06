@@ -1,4 +1,7 @@
 const query_create_key_metrics_rollup = `
+
+    SET SESSION group_concat_max_len = 100000;  -- Increase limit
+
     CREATE TABLE user_data_key_metrics_rollup AS
         SELECT 
             user_ptr_id,
@@ -167,6 +170,48 @@ const query_create_key_metrics_rollup = `
                 IFNULL(TIMESTAMPDIFF(DAY, DATE_FORMAT(MAX(CASE WHEN status NOT LIKE '%cancelled%' THEN return_date ELSE NULL END), '%Y-%m-%d'), DATE_FORMAT(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR), '%Y-%m-%d')), '')
                 AS DOUBLE
             ) AS booking_most_recent_return_vs_now,
+
+            -- RESIDENT CATEGORY
+            IFNULL(LEFT(GROUP_CONCAT(resident_category ORDER BY booking_date ASC SEPARATOR ','), 10000), '') AS all_resident_category, -- needed to limit the char due to errors
+            IFNULL(
+                SUBSTRING_INDEX(
+                    GROUP_CONCAT(resident_category ORDER BY booking_date ASC SEPARATOR ','), 
+                    ',', 
+                    -1
+                ), 
+                ''
+            ) AS most_recent_resident_category,
+
+            -- NPS FIELDS
+            IFNULL(GROUP_CONCAT(nps_score ORDER BY booking_date ASC SEPARATOR ','), '') AS all_nps_scores, -- todo: new
+            IFNULL(
+                SUBSTRING_INDEX(
+                    GROUP_CONCAT(nps_score ORDER BY booking_date ASC SEPARATOR ','), 
+                    ',', 
+                    -1
+                ), 
+                ''
+            ) AS most_recent_nps_score,
+            IFNULL(
+                SUBSTRING_INDEX(
+                    GROUP_CONCAT(nps_comment ORDER BY booking_date ASC SEPARATOR ','), 
+                    ',', 
+                    -1
+                ), 
+                ''
+            ) AS most_recent_nps_comment,
+
+            -- BOOKING ID GROUPING
+            IFNULL(GROUP_CONCAT(booking_id ORDER BY booking_date ASC SEPARATOR ','), '') AS all_booking_ids, -- todo: new
+
+            -- EXTENSION SEGMENTS
+            SUM(
+                CASE 
+                    WHEN is_extended = 'YES' THEN 1 
+                    WHEN is_extended = 'NO' THEN 0 
+                    ELSE 0 
+                END
+            ) AS booking_count_extended, -- todo:
 
             -- UTC NOW CONVERTED TO GST
             DATE_ADD(UTC_TIMESTAMP(), INTERVAL 4 HOUR) AS date_now_gst
