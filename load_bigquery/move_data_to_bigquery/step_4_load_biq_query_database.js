@@ -19,6 +19,7 @@ const datasetId = "ezhire_metrics";
 //TODO:
 const tableIds = ["booking_data", "key_metrics_data", "pacing_data", "profile_data", "cohort_data", "rfm_data", "rfm_tracking_data", "rfm_tracking_most_recent_data", "rfm_tracking_offers_data", "rfm_tracking_offers_v2_data", "rfm_tracking_offers_v3_data"];
 
+
 // Import a GCS file into a table with manually defined schema.
 async function execute_load_big_query_database() {
     const startTime = performance.now();
