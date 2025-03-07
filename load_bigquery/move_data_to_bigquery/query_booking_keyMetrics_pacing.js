@@ -296,13 +296,15 @@ const profileQuery = `
         user_is_verified, 
 
         -- all_nps_scores,
-        CONCAT('"', all_nps_scores, '"') AS all_nps_scores,
+        -- CONCAT('"', all_nps_scores, '"') AS all_nps_scores,
+        CONCAT('"', REPLACE(all_nps_scores, ',', '|'), '"') AS all_nps_scores
 
         most_recent_nps_score,
 		most_recent_nps_comment,
 
         -- all_booking_ids,
-        CONCAT('"', all_booking_ids, '"') AS all_booking_ids,
+        -- CONCAT('"', all_booking_ids, '"') AS all_booking_ids,
+        CONCAT('"', REPLACE(all_nps_scores, ',', '|'), '"') AS all_nps_scores
 
         booking_count_extended,
         
