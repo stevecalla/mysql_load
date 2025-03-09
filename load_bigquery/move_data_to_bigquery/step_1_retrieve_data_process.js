@@ -131,61 +131,61 @@ async function execute_retrieve_data() {
         // SET DATA OBJECT
         //TODO:
         const getData = [
-            {
-                poolName: localBookingDbConfig,
-                fileName: 'booking_data',
-                query: bookingQuery,
-            },
-            {
-                poolName: localKeyMetricsDbConfig,
-                fileName: 'key_metrics_data',
-                query: keyMetricsQuery,
-            },
-            {
-                poolName: localPacingDbConfig,
-                fileName: 'pacing_data',
-                query: pacingQuery,
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'profile_data',
-                query: profileQuery,
-            },
+            // {
+            //     poolName: localBookingDbConfig,
+            //     fileName: 'booking_data',
+            //     query: bookingQuery,
+            // },
+            // {
+            //     poolName: localKeyMetricsDbConfig,
+            //     fileName: 'key_metrics_data',
+            //     query: keyMetricsQuery,
+            // },
+            // {
+            //     poolName: localPacingDbConfig,
+            //     fileName: 'pacing_data',
+            //     query: pacingQuery,
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'profile_data',
+            //     query: profileQuery,
+            // },
             {
                 poolName: localUserDbConfig,
                 fileName: 'cohort_data',
                 query: cohortQuery,
             },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_data', // rfm_score_summary_data 
-                query: rfmQuery, 
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_tracking_data',
-                query: rfmTrackingQuery, // rfm_score_summary_history_data_tracking
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_tracking_most_recent_data',
-                query: rfmTrackingMostRecentQuery, // rfm_score_summary_history_data_tracking_most_recent
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_tracking_offers_data',
-                query: rfmTrackingOffersQuery, // rfm_score_summary_history_data_tracking_offer
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_tracking_offers_v2_data',
-                query: rfmTrackingOffersV2Query, // rfm_score_summary_history_data_tracking_offer_v2
-            },
-            {
-                poolName: localUserDbConfig,
-                fileName: 'rfm_tracking_offers_v3_data',
-                query: rfmTrackingOffersV3Query, // rfm_score_summary_history_data_tracking_offer_v3
-            },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_data', // rfm_score_summary_data 
+            //     query: rfmQuery, 
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_tracking_data',
+            //     query: rfmTrackingQuery, // rfm_score_summary_history_data_tracking
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_tracking_most_recent_data',
+            //     query: rfmTrackingMostRecentQuery, // rfm_score_summary_history_data_tracking_most_recent
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_tracking_offers_data',
+            //     query: rfmTrackingOffersQuery, // rfm_score_summary_history_data_tracking_offer
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_tracking_offers_v2_data',
+            //     query: rfmTrackingOffersV2Query, // rfm_score_summary_history_data_tracking_offer_v2
+            // },
+            // {
+            //     poolName: localUserDbConfig,
+            //     fileName: 'rfm_tracking_offers_v3_data',
+            //     query: rfmTrackingOffersV3Query, // rfm_score_summary_history_data_tracking_offer_v3
+            // },
         ];
 
         // STEP 1.0 ARCHIVE FILES
