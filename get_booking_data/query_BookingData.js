@@ -280,8 +280,15 @@ SELECT
         ELSE DATE_FORMAT(promocode_created_date, '%Y-%m-%d %H:%i:%s')
     END AS promocode_created_date,
     REPLACE(promo_code_description, ',', '') AS promo_code_description,
-    department AS promo_code_department,        
-    Expiray_date AS promo_code_expiration_date, 
+    department AS promo_code_department,    
+
+    -- Expiray_date AS promo_code_expiration_date, 
+    CASE
+        WHEN STR_TO_DATE(Expiray_date, '%m/%d/%Y') IS NOT NULL THEN Expiray_date
+        WHEN Expiray_date = '31/12/2025' THEN '12/31/2025'
+        WHEN STR_TO_DATE(Expiray_date, '%d/%m/%Y') IS NOT NULL THEN STR_TO_DATE(Expiray_date, '%d/%m/%Y')
+        ELSE NULL -- or a default date value
+    END AS promo_code_expiration_date,
     
     car_avail_id,
     car_cat_id,
