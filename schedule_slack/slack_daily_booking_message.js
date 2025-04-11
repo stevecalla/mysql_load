@@ -34,7 +34,7 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
 
   console.log('booking_current_hour_actual_today', booking_current_hour_actual_today);
 
-  const { country_data, summary_data } = await get_country_data(booking_data);
+  const { country_data, summary_data, uae_by_type_not_cxld } = await get_country_data(booking_data);
   const { 
       yesterday_cancelled, 
       yesterday_not_cancelled, 
@@ -43,6 +43,16 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       today_not_cancelled, 
       today_total,  
   } = summary_data;
+  const {
+    daily_not_cancelled_yesterday: dy,
+    weekly_not_cancelled_yesterday: wy,
+    monthly_not_cancelled_yesterday: my,
+    sub_not_cancelled_yesterday: sy,
+    daily_not_cancelled_today: dt,
+    weekly_not_cancelled_today: wt,
+    monthly_not_cancelled_today: mt,
+    sub_not_cancelled_today: st,
+  } = uae_by_type_not_cxld['United Arab Emirates'];
 
     // Use find to get the booking for the United Arab Emirates
     const uaeBookings = country_data.find(booking => booking.delivery_country === 'United Arab Emirates');
@@ -74,14 +84,17 @@ async function create_daily_booking_slack_message(booking_data, car_data, foreca
       `🚗 Avail: ${count_total_available}, On-Rent: ${count_total_on_rent}, Total: ${count_total_cars}, Util: ${utilization_total}\n` +
       `--------------\n`+
       `UAE BOOKINGS\n` +
+      `${goal_message}; ` + ` ${today_above_below_goal_message}\n` +
       `${booking_count_message}\n` +
+      `     📋 Type:     D = ${dt}, W = ${wt}, M = ${mt}, S = ${st}\n` +
+      `     🎯 vs Goal: D = ${dt - 300}, W = ${wt - 50}, M = ${mt - 40}, S = ${st - 10}\n` +
       `${pacing_message}\n` +
       `${pacing_status_message}\n` +
-      `${goal_message}\n` +
-      `${today_above_below_goal_message}\n` +
       `${status_today}\n` +
       `--------------\n`+
       `${status_yesterday}\n` +
+      `  📋 Type:     D = ${dy}, W = ${wy}, M = ${my}, S = ${sy}\n` +
+      `  🎯 vs Goal: D = ${dy - 300}, W = ${wy - 50}, M = ${my - 40}, S = ${sy - 10}\n` +
       `--------------\n` +
       `${pacing_threshold}\n` +
       `**************\n` +
@@ -220,12 +233,10 @@ async function find_target_for_current_hour(currentHourFormatted) {
 //   const { execute_get_daily_booking_data} = require('../daily_booking_data/step_1_sql_get_daily_booking_data');
 //   const { execute_get_car_availability } = require('../daily_car_availability_data/step_1_sql_get_car_availability');
 //   const { execute_get_slack_forecast_data } = require('../daily_booking_forecast/step_3_get_slack_forecast_data');
-
+  
 //   const booking_data = await execute_get_daily_booking_data();
 //   const car_data = await execute_get_car_availability();
 //   const forecast_data = await execute_get_slack_forecast_data();
-
-//   console.log('slack daily booking message', forecast_data);
 
 //   create_daily_booking_slack_message(booking_data, car_data, forecast_data);
 // }

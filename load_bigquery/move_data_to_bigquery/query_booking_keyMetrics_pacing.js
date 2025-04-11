@@ -1,6 +1,7 @@
 const bookingQuery = `
     SELECT
-        booking_id,agreement_number,
+        booking_id,
+        agreement_number,
 
         -- DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date,
         CASE
@@ -186,9 +187,10 @@ const bookingQuery = `
         nps_score,nps_comment,
 
         DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s UTC') as created_at
-
+        
     FROM ezhire_booking_data.booking_data 
-    WHERE booking_year IN (2023, 2024, 2025)
+    WHERE 1 = 1
+        AND booking_year >= 2023
 
     -- WHERE pickup_year IN (2023, 2024, 2025)
     -- WHERE pickup_year IN ('2024')
@@ -296,7 +298,8 @@ const profileQuery = `
         user_is_verified, 
 
         -- all_nps_scores,
-        CONCAT('"', all_nps_scores, '"') AS all_nps_scores,
+        -- CONCAT('"', all_nps_scores, '"') AS all_nps_scores,
+        CONCAT('"', REPLACE(all_nps_scores, ',', '|'), '"') AS all_nps_scores,
 
         most_recent_nps_score,
 		most_recent_nps_comment,
@@ -479,12 +482,16 @@ const rfmTrackingQuery = `
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
         booking_charge_less_discount_aed_per_completed_started_bookings,
-        
+
         -- SCORE THREE PART COMPARISON
-        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
-        
+        IFNULL(score_three_parts_as_of_initial_date, '') AS score_three_parts_as_of_initial_date,
+        IFNULL(score_three_parts_as_of_most_recent_created_at_date, '') AS score_three_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_three_parts_difference, '') AS score_three_parts_difference,
+
         -- SCORE FIVE PART COMPARISON
-        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        IFNULL(score_five_parts_as_of_initial_date, '') AS score_five_parts_as_of_initial_date,
+        IFNULL(score_five_parts_as_of_most_recent_created_at_date, '') AS score_five_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_five_parts_difference, '') AS score_five_parts_difference,
         
         booking_count,
         
@@ -561,13 +568,17 @@ const rfmTrackingMostRecentQuery = `
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
         booking_charge_less_discount_aed_per_completed_started_bookings,
-        
+
         -- SCORE THREE PART COMPARISON
-        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
-        
+        IFNULL(score_three_parts_as_of_initial_date, '') AS score_three_parts_as_of_initial_date,
+        IFNULL(score_three_parts_as_of_most_recent_created_at_date, '') AS score_three_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_three_parts_difference, '') AS score_three_parts_difference,
+
         -- SCORE FIVE PART COMPARISON
-        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
-        
+        IFNULL(score_five_parts_as_of_initial_date, '') AS score_five_parts_as_of_initial_date,
+        IFNULL(score_five_parts_as_of_most_recent_created_at_date, '') AS score_five_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_five_parts_difference, '') AS score_five_parts_difference,
+
         booking_count,
     
         CASE
@@ -643,12 +654,16 @@ const rfmTrackingOffersQuery = `
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
         booking_charge_less_discount_aed_per_completed_started_bookings,
-        
+
         -- SCORE THREE PART COMPARISON
-        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
-        
+        IFNULL(score_three_parts_as_of_initial_date, '') AS score_three_parts_as_of_initial_date,
+        IFNULL(score_three_parts_as_of_most_recent_created_at_date, '') AS score_three_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_three_parts_difference, '') AS score_three_parts_difference,
+
         -- SCORE FIVE PART COMPARISON
-        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        IFNULL(score_five_parts_as_of_initial_date, '') AS score_five_parts_as_of_initial_date,
+        IFNULL(score_five_parts_as_of_most_recent_created_at_date, '') AS score_five_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_five_parts_difference, '') AS score_five_parts_difference,
         
         booking_count,
         
@@ -725,12 +740,16 @@ const rfmTrackingOffersV2Query = `
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
         booking_charge_less_discount_aed_per_completed_started_bookings,
-        
+
         -- SCORE THREE PART COMPARISON
-        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
-        
+        IFNULL(score_three_parts_as_of_initial_date, '') AS score_three_parts_as_of_initial_date,
+        IFNULL(score_three_parts_as_of_most_recent_created_at_date, '') AS score_three_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_three_parts_difference, '') AS score_three_parts_difference,
+
         -- SCORE FIVE PART COMPARISON
-        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        IFNULL(score_five_parts_as_of_initial_date, '') AS score_five_parts_as_of_initial_date,
+        IFNULL(score_five_parts_as_of_most_recent_created_at_date, '') AS score_five_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_five_parts_difference, '') AS score_five_parts_difference,
         
         booking_count,
         
@@ -807,12 +826,16 @@ const rfmTrackingOffersV3Query = `
         booking_most_recent_return_vs_now,
         total_days_per_completed_and_started_bookings,
         booking_charge_less_discount_aed_per_completed_started_bookings,
-        
+
         -- SCORE THREE PART COMPARISON
-        score_three_parts_as_of_initial_date,score_three_parts_as_of_most_recent_created_at_date,score_three_parts_difference,
-        
+        IFNULL(score_three_parts_as_of_initial_date, '') AS score_three_parts_as_of_initial_date,
+        IFNULL(score_three_parts_as_of_most_recent_created_at_date, '') AS score_three_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_three_parts_difference, '') AS score_three_parts_difference,
+
         -- SCORE FIVE PART COMPARISON
-        score_five_parts_as_of_initial_date,score_five_parts_as_of_most_recent_created_at_date,score_five_parts_difference,
+        IFNULL(score_five_parts_as_of_initial_date, '') AS score_five_parts_as_of_initial_date,
+        IFNULL(score_five_parts_as_of_most_recent_created_at_date, '') AS score_five_parts_as_of_most_recent_created_at_date,
+        IFNULL(score_five_parts_difference, '') AS score_five_parts_difference,
         
         booking_count,
         

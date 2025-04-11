@@ -25,11 +25,9 @@ async function executeQuery(pool, field, distinctList) {
 
             } else {
 
-                // results.forEach(result => console.log(result));
-                results.forEach(result => distinctList.push(result));
-                // console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
-                resolve();
-                return distinctList;
+                results[0].forEach(result => distinctList.push(result));
+                resolve(distinctList);
+                // return distinctList;
             }
         });
     });

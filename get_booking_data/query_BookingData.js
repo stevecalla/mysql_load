@@ -280,8 +280,15 @@ SELECT
         ELSE DATE_FORMAT(promocode_created_date, '%Y-%m-%d %H:%i:%s')
     END AS promocode_created_date,
     REPLACE(promo_code_description, ',', '') AS promo_code_description,
-    department AS promo_code_department,        
-    Expiray_date AS promo_code_expiration_date, 
+    department AS promo_code_department,    
+
+    -- Expiray_date AS promo_code_expiration_date, 
+    CASE
+        WHEN STR_TO_DATE(Expiray_date, '%m/%d/%Y') IS NOT NULL THEN Expiray_date
+        WHEN Expiray_date = '31/12/2025' THEN '12/31/2025'
+        WHEN STR_TO_DATE(Expiray_date, '%d/%m/%Y') IS NOT NULL THEN STR_TO_DATE(Expiray_date, '%d/%m/%Y')
+        ELSE NULL -- or a default date value
+    END AS promo_code_expiration_date,
     
     car_avail_id,
     car_cat_id,
@@ -1622,8 +1629,9 @@ FROM
             -- RETURNS MOST RECENT DATE RECORDS FOR EACH booking_id USING is_active flag 1
 
 	-- FOR USE IN MYSQL WITH VARIABLES IN LINE 1
-	-- WHERE 
-        -- DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
+	-- WHERE 1 = 1
+        -- AND b.id NOT IN (390491) -- has bad characters; removed 3/29/25
+        -- AND DATE(DATE_ADD(b.created_on, INTERVAL 4 HOUR)) BETWEEN @str_date AND @end_date
         -- LOGIC TO EXCLUDE TEST BOOKINGS
         -- AND COALESCE(b.vendor_id,'') NOT IN (5, 33, 218, 23086) 
         -- AND (LOWER(au.first_name) NOT LIKE '%test%' 
@@ -1694,8 +1702,9 @@ FROM
 	-- FOR TESTING / AUDITING ******* END *********
 	
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL SET VARIABLES DON'T WORK ******* START *********
-	WHERE 
-        date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
+	WHERE 1 = 1
+        AND b.id NOT IN (390491) -- has bad characters; removed 3/29/25
+        AND date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
 
         -- LOGIC TO EXCLUDE TEST BOOKINGS
         -- AND COALESCE(b.vendor_id,'') NOT IN (33, 5 , 218, 23086) 

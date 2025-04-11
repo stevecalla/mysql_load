@@ -149,22 +149,23 @@ async function execute_create_cohort_stats() {
 
         // STEP 4.0: CREATE CALENDAR TABLE - ONLY NECESSARY IF CALENDAR NEEDS REVISION
 
-        // STEP 4.1: CREATE COHORT BASE DATA TABLE
-        console.log(`\nSTEP 4.1: CREATE COHORT BASE DATA TABLE`);
-        console.log(getCurrentDateTime());
-        await execute_drop_table_query(pool, 'user_data_cohort_base');
-        await execute_create_base_data_query(pool);
+        // // STEP 4.1: CREATE COHORT BASE DATA TABLE
+        // console.log(`\nSTEP 4.1: CREATE COHORT BASE DATA TABLE`);
+        // console.log(getCurrentDateTime());
+        // await execute_drop_table_query(pool, 'user_data_cohort_base');
+        // await execute_create_base_data_query(pool);
         
-        // STEP 4.2: INSERT COHORT BASE DATA
-        console.log(`\nSTEP 4.2: INSERT COHORT BASE DATA`);
-        console.log(getCurrentDateTime());
-        await execute_insert_base_data_query(pool);
-        await execute_insert_createdAt_query(pool, 'user_data_cohort_base'); 
+        // // STEP 4.2: INSERT COHORT BASE DATA
+        // console.log(`\nSTEP 4.2: INSERT COHORT BASE DATA`);
+        // console.log(getCurrentDateTime());
+        // await execute_insert_base_data_query(pool);
+        // await execute_insert_createdAt_query(pool, 'user_data_cohort_base'); 
 
         // STEP 4.3: GET DISTINCT LIST FOR VENDOR, REPEAT, COUNTRY, BOOKING TYPE
         console.log(`\nSTEP 4.3: GET DISTINCT LIST FOR VENDOR, REPEAT, COUNTRY, BOOKING TYPE`);
         console.log(getCurrentDateTime());
         const distinctList = await get_distinct();
+        // console.log('distinct list =', distinctList);
 
         // STEP 4.4: CREATE USER COHORT DATA
         console.log(`\nSTEP 4.4: CREATE USER COHORT DATA`);
@@ -172,7 +173,7 @@ async function execute_create_cohort_stats() {
         await execute_drop_table_query(pool, 'user_data_cohort_stats');
         await execute_create_user_data_cohort_stats(pool, distinctList);
 
-        generateLogFile('loading_user_data', `Query for CREATE USER COHORT DATA executed successfully.`, csvExportPath);
+        // generateLogFile('loading_user_data', `Query for CREATE USER COHORT DATA executed successfully.`, csvExportPath);
         
         console.log('All queries executed successfully.');
         
