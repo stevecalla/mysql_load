@@ -271,7 +271,51 @@ def create_visualizations(pdf_file, df_clean_return, breakdown_return, df_clean_
         fig6.tight_layout()
         pdf.savefig(fig6)
         figures.append(fig6)
-        
+
+        # Additional Analysis: Correlation and Scatter Plot between Number of Rentals and Average NPS per Customer
+        user_data = df.groupby('user_ptr_id').agg(
+            rental_count=('nps_score', 'count'),
+            avg_nps=('nps_score', 'mean')
+        ).reset_index()
+
+        corr_coef = np.corrcoef(user_data['rental_count'], user_data['avg_nps'])[0, 1]
+
+        fig6, ax6 = plt.subplots(figsize=(12, 6))
+        ax6.scatter(user_data['rental_count'], user_data['avg_nps'], alpha=0.6)
+
+        if len(user_data) > 1:
+            slope, intercept = np.polyfit(user_data['rental_count'], user_data['avg_nps'], 1)
+            x_vals = np.array([user_data['rental_count'].min(), user_data['rental_count'].max()])
+            y_vals = intercept + slope * x_vals
+            ax6.plot(x_vals, y_vals, color='red', linestyle='--', label=f"Trend Line (r={corr_coef:.2f})")
+
+        # Labels and title
+        ax6.set_xlabel("Number of Rentals (per user)")
+        ax6.set_ylabel("Average NPS Score (per user)")
+        ax6.set_title("Correlation between Number of Rentals and Average NPS Score")
+        ax6.legend()
+
+        # Annotation
+        annotation_text = (
+            f"Correlation Coefficient (r): {corr_coef:.2f}\n"
+            + ("Positive correlation" if corr_coef > 0.1 else
+            "Negative correlation" if corr_coef < -0.1 else
+            "No significant correlation")
+        )
+        ax6.annotate(
+            annotation_text,
+            xy=(0.05, 0.95),
+            xycoords='axes fraction',
+            fontsize=10,
+            backgroundcolor='white',
+            verticalalignment='top',
+            bbox=dict(boxstyle="round,pad=0.4", edgecolor='gray', facecolor='white')
+        )
+
+        fig6.tight_layout()
+        pdf.savefig(fig6)
+        figures.append(fig6)
+   
         # Additional Analysis: Segmentation Analysis by NPS Category at the Customer Level
         user_seg = df.groupby('user_ptr_id').agg(
             nps_category=('nps_category', 'first'),
