@@ -137,6 +137,79 @@ async function create_summary(countryData, data = 'yesterday_cancelled') {
     return summary
 }
 
+async function group_by_country_by_cancel_by_type(bookings) {
+    const today = getFormattedDate(bookings[0].created_at_gst); // '2024-11-14'
+    const yesterday = dayjs(today).subtract(1, 'day').format('YYYY-MM-DD'); // '2024-11-13'
+
+    // console.log('today =', today, 'yesterday =', yesterday);
+
+    // GET BOOKING TYPE, UAE ONLY, NOT CANCELLED
+    const filtered_type_uae_not_cancelled_bookings = bookings.filter(
+        booking => 
+            booking.delivery_country === 'United Arab Emirates' &&
+            booking.booking_status_category === 'not_cancelled'
+    );
+
+    // Group by country and booking status (Cancelled, Not Cancelled)
+    const grouped_bookings = filtered_type_uae_not_cancelled_bookings.reduce((acc, booking) => {
+        const country = booking.delivery_country || 'Unknown'; // Use 'Unknown' for null delivery_country
+        const date = booking.booking_date_gst;
+        const status = booking.booking_status_category;
+        const type = booking.booking_type;
+
+        // Initialize country object if it doesn't exist
+        if (!acc[country]) {
+            acc[country] = {
+                daily_not_cancelled_yesterday: 0,
+                weekly_not_cancelled_yesterday: 0,
+                monthly_not_cancelled_yesterday: 0,
+                sub_not_cancelled_yesterday: 0,
+
+                daily_not_cancelled_today: 0,
+                weekly_not_cancelled_today: 0,
+                monthly_not_cancelled_today: 0,
+                sub_not_cancelled_today: 0,
+
+                delivery_country: country
+            };
+        }
+
+        // Increment counts based on the status of the booking
+        if (type === 'daily') {
+            if (date === today) {
+                acc[country].daily_not_cancelled_today += booking.current_bookings || 0;
+            }
+            if (date === yesterday) {
+                acc[country].daily_not_cancelled_yesterday += booking.current_bookings || 0;
+            }
+        } else if (type === 'weekly') {
+            if (date === today) {
+                acc[country].weekly_not_cancelled_today += booking.current_bookings || 0;
+            }
+            if (date === yesterday) {
+                acc[country].weekly_not_cancelled_yesterday += booking.current_bookings || 0;
+                }
+        } else if (type === 'monthly') {
+            if (date === today) {
+                acc[country].monthly_not_cancelled_today += booking.current_bookings || 0;
+            }
+            if (date === yesterday) {
+                acc[country].monthly_not_cancelled_yesterday += booking.current_bookings || 0;
+            }
+        } else {
+            if (date === today) {
+                acc[country].sub_not_cancelled_today += booking.current_bookings || 0;
+            }
+            if (date === yesterday) {
+                acc[country].sub_not_cancelled_yesterday += booking.current_bookings || 0;
+            }
+        }  
+        return acc;
+    }, {});
+
+    return grouped_bookings;
+}
+
 async function group_by_country_by_cancel(bookings) {
     const today = getFormattedDate(bookings[0].created_at_gst); // '2024-11-14'
     const yesterday = dayjs(today).subtract(1, 'day').format('YYYY-MM-DD'); // '2024-11-13'
@@ -237,7 +310,9 @@ async function group_by_country_by_cancel(bookings) {
 
 async function get_country_data(bookings) {
     const country_data = await group_by_country_by_cancel(bookings);
+    // console.log(country_data);
 
+    // GET DATA BY CANCEL / NOT CANCELLED
     const data = [
         'yesterday_cancelled',
         'yesterday_not_cancelled',
@@ -252,10 +327,12 @@ async function get_country_data(bookings) {
         const formatted_output = await create_summary(country_data, data[i]);
         summary_data[data[i]] = formatted_output;
     }
-
     // console.log(summary_data);
 
-    return { country_data, summary_data };
+    // GET BOOKING TYPE, UAE ONLY, NOT CANCELLED
+    let uae_by_type_not_cxld = await group_by_country_by_cancel_by_type(bookings);
+
+    return { country_data, summary_data, uae_by_type_not_cxld };
 }
 
 // get_country_data(bookings);

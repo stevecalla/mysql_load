@@ -75,7 +75,7 @@ async function execute_query_get_daily_booking_data(pool) {
 
                 console.log(`Query results length: ${results.length}, Elapsed Time: ${elapsedTime} sec`);
 
-                console.table(results);
+                // console.table(results);
                 // console.log(results);
 
                 resolve(results);
