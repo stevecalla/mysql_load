@@ -185,7 +185,7 @@ async function check_last_leads_db_update() {
     const now = new Date().toLocaleString(); // Get the current local date and time as a string
     const currentTimestamp = new Date(); // Current timestamp as a Date object
 
-    // Check if the route was updated in the last 3 minutes
+    // Check if the route was updated in the last 10 minutes
     if (lastUpdateTimestamp) {
         const lastExecutionDate = new Date(lastUpdateTimestamp); // Convert the stored timestamp back to a Date object
         const timeDifference = (currentTimestamp - lastExecutionDate) / (1000 * 60); // Time difference in minutes
@@ -316,7 +316,7 @@ app.get('/scheduled-leads/:country?/:date?', async (req, res) => {
     }
 
     try {
-        // Await update to leads db if not within last 3 minutes
+        // Await update to leads db if not within last 10 minutes
         const is_within_last_ten_minutes = await check_last_leads_db_update();
         !is_within_last_ten_minutes && await update_leads();
 
@@ -433,7 +433,7 @@ app.post('/get-leads/:country?/:date?', async (req, res) => {
             // 1st parameter is count by first 3 characters or uae, 2nd parameter is date ie 2024-12-05
             console.log(`server js 306; Country: ${countryFilter}, Date: ${dateFilter}`);
 
-            // Await update to leads db if not within last 3 minutes
+            // Await update to leads db if not within last 10 minutes
             const is_within_last_ten_minutes = await check_last_leads_db_update();
             !is_within_last_ten_minutes && await update_leads();
 

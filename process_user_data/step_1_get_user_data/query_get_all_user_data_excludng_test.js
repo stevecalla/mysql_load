@@ -3,21 +3,25 @@ const queryUserData = `
     SELECT
         -- USER FIELDS FROM auth_user
         auth_user.id AS auth_user_id,
-        -- REPLACE(auth_user.first_name, ',', '') AS first_name,
-        CASE
-            WHEN auth_user.first_name LIKE '%בסד הנדסה%' THEN 'Contains specific Arabic characters'
-            WHEN auth_user.first_name LIKE "%Fx %" THEN ''
-            WHEN auth_user.first_name LIKE "%,%" THEN REPLACE(auth_user.first_name, ',', '')
-            ELSE auth_user.first_name
-        END AS first_name,
+        TRIM(
+            CASE
+                WHEN auth_user.first_name LIKE '%בסד הנדסה%' THEN 'Contains specific Arabic characters'
+                WHEN auth_user.first_name LIKE "%Fx %" THEN ''
+                WHEN auth_user.first_name LIKE "%,%" THEN REPLACE(auth_user.first_name, ',', '')
+                WHEN LOCATE('\\n', auth_user.first_name) > 0 THEN REPLACE(auth_user.first_name, '\\n', '') -- locate & remove \n
+                ELSE auth_user.first_name
+            END 
+        ) AS first_name,
     
-        -- REPLACE(auth_user.last_name, ',', '') AS last_name,
-        CASE
-            WHEN auth_user.last_name LIKE '%اف اكس .%' THEN REPLACE(auth_user.last_name, '.', '')
-            WHEN auth_user.last_name LIKE "%Fx %" THEN ''
-            WHEN auth_user.last_name LIKE "%,%" THEN REPLACE(auth_user.last_name, ',', '')
-            ELSE auth_user.last_name
-        END AS last_name,
+        TRIM(
+            CASE
+                WHEN auth_user.last_name LIKE '%اف اكس .%' THEN REPLACE(auth_user.last_name, '.', '')
+                WHEN auth_user.last_name LIKE "%Fx %" THEN ''
+                WHEN auth_user.last_name LIKE "%,%" THEN REPLACE(auth_user.last_name, ',', '')
+                WHEN LOCATE('\\n', auth_user.last_name) > 0 THEN REPLACE(auth_user.last_name, '\\n', '') -- locate & remove \n
+                ELSE auth_user.last_name
+            END
+        ) AS last_name,
     
         -- auth_user.email,
         CASE 

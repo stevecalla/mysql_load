@@ -1704,6 +1704,7 @@ FROM
 	-- FOR USE IN NODE / JAVASCRIPT AS SQL SET VARIABLES DON'T WORK ******* START *********
 	WHERE 1 = 1
         AND b.id NOT IN (390491) -- has bad characters; removed 3/29/25
+        AND b.id NOT IN (390491, 417668) -- had bad char; removed 6/1/25
         AND date(date_add(b.created_on,interval 4 hour)) between 'startDateVariable' and 'endDateVariable'
 
         -- LOGIC TO EXCLUDE TEST BOOKINGS
