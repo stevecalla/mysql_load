@@ -226,13 +226,13 @@ const keyMetricsQuery = `
         is_repeat_on_rent_no,
         is_repeat_on_rent_yes,
         country_on_rent_bahrain,
-        country_on_rent_georgia,
-        country_on_rent_kuwait,
-        country_on_rent_oman,
-        country_on_rent_pakistan,
+        -- country_on_rent_georgia,
+        -- country_on_rent_kuwait,
+        -- country_on_rent_oman,
+        -- country_on_rent_pakistan,
         country_on_rent_qatar,
         country_on_rent_saudia_arabia,
-        country_on_rent_serbia,
+        -- country_on_rent_serbia,
         country_on_rent_united_arab_emirates
         
     FROM ezhire_key_metrics.key_metrics_data
@@ -329,8 +329,23 @@ const profileQuery = `
         CONCAT('"', booking_type_all_distinct, '"') AS booking_type_all_distinct,
         CONCAT('"', booking_type_most_recent, '"') AS booking_type_most_recent,
 
-        booking_charge_total_less_discount_aed, booking_charge_total_less_discount_extension_aed,
-        booking_charge_extension_only_aed, booking_days_total, booking_days_initial_only, booking_days_extension_only, 
+        -- booking_charge_total_less_discount_aed, 
+        CAST(ROUND(booking_charge_total_less_discount_aed, 2) AS DECIMAL(10,2)) AS booking_charge_total_less_discount_aed,
+
+        -- booking_charge_total_less_discount_extension_aed,
+        CAST(ROUND(booking_charge_total_less_discount_extension_aed, 2) AS DECIMAL(10,2)) AS booking_charge_total_less_discount_extension_aed,
+
+        -- booking_charge_extension_only_aed, 
+        CAST(ROUND(booking_charge_extension_only_aed, 2) AS DECIMAL(10,2)) AS booking_charge_extension_only_aed,
+        
+        -- booking_days_total, 
+        CAST(ROUND(booking_days_total, 2) AS DECIMAL(10,2)) AS booking_days_total,
+
+        -- booking_days_initial_only, 
+        CAST(ROUND(booking_days_initial_only, 2) AS DECIMAL(10,2)) AS booking_days_initial_only,
+
+        -- booking_days_extension_only, 
+        CAST(ROUND(booking_days_extension_only, 2) AS DECIMAL(10,2)) AS booking_days_extension_only,
         
         DATE_FORMAT(booking_first_created_date, '%Y-%m-%d') AS booking_first_created_date,
         DATE_FORMAT(booking_most_recent_created_date, '%Y-%m-%d') AS booking_most_recent_created_date,
