@@ -14,7 +14,7 @@ const { execute_process_user_data } = require('../process_user_data/step_0_proce
 
 const { execute_load_data_to_bigquery } = require('../load_bigquery/move_data_to_bigquery/step_0_load_main_job_040424'); //step 6
 
-let run_step_0 = true     // get most recent created on / updated on datetime
+let run_step_0 = true;     // get most recent created on / updated on datetime
 let run_step_1 = true;     // get booking data
 let run_step_2 = false;     // load booking data
 let run_step_3 = false;     // create key metrics
